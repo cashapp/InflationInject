@@ -1,0 +1,6 @@
+rootProject.name = 'assisted-inject'
+
+include ':assisted-inject-annotations'
+include ':assisted-inject-annotations-dagger2'
+include ':assisted-inject-processor'
+include ':assisted-inject-processor-dagger2'

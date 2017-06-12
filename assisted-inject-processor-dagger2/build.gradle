@@ -1,0 +1,24 @@
+import org.gradle.internal.jvm.Jvm
+
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'org.jetbrains.kotlin.kapt'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+dependencies {
+  compile project(':assisted-inject-annotations')
+  compile project(':assisted-inject-annotations-dagger2')
+  compile project(':assisted-inject-processor')
+  compile deps.kotlin
+  compile deps.javaPoet
+
+  compileOnly deps.autoService
+  kapt deps.autoService
+
+  testCompile deps.junit
+  testCompile deps.truth
+  testCompile deps.compileTesting
+  testCompile deps.dagger
+  testCompile files(Jvm.current().getToolsJar())
+}
