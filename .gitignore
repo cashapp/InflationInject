@@ -2,3 +2,7 @@
 .gradle
 build
 reports
+
+# IntelliJ
+.idea
+*.iml
