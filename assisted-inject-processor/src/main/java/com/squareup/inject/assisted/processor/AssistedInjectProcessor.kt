@@ -165,7 +165,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
         .filter { it.parameters.any { it.hasAnnotation<Assisted>() } }
     if (assistedConstructors.isEmpty()) {
       throw StopProcessingException(
-          "Assisted injection requires at least one non-@Assisted constructor parameter.", type)
+          "Assisted injection requires a constructor with an @Assisted parameter.", type)
     }
     if (assistedConstructors.size > 1) {
       throw StopProcessingException("Multiple constructors define @Assisted parameters.", type)
