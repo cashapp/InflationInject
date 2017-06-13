@@ -587,6 +587,32 @@ class AssistedInjectProcessorTest {
         .`in`(input).onLine(10)
   }
 
+  @Test fun multipleConstructorsWithoutAssistedFails() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+
+      class Test {
+        Test(Long foo, String bar) {}
+        Test(Long foo, Integer bar) {}
+
+        @Assisted.Factory
+        interface Factory {
+          Test create(String bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining(
+            "Assisted injection requires a constructor with an @Assisted parameter.")
+        .`in`(input).onLine(6)
+  }
+
   @Test fun factoryReturnsWrongTypeFails() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
