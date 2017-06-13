@@ -327,8 +327,9 @@ class AssistedInjectProcessorTest {
     assertAbout(javaSource())
         .that(input)
         .processedWith(AssistedInjectProcessor())
-        .failsToCompile()
-        .withErrorContaining("Assisted injection requires at least one @Assisted parameter")
+        .compilesWithoutError()
+        .withWarningContaining("No @Assisted parameters found. "
+            + "Inject Test directly or Provider<Test> for a factory instead.")
         .`in`(input).onLine(7)
   }
 

@@ -52,6 +52,7 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
+import javax.tools.Diagnostic.Kind.WARNING
 
 @AutoService(Processor::class)
 class AssistedInjectProcessor : AbstractProcessor() {
@@ -111,7 +112,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
     val bindingKeys = parseBindingKeys(constructor)
     val providedKeys = providedKeys(constructor, bindingKeys)
-    val assistedKeys = assistedKeys(constructor, bindingKeys)
+    val assistedKeys = assistedKeys(constructor, bindingKeys, type)
 
     val factoryType = findFactoryType(type)
     val factoryMethod = findFactoryMethod(factoryType, type.asType())
@@ -193,11 +194,17 @@ class AssistedInjectProcessor : AbstractProcessor() {
     return providedKeys
   }
 
-  private fun assistedKeys(method: ExecutableElement, keys: List<BindingKey>): List<BindingKey> {
+  private fun assistedKeys(
+      method: ExecutableElement,
+      keys: List<BindingKey>,
+      type: TypeElement
+  ): List<BindingKey> {
     val assistedKeys = keys.filter { it.use == ASSISTED }
     if (assistedKeys.isEmpty()) {
-      throw StopProcessingException(
-          "Assisted injection requires at least one @Assisted parameter.", method)
+      val typeName = type.simpleName
+      messager.printMessage(WARNING, "No @Assisted parameters found. "
+          + "Inject $typeName directly or Provider<$typeName> for a factory instead.",
+          method)
     }
     val duplicateKeys = assistedKeys.duplicates()
     if (duplicateKeys.isNotEmpty()) {
