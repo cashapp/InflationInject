@@ -587,7 +587,7 @@ class AssistedInjectProcessorTest {
         .`in`(input).onLine(10)
   }
 
-  @Test fun factoryReturnsWrongType() {
+  @Test fun factoryReturnsWrongTypeFails() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
 
@@ -607,9 +607,35 @@ class AssistedInjectProcessorTest {
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Factory method returns incorrect type.")
+        .withErrorContaining(
+            "Factory method returns incorrect type. Must be Test or one of its supertypes.")
         .`in`(input).onLine(11)
   }
+
+  @Test fun factoryReturnsAssignableType() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+
+      class Test implements TestBase {
+        Test(Long foo, @Assisted String bar) {}
+
+        @Assisted.Factory
+        interface Factory {
+          TestBase create(String bar);
+        }
+      }
+
+      interface TestBase {}
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+  }
+
 
   @Test fun defaultMethod() {
     val input = JavaFileObjects.forSourceString("test.Test", """

@@ -49,7 +49,6 @@ import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 
@@ -114,7 +113,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val assistedKeys = assistedKeys(constructor, bindingKeys)
 
     val factoryType = findFactoryType(type)
-    val factoryMethod = findFactoryMethod(factoryType, type.asType())
+    val factoryMethod = findFactoryMethod(factoryType, type)
     validateFactoryKeys(factoryMethod, assistedKeys.map(BindingKey::key).toSet())
 
     val typeName = ClassName.get(type)
@@ -226,7 +225,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     return factory
   }
 
-  private fun findFactoryMethod(factory: TypeElement, expectedType: TypeMirror): ExecutableElement {
+  private fun findFactoryMethod(factory: TypeElement, type: TypeElement): ExecutableElement {
     val methods = factory.enclosedElements
         .filterIsInstance<ExecutableElement>() // Ignore non-method elements like constants.
         .filterNot { it.isDefault } // Ignore default methods for convenience overloads.
@@ -239,8 +238,9 @@ class AssistedInjectProcessor : AbstractProcessor() {
       throw StopProcessingException("Factory interface defines multiple factory methods.", factory)
     }
     val method = methods.single()
-    if (!types.isSameType(method.returnType, expectedType)) {
-      throw StopProcessingException("Factory method returns incorrect type.", method)
+    if (!types.isAssignable(type.asType(), method.returnType)) {
+      throw StopProcessingException("Factory method returns incorrect type. "
+          + "Must be ${type.simpleName} or one of its supertypes.", method)
     }
     return method
   }
