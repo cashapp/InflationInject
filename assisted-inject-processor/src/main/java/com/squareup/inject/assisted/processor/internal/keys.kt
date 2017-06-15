@@ -36,24 +36,21 @@ internal data class Key(
     /** A wrapped [AnnotationMirror] which provides correct `equals()` and `hashCode()` behavior. */
     val wrappedQualifier: Equivalence.Wrapper<AnnotationMirror>?
 ) {
+  constructor(type: TypeMirror, qualifier: AnnotationMirror? = null) : this(
+      MoreTypes.equivalence().wrap(type),
+      qualifier?.let { AnnotationMirrors.equivalence().wrap(it) })
+
+  /** Create from `element`'s type and any qualifier annotation. */
+  constructor(element: VariableElement) : this(
+      element.asType(),
+      element.annotationMirrors.find {
+        it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
+      })
+
   val type = wrappedType.get()
   val qualifier = wrappedQualifier?.get()
 
   override fun toString() = qualifier?.let { "$it $type" } ?: type.toString()
-
-  companion object {
-    /** Create a [Key] from `type` and optional `qualifier` annotation. */
-    operator fun invoke(type: TypeMirror, qualifier: AnnotationMirror? = null) = Key(
-        MoreTypes.equivalence().wrap(type),
-        qualifier?.let { AnnotationMirrors.equivalence().wrap(it) })
-
-    /** Create a [Key] from `element`'s type and any qualifier annotation. */
-    operator fun invoke(element: VariableElement) = Key(
-        element.asType(),
-        element.annotationMirrors.find {
-          it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
-        })
-  }
 }
 
 /** Associates a [Key] with its desired use. */
@@ -62,6 +59,9 @@ internal data class BindingKey(
     val use: Use,
     val name: String
 ) {
+  constructor(element: VariableElement, use: Use) :
+      this(Key(element), use, element.simpleName.toString())
+
   enum class Use { PROVIDED, ASSISTED }
 
   fun providerType(): TypeName {
@@ -79,8 +79,5 @@ internal data class BindingKey(
 
   companion object {
     private val PROVIDER = ClassName.get("javax.inject", "Provider")
-
-    operator fun invoke(element: VariableElement, use: Use)
-        = BindingKey(Key(element), use, element.simpleName.toString())
   }
 }
