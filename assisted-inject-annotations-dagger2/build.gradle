@@ -6,3 +6,5 @@ targetCompatibility = JavaVersion.VERSION_1_6
 dependencies {
   compile project(':assisted-inject-annotations')
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
