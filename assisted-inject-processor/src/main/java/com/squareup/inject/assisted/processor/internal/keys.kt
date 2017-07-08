@@ -64,13 +64,16 @@ internal data class BindingKey(
 
   enum class Use { PROVIDED, ASSISTED }
 
-  fun providerType(): TypeName {
-    val type = ParameterizedTypeName.get(PROVIDER, TypeName.get(key.type))
-    key.qualifier?.let {
-      return type.annotated(AnnotationSpec.get(it))
-    }
-    return type
-  }
+  val type: TypeName = TypeName.get(key.type)
+
+  val providerType: TypeName
+      get() {
+        val type = ParameterizedTypeName.get(PROVIDER, type)
+        key.qualifier?.let {
+          return type.annotated(AnnotationSpec.get(it))
+        }
+        return type
+      }
 
   fun bindingResolveCode(): CodeBlock = when (use) {
     PROVIDED -> CodeBlock.of("\$N.get()", name)

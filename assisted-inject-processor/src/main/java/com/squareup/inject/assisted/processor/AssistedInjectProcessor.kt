@@ -125,17 +125,23 @@ class AssistedInjectProcessor : AbstractProcessor() {
         .addOriginatingElement(type)
         .addOriginatingElement(factoryType)
         .applyEach(providedKeys) {
-          addField(it.providerType().withoutAnnotations(), it.name, PRIVATE, FINAL)
+          addField(it.providerType.withoutAnnotations(), it.name, PRIVATE, FINAL)
         }
         .addMethod(MethodSpec.constructorBuilder()
             .addModifiers(PUBLIC)
             .addAnnotation(INJECT)
             .applyEach(providedKeys) {
-              addParameter(it.providerType(), it.name)
+              addParameter(it.providerType, it.name)
               addStatement("this.$1N = $1N", it.name)
             }
             .build())
-        .addMethod(MethodSpec.overriding(factoryMethod)
+        .addMethod(MethodSpec.methodBuilder(factoryMethod.simpleName.toString())
+            .addAnnotation(Override::class.java)
+            .addModifiers(PUBLIC)
+            .returns(typeName)
+            .applyEach(assistedKeys) { key ->
+              addParameter(key.type, key.name)
+            }
             .addCode("$[return new \$T(\n", typeName)
             .applyEachIndexed(bindingKeys) { index, key ->
               if (index > 0) addCode(",\n")
