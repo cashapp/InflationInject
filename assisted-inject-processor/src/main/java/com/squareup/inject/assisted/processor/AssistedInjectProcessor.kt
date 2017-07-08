@@ -245,7 +245,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     return method
   }
 
-  private fun validateFactoryKeys(method: ExecutableElement, expectedKeys: Set<Key>): Set<Key> {
+  private fun validateFactoryKeys(method: ExecutableElement, expectedKeys: Set<Key>) {
     val keys = method.parameters.map(::Key).toSet()
     if (keys != expectedKeys) {
       var message = "Factory method parameters do not match constructor @Assisted parameters."
@@ -262,7 +262,6 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
       throw StopProcessingException(message, method)
     }
-    return keys
   }
 
   companion object {
