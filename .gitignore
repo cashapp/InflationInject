@@ -6,3 +6,4 @@ reports
 # IntelliJ
 .idea
 *.iml
+out
