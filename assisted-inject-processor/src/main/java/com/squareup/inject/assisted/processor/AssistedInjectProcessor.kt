@@ -31,7 +31,10 @@ import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.TypeVariableName
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -116,9 +119,9 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val factoryMethod = findFactoryMethod(factoryType, type)
     validateFactoryKeys(factoryMethod, assistedKeys.map(BindingKey::key).toSet())
 
-    val typeName = ClassName.get(type)
+    val typeName = TypeName.get(type.asType())
     val factoryName = ClassName.get(factoryType)
-    val generatedName = typeName.peerClass(type.simpleName.toString() + SUFFIX)
+    val generatedName = ClassName.get(type).peerClass(type.simpleName.toString() + SUFFIX)
     val generatedSpec = TypeSpec.classBuilder(generatedName)
         .addModifiers(PUBLIC, FINAL)
         .addSuperinterface(factoryName)
@@ -139,6 +142,11 @@ class AssistedInjectProcessor : AbstractProcessor() {
             .addAnnotation(Override::class.java)
             .addModifiers(PUBLIC)
             .returns(typeName)
+            .apply {
+              if (typeName is ParameterizedTypeName) {
+                addTypeVariables(typeName.typeArguments.filterIsInstance<TypeVariableName>())
+              }
+            }
             .applyEach(assistedKeys) { key ->
               addParameter(key.type, key.name)
             }
@@ -244,10 +252,10 @@ class AssistedInjectProcessor : AbstractProcessor() {
       throw StopProcessingException("Factory interface defines multiple factory methods.", factory)
     }
     val method = methods.single()
-    if (!types.isAssignable(type.asType(), method.returnType)) {
-      throw StopProcessingException("Factory method returns incorrect type. "
-          + "Must be ${type.simpleName} or one of its supertypes.", method)
-    }
+    //if (!types.isAssignable(type.asType(), method.returnType)) {
+    //  throw StopProcessingException("Factory method returns incorrect type. "
+    //      + "Must be ${type.simpleName} or one of its supertypes.", method)
+    //}
     return method
   }
 
