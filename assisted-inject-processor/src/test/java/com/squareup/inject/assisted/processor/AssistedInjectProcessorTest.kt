@@ -659,6 +659,9 @@ class AssistedInjectProcessorTest {
         .`in`(input).onLine(6)
   }
 
+  // No known way to correctly check if a method return type is assignable to the injected
+  // constructor type.
+  @Ignore
   @Test fun factoryReturnsWrongTypeFails() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
@@ -852,5 +855,57 @@ class AssistedInjectProcessorTest {
         .failsToCompile()
         .withErrorContaining("@Assisted.Factory must be declared as a nested type.")
         .`in`(factory).onLine(7)
+  }
+
+  @Test fun multipleTypeBounds() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+
+      class Test <T extends Test.A & Test.B> {
+        interface A {}
+        interface B {}
+
+        Test(Long foo, @Assisted T bar) {}
+
+        @Assisted.Factory
+        interface Factory {
+          <T extends Test.A & Test.B> Test<T> create(T bar);
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Long;
+      import java.lang.Override;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<Long> foo;
+
+        @Inject
+        public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override
+        public <T extends Test.A & Test.B> Test<T> create(T bar) {
+          return new Test<T>(
+              foo.get(),
+              bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
   }
 }
