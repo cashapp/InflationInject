@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 0.1.2 *(2017-07-19)*
+----------------------------
+
+ * Fix: Support creating parameterized types.
+
+
 Version 0.1.1 *(2017-07-03)*
 ----------------------------
 
