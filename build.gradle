@@ -8,11 +8,11 @@ buildscript {
       'autoService': 'com.google.auto.service:auto-service:1.0-rc4',
       'autoCommon': 'com.google.auto:auto-common:0.10',
       'junit': 'junit:junit:4.12',
-      'truth': 'com.google.truth:truth:0.33',
+      'truth': 'com.google.truth:truth:0.42',
       'kotlin': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
       'javaPoet': 'com.squareup:javapoet:1.9.0',
       'guava': 'com.google.guava:guava:22.0',
-      'compileTesting': 'com.google.testing.compile:compile-testing:0.11',
+      'compileTesting': 'com.google.testing.compile:compile-testing:0.15',
       'inject': 'javax.inject:javax.inject:1',
   ]
 
