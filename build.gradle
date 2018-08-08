@@ -10,7 +10,7 @@ buildscript {
       'junit': 'junit:junit:4.12',
       'truth': 'com.google.truth:truth:0.42',
       'kotlin': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
-      'javaPoet': 'com.squareup:javapoet:1.9.0',
+      'javaPoet': 'com.squareup:javapoet:1.11.1',
       'guava': 'com.google.guava:guava:22.0',
       'compileTesting': 'com.google.testing.compile:compile-testing:0.15',
       'inject': 'javax.inject:javax.inject:1',
