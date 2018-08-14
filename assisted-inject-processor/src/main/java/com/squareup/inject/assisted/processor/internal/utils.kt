@@ -38,8 +38,7 @@ inline fun <T> Iterable<*>.cast() = map { it as T }
 
 /** Return a list of duplicated items in the [Iterable]. */
 // TODO https://youtrack.jetbrains.com/issue/KT-18405
-fun <T> Iterable<T>.duplicates(): List<T>
-    = mutableSetOf<T>().let { uniques -> filterNotTo(mutableListOf<T>(), uniques::add) }
+fun <T> Iterable<T>.duplicates(): List<T> = filterNotTo(mutableListOf(), mutableSetOf<T>()::add)
 
 inline fun <T : Any, I> T.applyEach(items: Iterable<I>, func: T.(I) -> Unit): T {
   items.forEach { item -> func(item) }
