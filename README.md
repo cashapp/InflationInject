@@ -7,11 +7,12 @@ Usage
 ------------
 ```java
 class MyPresenter {
+  @AssistedInject
   MyPresenter(Long foo, @Assisted String bar) {}
   
-  @Assisted.Factory
+  @AssistedInject.Factory
   interface Factory {
-    MyPresenter create(bar: String);
+    MyPresenter create(String bar);
   }
 }
 ```

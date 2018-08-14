@@ -29,11 +29,13 @@ class AssistedInjectDagger2ProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {}
       }
     """)
@@ -139,7 +141,6 @@ class AssistedInjectDagger2ProcessorTest {
             "@AssistedModule must @Module(include = AssistedInject_OneModule.class).")
         .`in`(moduleOne).onLine(9)
   }
-
 
   @Test fun multipleModulesFails() {
     val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
