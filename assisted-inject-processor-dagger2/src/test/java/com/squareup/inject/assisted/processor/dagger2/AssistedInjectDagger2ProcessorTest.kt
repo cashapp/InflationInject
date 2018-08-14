@@ -167,10 +167,10 @@ class AssistedInjectDagger2ProcessorTest {
         .that(listOf(moduleOne, moduleTwo))
         .processedWith(AssistedInjectDagger2Processor())
         .failsToCompile()
-        .withErrorContaining("Multiple @AssistedModule annotated-modules found.")
+        .withErrorContaining("Multiple @AssistedModule-annotated modules found.")
         .`in`(moduleOne).onLine(9)
         .and()
-        .withErrorContaining("Multiple @AssistedModule annotated-modules found.")
+        .withErrorContaining("Multiple @AssistedModule-annotated modules found.")
         .`in`(moduleTwo).onLine(9)
   }
 }

@@ -60,7 +60,7 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
         .cast<TypeElement>()
     if (assistedModules.size > 1) {
       assistedModules.forEach {
-        messager.printMessage(ERROR, "Multiple @AssistedModule annotated-modules found.", it)
+        messager.printMessage(ERROR, "Multiple @AssistedModule-annotated modules found.", it)
       }
     }
 
