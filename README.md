@@ -1,10 +1,13 @@
-Assisted Injection for JSR 330.
-============
+Assisted Injection for JSR 330
+==============================
 
-Manually injected dependencies for your JSR 330 configuration. More about assisted injections in the [Guice wiki](https://github.com/google/guice/wiki/AssistedInject).
+Manually injected dependencies for your JSR 330 configuration. More about assisted injections in
+the [Guice wiki](https://github.com/google/guice/wiki/AssistedInject).
+
 
 Usage
-------------
+-----
+
 ```java
 class MyPresenter {
   @AssistedInject
@@ -16,43 +19,57 @@ class MyPresenter {
   }
 }
 ```
+
 This will generate the following:
+
 ```java
 public final class MyPresenter_AssistedFactory implements MyPresenter.Factory {
   private final Provider<Long> foo;
+
   @Inject public MyPresenter_AssistedFactory(Provider<Long> foo) {
     this.foo = foo;
   }
+
   @Override public MyPresenter create(String bar) {
     return new MyPresenter(foo.get(), bar);
   }
 }
 ```
 
-Usage with Dagger2
-------------
-In order to allow Dagger to use the generated factory, define an assisted dagger module anywhere in the same gradle module:
+
+Usage with Dagger 2
+-------------------
+
+In order to allow Dagger to use the generated factory, define an assisted dagger module anywhere in
+the same gradle module:
+
 ```java
-  @AssistedModule
-  @Module(includes = AssistedInject_PresenterModule.class)
-  abstract class PresenterModule {}
+@AssistedModule
+@Module(includes = AssistedInject_PresenterModule.class)
+abstract class PresenterModule {}
 ```
+
 The library will generate the `AssistedInject_PresenterModule` for us. 
 
+
 Download
-------------
+--------
+
 ```groovy
 compileOnly 'com.squareup.inject:assisted-inject-annotations:0.1.1'
 annotationProcessor 'com.squareup.inject:assisted-inject-processor:0.1.1'
 ```
-With Dagger2
+
+With Dagger 2:
+
 ```groovy
 compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:0.1.1'
 annotationProcessor 'com.squareup.inject:assisted-inject-processor-dagger2:0.1.1'
 ```
 
+
 License
-------------
+=======
 
     Copyright 2017 Square, Inc.
 
