@@ -28,11 +28,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
         }
@@ -74,11 +76,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String blah);
         }
@@ -120,11 +124,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(String foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
         }
@@ -165,12 +171,14 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
       import javax.inject.Qualifier;
 
       class Test {
+        @AssistedInject
         Test(@Id String foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
         }
@@ -214,12 +222,14 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
       import javax.inject.Qualifier;
 
       class Test {
+        @AssistedInject
         Test(String foo, @Assisted @Id String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(@Id String bar);
         }
@@ -263,12 +273,14 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
       import javax.inject.Named;
 
       class Test {
+        @AssistedInject
         Test(@Named("foo") String foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
         }
@@ -310,12 +322,14 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
       import javax.inject.Qualifier;
 
       class Test {
+        @AssistedInject
         Test(@Id String foo, @Assisted @Id String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(@Id String bar);
         }
@@ -359,11 +373,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(String foo) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create();
         }
@@ -375,7 +391,7 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("Assisted injection requires at least one @Assisted parameter")
-        .`in`(input).onLine(7)
+        .`in`(input).onLine(9)
   }
 
   @Test fun allAssistedParametersFails() {
@@ -383,11 +399,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(@Assisted String foo) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String foo);
         }
@@ -399,21 +417,23 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("Assisted injection requires at least one non-@Assisted parameter.")
-        .`in`(input).onLine(7)
+        .`in`(input).onLine(9)
   }
 
   @Test fun twoAssistedInjectConstructorsFails() {
-    // TODO make this a valid case if the non-assisted parameters match?
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
+        @AssistedInject
         Test(Long foo, @Assisted Integer bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
         }
@@ -424,11 +444,11 @@ class AssistedInjectProcessorTest {
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Multiple constructors define @Assisted parameters.")
-        .`in`(input).onLine(6)
+        .withErrorContaining("Multiple @AssistedInject-annotated constructors found.")
+        .`in`(input).onLine(7)
   }
 
-  @Test fun noAssistedFactoryFails() {
+  @Test fun assistedWithoutInjectOrFactoryIsIgnored() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
 
@@ -442,9 +462,29 @@ class AssistedInjectProcessorTest {
     assertAbout(javaSource())
         .that(input)
         .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        // TODO and generatedNoFiles() https://github.com/google/compile-testing/issues/15
+  }
+
+  @Test fun noAssistedFactoryFails() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(Long foo, @Assisted String bar) {}
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("No nested @Assisted.Factory found.")
-        .`in`(input).onLine(6)
+        .withErrorContaining("No nested @AssistedInject.Factory found.")
+        .`in`(input).onLine(7)
   }
 
   @Test fun twoAssistedFactoriesFails() {
@@ -452,16 +492,18 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface FactoryOne {
           Test create(String bar);
         }
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface FactoryTwo {
           Test create(String bar);
         }
@@ -472,8 +514,8 @@ class AssistedInjectProcessorTest {
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Multiple @Assisted.Factory types found.")
-        .`in`(input).onLine(6)
+        .withErrorContaining("Multiple @AssistedInject.Factory types found.")
+        .`in`(input).onLine(7)
   }
 
   @Test fun factorySignatureMismatchFails() {
@@ -481,11 +523,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(Long bar);
         }
@@ -499,7 +543,7 @@ class AssistedInjectProcessorTest {
         // TODO validate whole message
         .withErrorContaining(
             "Factory method parameters do not match constructor @Assisted parameters.")
-        .`in`(input).onLine(11)
+        .`in`(input).onLine(13)
   }
 
   @Test fun factorySignatureWithQualifierMismatchOnFactoryFails() {
@@ -507,12 +551,14 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
       import javax.inject.Qualifier;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(@Id String bar);
         }
@@ -529,7 +575,7 @@ class AssistedInjectProcessorTest {
         // TODO validate whole message
         .withErrorContaining(
             "Factory method parameters do not match constructor @Assisted parameters.")
-        .`in`(input).onLine(12)
+        .`in`(input).onLine(14)
   }
 
   @Test fun factorySignatureWithQualifierMismatchOnConstructorFails() {
@@ -537,12 +583,14 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
       import javax.inject.Qualifier;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted @Id String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
         }
@@ -559,7 +607,7 @@ class AssistedInjectProcessorTest {
         // TODO validate whole message
         .withErrorContaining(
             "Factory method parameters do not match constructor @Assisted parameters.")
-        .`in`(input).onLine(12)
+        .`in`(input).onLine(14)
   }
 
   @Test fun emptyFactoryFails() {
@@ -567,11 +615,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {}
       }
     """)
@@ -581,7 +631,7 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("Factory interface does not define a factory method.")
-        .`in`(input).onLine(10)
+        .`in`(input).onLine(12)
   }
 
   @Test fun nonInterfaceFactoryFails() {
@@ -589,11 +639,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         abstract class Factory {
           abstract Test create(String bar);
         }
@@ -604,8 +656,8 @@ class AssistedInjectProcessorTest {
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("@Assisted.Factory must be an interface.")
-        .`in`(input).onLine(10)
+        .withErrorContaining("@AssistedInject.Factory must be an interface.")
+        .`in`(input).onLine(12)
   }
 
   @Test fun multipleMethodsInFactoryFails() {
@@ -613,11 +665,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
           Test create(Object bar);
@@ -630,20 +684,20 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("Factory interface defines multiple factory methods.")
-        .`in`(input).onLine(10)
+        .`in`(input).onLine(12)
   }
 
-  @Test fun multipleConstructorsWithoutAssistedFails() {
+  @Test fun multipleConstructorsWithoutAssistedInjectFails() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
 
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
         Test(Long foo, String bar) {}
         Test(Long foo, Integer bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
         }
@@ -655,7 +709,8 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining(
-            "Assisted injection requires a constructor with an @Assisted parameter.")
+            "Assisted injection requires an @AssistedInject-annotated constructor " +
+                "with at least one @Assisted parameter.")
         .`in`(input).onLine(6)
   }
 
@@ -667,11 +722,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Runnable create(String bar);
         }
@@ -684,7 +741,7 @@ class AssistedInjectProcessorTest {
         .failsToCompile()
         .withErrorContaining(
             "Factory method returns incorrect type. Must be Test or one of its supertypes.")
-        .`in`(input).onLine(11)
+        .`in`(input).onLine(13)
   }
 
   @Test fun factoryReturnsAssignableType() {
@@ -692,11 +749,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test implements TestBase {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           TestBase create(String bar);
         }
@@ -717,12 +776,14 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
       import java.util.Optional;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
 
@@ -745,12 +806,14 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
       import java.util.Optional;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
 
@@ -776,11 +839,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
 
@@ -803,11 +868,13 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           Test create(String bar);
 
@@ -833,17 +900,19 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test {
+        @AssistedInject
         Test(Long foo, @Assisted String bar) {}
       }
     """)
     val factory = JavaFileObjects.forSourceString("test.Factory", """
       package test;
 
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
-      @Assisted.Factory
+      @AssistedInject.Factory
       interface Factory {
         Test create(String bar);
       }
@@ -853,7 +922,7 @@ class AssistedInjectProcessorTest {
         .that(listOf(test, factory))
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("@Assisted.Factory must be declared as a nested type.")
+        .withErrorContaining("@AssistedInject.Factory must be declared as a nested type.")
         .`in`(factory).onLine(7)
   }
 
@@ -862,14 +931,16 @@ class AssistedInjectProcessorTest {
       package test;
 
       import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
 
       class Test <T extends Test.A & Test.B> {
         interface A {}
         interface B {}
 
+        @AssistedInject
         Test(Long foo, @Assisted T bar) {}
 
-        @Assisted.Factory
+        @AssistedInject.Factory
         interface Factory {
           <T extends Test.A & Test.B> Test<T> create(T bar);
         }

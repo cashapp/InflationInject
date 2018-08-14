@@ -47,8 +47,8 @@ internal data class Key(
         it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
       })
 
-  val type = wrappedType.get()
-  val qualifier = wrappedQualifier?.get()
+  val type get() = wrappedType.get()
+  val qualifier get() = wrappedQualifier?.get()
 
   override fun toString() = qualifier?.let { "$it $type" } ?: type.toString()
 }

@@ -16,7 +16,7 @@
 package com.squareup.inject.assisted.dagger2.processor
 
 import com.google.auto.service.AutoService
-import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.dagger2.AssistedModule
 import com.squareup.inject.assisted.processor.AssistedInjectProcessor.Companion.SUFFIX
 import com.squareup.inject.assisted.processor.internal.applyEach
@@ -44,7 +44,7 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
   override fun getSupportedSourceVersion() = SourceVersion.latest()
   override fun getSupportedAnnotationTypes() = setOf(
       AssistedModule::class.java.canonicalName,
-      Assisted.Factory::class.java.canonicalName)
+      AssistedInject.Factory::class.java.canonicalName)
 
   override fun init(env: ProcessingEnvironment) {
     super.init(env)
@@ -75,7 +75,7 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
       val moduleName = ClassName.get(it)
       val generatedName = moduleName.peerClass(PREFIX + moduleName.simpleName())
 
-      val factoryNameMap = roundEnv.findElementsAnnotatedWith<Assisted.Factory>()
+      val factoryNameMap = roundEnv.findElementsAnnotatedWith<AssistedInject.Factory>()
           .cast<TypeElement>()
           .associate { ClassName.get(it) to it.enclosingElement }
           .filterValues { it != null }
