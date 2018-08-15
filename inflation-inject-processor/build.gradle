@@ -1,3 +1,5 @@
+import org.gradle.internal.jvm.Jvm
+
 apply plugin: 'java-library'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.jetbrains.kotlin.kapt'
@@ -10,9 +12,18 @@ dependencies {
   implementation project(':assisted-inject-processor')
   implementation deps.kotlin
   implementation deps.javaPoet
+  // Used transitively. Force a newer version for Truth on the test classpath.
+  implementation deps.guava
 
   compileOnly deps.autoService
   kapt deps.autoService
+
+  testImplementation deps.junit
+  testImplementation deps.truth
+  testImplementation deps.compileTesting
+  testImplementation deps.android
+  testImplementation deps.dagger
+  testImplementation files(Jvm.current().getToolsJar())
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
