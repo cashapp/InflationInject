@@ -7,3 +7,6 @@ reports
 .idea
 *.iml
 out
+
+# Android
+local.properties

@@ -4,3 +4,7 @@ include ':assisted-inject-annotations'
 include ':assisted-inject-annotations-dagger2'
 include ':assisted-inject-processor'
 include ':assisted-inject-processor-dagger2'
+
+include ':inflation-inject'
+include ':inflation-inject-processor'
+include ':inflation-inject-sample'

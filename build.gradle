@@ -5,6 +5,7 @@ buildscript {
 
   ext.deps = [
       'dagger': 'com.google.dagger:dagger:2.17',
+      'daggerCompiler': 'com.google.dagger:dagger-compiler:2.17',
       'autoService': 'com.google.auto.service:auto-service:1.0-rc4',
       'autoCommon': 'com.google.auto:auto-common:0.10',
       'junit': 'junit:junit:4.12',
@@ -13,21 +14,29 @@ buildscript {
       'javaPoet': 'com.squareup:javapoet:1.11.1',
       'guava': 'com.google.guava:guava:26.0-jre',
       'compileTesting': 'com.google.testing.compile:compile-testing:0.15',
+      'robolectric': 'org.robolectric:robolectric:4.0-alpha-3',
       'inject': 'javax.inject:javax.inject:1',
+      'android': 'com.google.android:android:4.1.1.4',
+      'androidxAnnotations': 'androidx.annotation:annotation:1.0.0-rc01',
   ]
 
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+    classpath 'com.android.tools.build:gradle:3.1.4'
   }
 
   repositories {
     mavenCentral()
+    google()
+    jcenter()
   }
 }
 
 subprojects {
   repositories {
     mavenCentral()
+    google()
+    jcenter()
   }
 
   group = GROUP
