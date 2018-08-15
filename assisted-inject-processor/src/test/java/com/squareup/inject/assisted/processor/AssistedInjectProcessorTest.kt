@@ -979,4 +979,163 @@ class AssistedInjectProcessorTest {
         .and()
         .generatesSources(expected)
   }
+
+  @Ignore("Doesn't work yet")
+  @Test fun nested() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Outer {
+        static class Test {
+          @AssistedInject
+          Test(Long foo, @Assisted String bar) {}
+
+          @AssistedInject.Factory
+          interface Factory {
+            Test create(String bar);
+          }
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Long;
+      import java.lang.Override;
+      import java.lang.String;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class Outer${'$'}Test_AssistedFactory implements Outer.Test.Factory {
+        private final Provider<Long> foo;
+
+        @Inject public Outer${'$'}Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public Outer.Test create(String bar) {
+          return new Outer.Test(foo.get(), bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
+  @Test fun nestedMustBeStatic() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Outer {
+        class Test {
+          @AssistedInject
+          Test(Long foo, @Assisted String bar) {}
+
+          @AssistedInject.Factory
+          interface Factory {
+            Test create(String bar);
+          }
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("Nested @AssistedInject-using types must be static")
+        .`in`(input).onLine(8)
+  }
+
+  @Test fun nestedCannotBePrivate() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Outer {
+        private static class Test {
+          @AssistedInject
+          Test(Long foo, @Assisted String bar) {}
+
+          @AssistedInject.Factory
+          interface Factory {
+            Test create(String bar);
+          }
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("@AssistedInject-using types must not be private")
+        .`in`(input).onLine(8)
+  }
+
+  @Test fun constructorCannotBePrivate() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        private Test(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("@AssistedInject constructor must not be private.")
+        .`in`(input).onLine(9)
+  }
+
+  @Test fun factoryCannotBePrivate() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        private interface Factory {
+          Test create(String bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("@AssistedInject.Factory must not be private.")
+        .`in`(input).onLine(12)
+  }
 }
