@@ -18,7 +18,7 @@ package com.squareup.inject.assisted.dagger2.processor
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.dagger2.AssistedModule
-import com.squareup.inject.assisted.processor.AssistedInjectProcessor.Companion.SUFFIX
+import com.squareup.inject.assisted.processor.AssistedInjectRequest.Companion.SUFFIX
 import com.squareup.inject.assisted.processor.internal.applyEach
 import com.squareup.inject.assisted.processor.internal.cast
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith

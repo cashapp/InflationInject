@@ -17,25 +17,11 @@ package com.squareup.inject.assisted.processor
 
 import com.google.auto.common.MoreTypes
 import com.google.auto.service.AutoService
-import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import com.squareup.inject.assisted.processor.internal.BindingKey
-import com.squareup.inject.assisted.processor.internal.BindingKey.Use.ASSISTED
-import com.squareup.inject.assisted.processor.internal.BindingKey.Use.PROVIDED
-import com.squareup.inject.assisted.processor.internal.Key
-import com.squareup.inject.assisted.processor.internal.applyEach
-import com.squareup.inject.assisted.processor.internal.applyEachIndexed
 import com.squareup.inject.assisted.processor.internal.cast
 import com.squareup.inject.assisted.processor.internal.duplicates
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import com.squareup.javapoet.TypeVariableName
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -48,11 +34,10 @@ import javax.lang.model.element.ElementKind.CLASS
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.element.ElementKind.INTERFACE
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
-import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 
@@ -98,7 +83,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
         .map { types.asElement(it.get()) as TypeElement }
         .forEach {
           try {
-            process(it)
+            parseRequest(it).brewJava("@AssistedInject").writeTo(filer)
           } catch (e: StopProcessingException) {
             messager.printMessage(ERROR, e.message, e.originatingElement)
           } catch (e: Exception) {
@@ -109,61 +94,19 @@ class AssistedInjectProcessor : AbstractProcessor() {
     return false
   }
 
-  private fun process(type: TypeElement) {
+  private fun parseRequest(type: TypeElement): AssistedInjectRequest {
     val constructor = findAssistedConstructor(type)
 
-    val bindingKeys = parseBindingKeys(constructor)
-    val providedKeys = providedKeys(constructor, bindingKeys)
-    val assistedKeys = assistedKeys(constructor, bindingKeys)
+    val parameterKeys = constructor.parameters.map(VariableElement::asParameterKey)
+    val (assistedKeys, providedKeys) = parameterKeys.partition(ParameterKey::isAssisted)
+    validateAssistedKeys(constructor, assistedKeys)
+    validateProvidedKeys(constructor, providedKeys)
 
     val factoryType = findFactoryType(type)
     val factoryMethod = findFactoryMethod(factoryType, type)
-    validateFactoryKeys(factoryMethod, assistedKeys.map(BindingKey::key).toSet())
+    validateFactoryKeys(factoryMethod, assistedKeys.map(ParameterKey::key).toSet())
 
-    val typeName = TypeName.get(type.asType())
-    val factoryName = ClassName.get(factoryType)
-    val generatedName = ClassName.get(type).peerClass(type.simpleName.toString() + SUFFIX)
-    val generatedSpec = TypeSpec.classBuilder(generatedName)
-        .addModifiers(PUBLIC, FINAL)
-        .addSuperinterface(factoryName)
-        .addOriginatingElement(type)
-        .addOriginatingElement(factoryType)
-        .applyEach(providedKeys) {
-          addField(it.providerType.withoutAnnotations(), it.name, PRIVATE, FINAL)
-        }
-        .addMethod(MethodSpec.constructorBuilder()
-            .addModifiers(PUBLIC)
-            .addAnnotation(INJECT)
-            .applyEach(providedKeys) {
-              addParameter(it.providerType, it.name)
-              addStatement("this.$1N = $1N", it.name)
-            }
-            .build())
-        .addMethod(MethodSpec.methodBuilder(factoryMethod.simpleName.toString())
-            .addAnnotation(Override::class.java)
-            .addModifiers(PUBLIC)
-            .returns(typeName)
-            .apply {
-              if (typeName is ParameterizedTypeName) {
-                addTypeVariables(typeName.typeArguments.filterIsInstance<TypeVariableName>())
-              }
-            }
-            .applyEach(assistedKeys) { key ->
-              addParameter(key.type, key.name)
-            }
-            .addCode("$[return new \$T(\n", typeName)
-            .applyEachIndexed(bindingKeys) { index, key ->
-              if (index > 0) addCode(",\n")
-              addCode(key.bindingResolveCode())
-            }
-            .addCode(");$]\n")
-            .build())
-        .build()
-
-    JavaFile.builder(generatedName.packageName(), generatedSpec)
-        .addFileComment("Generated by @AssistedInject. Do not modify!")
-        .build()
-        .writeTo(filer)
+    return AssistedInjectRequest(type, factoryType, factoryMethod, parameterKeys)
   }
 
   private fun findAssistedConstructor(type: TypeElement): ExecutableElement {
@@ -189,11 +132,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     return assistedConstructors.single()
   }
 
-  private fun parseBindingKeys(method: ExecutableElement) = method.parameters
-      .map { BindingKey(it, if (it.hasAnnotation<Assisted>()) ASSISTED else PROVIDED) }
-
-  private fun providedKeys(method: ExecutableElement, keys: List<BindingKey>): List<BindingKey> {
-    val providedKeys = keys.filter { it.use == PROVIDED }
+  private fun validateProvidedKeys(method: ExecutableElement, providedKeys: List<ParameterKey>) {
     if (providedKeys.isEmpty()) {
       throw StopProcessingException(
           "Assisted injection requires at least one non-@Assisted parameter.", method)
@@ -205,11 +144,9 @@ class AssistedInjectProcessor : AbstractProcessor() {
               + duplicateKeys.toSet().joinToString("\n * ", prefix = "\n * "),
           method)
     }
-    return providedKeys
   }
 
-  private fun assistedKeys(method: ExecutableElement, keys: List<BindingKey>): List<BindingKey> {
-    val assistedKeys = keys.filter { it.use == ASSISTED }
+  private fun validateAssistedKeys(method: ExecutableElement, assistedKeys: List<ParameterKey>) {
     if (assistedKeys.isEmpty()) {
       throw StopProcessingException(
           "Assisted injection requires at least one @Assisted parameter.", method)
@@ -221,7 +158,6 @@ class AssistedInjectProcessor : AbstractProcessor() {
               + duplicateKeys.toSet().joinToString("\n * ", prefix = "\n * "),
           method)
     }
-    return assistedKeys
   }
 
   private fun findFactoryType(type: TypeElement): TypeElement {
@@ -262,7 +198,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
   }
 
   private fun validateFactoryKeys(method: ExecutableElement, expectedKeys: Set<Key>) {
-    val keys = method.parameters.map(::Key).toSet()
+    val keys = method.parameters.map(VariableElement::asKey).toSet()
     if (keys != expectedKeys) {
       var message = "Factory method parameters do not match constructor @Assisted parameters."
 
@@ -278,11 +214,6 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
       throw StopProcessingException(message, method)
     }
-  }
-
-  companion object {
-    const val SUFFIX = "_AssistedFactory"
-    private val INJECT = ClassName.get("javax.inject", "Inject")
   }
 }
 
