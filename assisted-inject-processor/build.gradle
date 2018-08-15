@@ -1,5 +1,6 @@
 import org.gradle.internal.jvm.Jvm
 
+apply plugin: 'java-library'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.jetbrains.kotlin.kapt'
 
@@ -7,11 +8,11 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-  compile project(':assisted-inject-annotations')
-  compile deps.kotlin
-  compile deps.javaPoet
-  compile deps.autoCommon
-  compile deps.guava
+  implementation project(':assisted-inject-annotations')
+  implementation deps.kotlin
+  api deps.javaPoet
+  implementation deps.autoCommon
+  implementation deps.guava
 
   compileOnly deps.autoService
   kapt deps.autoService

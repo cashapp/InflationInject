@@ -110,7 +110,7 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
   }
 
   companion object {
-    const val PREFIX = "AssistedInject_"
+    private const val PREFIX = "AssistedInject_"
     private val BINDS = ClassName.get("dagger", "Binds")
     private val MODULE = ClassName.get("dagger", "Module")
 
