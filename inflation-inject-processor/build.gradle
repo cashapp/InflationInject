@@ -1,0 +1,18 @@
+apply plugin: 'java-library'
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'org.jetbrains.kotlin.kapt'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+dependencies {
+  implementation project(':inflation-inject')
+  implementation project(':assisted-inject-processor')
+  implementation deps.kotlin
+  implementation deps.javaPoet
+
+  compileOnly deps.autoService
+  kapt deps.autoService
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

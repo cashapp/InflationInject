@@ -1,0 +1,18 @@
+apply plugin: 'java-library'
+apply plugin: 'org.jetbrains.kotlin.jvm'
+
+sourceCompatibility = JavaVersion.VERSION_1_6
+targetCompatibility = JavaVersion.VERSION_1_6
+
+dependencies {
+  compileOnly deps.android
+  compileOnly deps.androidxAnnotations
+  api project(':assisted-inject-annotations')
+
+  testImplementation deps.kotlin
+  testImplementation deps.junit
+  testImplementation deps.robolectric
+  testImplementation deps.android
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
