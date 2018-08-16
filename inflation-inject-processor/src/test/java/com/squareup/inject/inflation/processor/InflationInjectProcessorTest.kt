@@ -41,6 +41,7 @@ class InflationInjectProcessorTest {
 
       import android.content.Context;
       import android.util.AttributeSet;
+      import android.view.View;
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
@@ -54,7 +55,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public TestView create(Context context, AttributeSet attrs) {
+        @Override public View create(Context context, AttributeSet attrs) {
           return new TestView(context, attrs, foo.get());
         }
       }
@@ -75,7 +76,7 @@ class InflationInjectProcessorTest {
         @Binds
         @IntoMap
         @StringKey("test.TestView")
-        abstract ViewFactory<?> bind_test_TestView(TestView_AssistedFactory factory);
+        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
       }
     """)
 
@@ -120,6 +121,7 @@ class InflationInjectProcessorTest {
 
       import android.content.Context;
       import android.util.AttributeSet;
+      import android.view.View;
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
@@ -133,7 +135,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public TestView create(Context context, AttributeSet attrs) {
+        @Override public View create(Context context, AttributeSet attrs) {
           return new TestView(foo.get(), context, attrs);
         }
       }
@@ -181,6 +183,7 @@ class InflationInjectProcessorTest {
 
       import android.content.Context;
       import android.util.AttributeSet;
+      import android.view.View;
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
@@ -194,7 +197,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public TestView create(Context context, AttributeSet attrs) {
+        @Override public View create(Context context, AttributeSet attrs) {
           return new TestView(attrs, context, foo.get());
         }
       }
@@ -268,6 +271,7 @@ class InflationInjectProcessorTest {
 
       import android.content.Context;
       import android.util.AttributeSet;
+      import android.view.View;
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
@@ -281,7 +285,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public TestView create(Context context, AttributeSet attrs) {
+        @Override public View create(Context context, AttributeSet attrs) {
           return new TestView(context, attrs, foo.get());
         }
       }

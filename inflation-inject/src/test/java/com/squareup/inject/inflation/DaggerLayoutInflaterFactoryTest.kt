@@ -27,7 +27,7 @@ class DaggerLayoutInflaterFactoryTest {
 
   @Test fun viewFactoryMissingWithDelegateDelegates() {
     val expected = View(context)
-    val factories = emptyMap<String, ViewFactory<*>>()
+    val factories = emptyMap<String, ViewFactory>()
     val delegate = LayoutInflater.Factory { _, _, _ -> expected }
     val inflater = DaggerLayoutInflaterFactory(factories, delegate)
     val actual = inflater.onCreateView("com.example.View", context, null)
@@ -35,7 +35,7 @@ class DaggerLayoutInflaterFactoryTest {
   }
 
   @Test fun viewFactoryMissingWithoutDelegateReturnsNull() {
-    val factories = emptyMap<String, ViewFactory<*>>()
+    val factories = emptyMap<String, ViewFactory>()
     val inflater = DaggerLayoutInflaterFactory(factories, null)
     val actual = inflater.onCreateView("com.example.View", context, null)
     assertNull(actual)
