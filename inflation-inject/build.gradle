@@ -6,7 +6,10 @@ targetCompatibility = JavaVersion.VERSION_1_6
 
 dependencies {
   compileOnly deps.android
-  compileOnly deps.androidxAnnotations
+  // Annotations are exposed as 'api' because Dagger wants to read the @NonNull annotation on the
+  // @Inject constructor parameter if you are using its implicit binding.
+  api deps.androidxAnnotations
+  implementation deps.inject
   api project(':assisted-inject-annotations')
 
   testImplementation deps.kotlin

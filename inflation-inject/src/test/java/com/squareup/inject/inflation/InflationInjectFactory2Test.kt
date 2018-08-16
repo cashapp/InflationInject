@@ -14,35 +14,48 @@ import org.robolectric.annotation.Config
 
 @Config(sdk = [26])
 @RunWith(RobolectricTestRunner::class)
-class DaggerLayoutInflaterFactoryTest {
+class InflationInjectFactory2Test {
   private val context = RuntimeEnvironment.systemContext
 
   @Test fun viewFactoryInMap() {
     val expected = View(context)
     val factories = mapOf("com.example.View" to ViewFactory { _, _ -> expected })
-    val inflater = DaggerLayoutInflaterFactory(factories, ThrowingFactory)
-    val actual = inflater.onCreateView("com.example.View", context, null)
+    val inflater = InflationInjectFactory(factories, ThrowingFactory2)
+    val actual = inflater.onCreateView(null, "com.example.View", context, null)
     assertSame(expected, actual)
   }
 
   @Test fun viewFactoryMissingWithDelegateDelegates() {
     val expected = View(context)
     val factories = emptyMap<String, ViewFactory>()
-    val delegate = LayoutInflater.Factory { _, _, _ -> expected }
-    val inflater = DaggerLayoutInflaterFactory(factories, delegate)
-    val actual = inflater.onCreateView("com.example.View", context, null)
+    val delegate = object : LayoutInflater.Factory2 {
+      override fun onCreateView(parent: View?, name: String, context: Context,
+          attrs: AttributeSet?) = expected
+
+      override fun onCreateView(name: String, context: Context, attrs: AttributeSet?): View {
+        throw AssertionError()
+      }
+
+    }
+    val inflater = InflationInjectFactory(factories, delegate)
+    val actual = inflater.onCreateView(null, "com.example.View", context, null)
     assertSame(expected, actual)
   }
 
   @Test fun viewFactoryMissingWithoutDelegateReturnsNull() {
     val factories = emptyMap<String, ViewFactory>()
-    val inflater = DaggerLayoutInflaterFactory(factories, null)
-    val actual = inflater.onCreateView("com.example.View", context, null)
+    val inflater = InflationInjectFactory(factories, null)
+    val actual = inflater.onCreateView(null, "com.example.View", context, null)
     assertNull(actual)
   }
 }
 
-private object ThrowingFactory : LayoutInflater.Factory {
+private object ThrowingFactory2 : LayoutInflater.Factory2 {
+  override fun onCreateView(parent: View?, name: String, context: Context,
+      attrs: AttributeSet?): View? {
+    throw AssertionError()
+  }
+
   override fun onCreateView(name: String, context: Context, attrs: AttributeSet?): View? {
     throw AssertionError()
   }
