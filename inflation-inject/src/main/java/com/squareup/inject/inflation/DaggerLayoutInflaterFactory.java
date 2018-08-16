@@ -9,12 +9,12 @@ import androidx.annotation.Nullable;
 import java.util.Map;
 
 public final class DaggerLayoutInflaterFactory implements LayoutInflater.Factory2 {
-  private final Map<String, ViewFactory<?>> factories;
+  private final Map<String, ViewFactory> factories;
   private final @Nullable LayoutInflater.Factory delegate;
   private final @Nullable LayoutInflater.Factory2 delegate2;
 
   @SuppressWarnings("ConstantConditions") // Validating API invariants.
-  public DaggerLayoutInflaterFactory(@NonNull Map<String, ViewFactory<?>> factories,
+  public DaggerLayoutInflaterFactory(@NonNull Map<String, ViewFactory> factories,
       @Nullable LayoutInflater.Factory delegate) {
     if (factories == null) throw new NullPointerException("factories == null");
     this.factories = factories;
@@ -23,7 +23,7 @@ public final class DaggerLayoutInflaterFactory implements LayoutInflater.Factory
   }
 
   @SuppressWarnings("ConstantConditions") // Validating API invariants.
-  public DaggerLayoutInflaterFactory(@NonNull Map<String, ViewFactory<?>> factories,
+  public DaggerLayoutInflaterFactory(@NonNull Map<String, ViewFactory> factories,
       @Nullable LayoutInflater.Factory2 delegate) {
     if (factories == null) throw new NullPointerException("factories == null");
     this.factories = factories;
@@ -33,7 +33,7 @@ public final class DaggerLayoutInflaterFactory implements LayoutInflater.Factory
 
   @Nullable @Override public View onCreateView(@NonNull String name, @NonNull Context context,
       @Nullable AttributeSet attrs) {
-    ViewFactory<?> factory = factories.get(name);
+    ViewFactory factory = factories.get(name);
     if (factory != null) {
       return factory.create(context, attrs);
     }
@@ -46,7 +46,7 @@ public final class DaggerLayoutInflaterFactory implements LayoutInflater.Factory
   @Nullable
   @Override
   public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
-    ViewFactory<?> factory = factories.get(name);
+    ViewFactory factory = factories.get(name);
     if (factory != null) {
       return factory.create(context, attrs);
     }

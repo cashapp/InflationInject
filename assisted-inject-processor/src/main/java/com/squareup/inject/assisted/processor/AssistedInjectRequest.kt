@@ -51,7 +51,7 @@ data class AssistedInjectRequest(
         .addMethod(MethodSpec.methodBuilder(factoryMethod.simpleName.toString())
             .addAnnotation(Override::class.java)
             .addModifiers(PUBLIC)
-            .returns(typeName)
+            .returns(TypeName.get(factoryMethod.returnType))
             .apply {
               if (typeName is ParameterizedTypeName) {
                 addTypeVariables(typeName.typeArguments.filterIsInstance<TypeVariableName>())

@@ -764,10 +764,35 @@ class AssistedInjectProcessorTest {
       interface TestBase {}
     """)
 
+    // Ensure a covariant return type is not used which creates two methods in the bytecode.
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Long;
+      import java.lang.Override;
+      import java.lang.String;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public TestBase create(String bar) {
+          return new Test(foo.get(), bar);
+        }
+      }
+    """)
+
     assertAbout(javaSource())
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
   }
 
 

@@ -11,10 +11,7 @@ import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import com.squareup.javapoet.WildcardTypeName
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -81,8 +78,8 @@ class InflationInjectProcessor : AbstractProcessor() {
                 .addAnnotation(AnnotationSpec.builder(STRING_KEY)
                     .addMember("value", "\$S", type.qualifiedName.toString())
                     .build())
-                .returns(VIEW_FACTORY_WILDCARD)
                 .addModifiers(ABSTRACT)
+                .returns(ViewFactory::class.java)
                 .addParameter(request.generatedClassName, "factory")
                 .build())
 
@@ -106,7 +103,4 @@ private val MODULE = ClassName.get("dagger", "Module")
 private val BINDS = ClassName.get("dagger", "Binds")
 private val INTO_MAP = ClassName.get("dagger.multibindings", "IntoMap")
 private val STRING_KEY = ClassName.get("dagger.multibindings", "StringKey")
-private val VIEW_FACTORY_WILDCARD = ParameterizedTypeName.get(
-    ClassName.get(ViewFactory::class.java),
-    WildcardTypeName.subtypeOf(TypeName.OBJECT))
 private fun ClassName.bindMethodName() = "bind_" + reflectionName().replace('.', '_')

@@ -6,7 +6,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public interface ViewFactory<V extends View> {
+public interface ViewFactory {
   @NonNull
-  V create(@NonNull Context context, @Nullable AttributeSet attrs);
+  View create(@NonNull Context context, @Nullable AttributeSet attrs);
 }

@@ -11,7 +11,7 @@ import java.util.Map;
 @Module(includes = InflationInject_ViewModule.class)
 public abstract class ViewModule {
   @Provides
-  static DaggerLayoutInflaterFactory provide(Map<String, ViewFactory<?>> factories) {
+  static DaggerLayoutInflaterFactory provide(Map<String, ViewFactory> factories) {
     return new DaggerLayoutInflaterFactory(factories, null);
   }
 }
