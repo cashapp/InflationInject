@@ -18,7 +18,7 @@ package com.squareup.inject.assisted.dagger2.processor
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.dagger2.AssistedModule
-import com.squareup.inject.assisted.processor.AssistedInjectRequest.Companion.SUFFIX
+import com.squareup.inject.assisted.processor.assistedInjectFactoryName
 import com.squareup.inject.assisted.processor.internal.applyEach
 import com.squareup.inject.assisted.processor.internal.cast
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
@@ -73,7 +73,7 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
 
     assistedModules.firstOrNull()?.let {
       val moduleName = ClassName.get(it)
-      val generatedName = moduleName.peerClass(PREFIX + moduleName.simpleName())
+      val generatedName = moduleName.assistedModuleName()
 
       val factoryNameMap = roundEnv.findElementsAnnotatedWith<AssistedInject.Factory>()
           .cast<TypeElement>()
@@ -81,7 +81,7 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
           .filterValues { it != null }
           .mapValues { (_, value) ->
             // TODO this is a bit gross. Create a data class holding type, factory, and generated.
-            ClassName.get(value as TypeElement).peerClass(value.simpleName.toString() + SUFFIX)
+            ClassName.get(value as TypeElement).assistedInjectFactoryName()
           }
 
       val generatedSpec = TypeSpec.classBuilder(generatedName)
@@ -108,12 +108,9 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
 
     return false
   }
-
-  companion object {
-    private const val PREFIX = "AssistedInject_"
-    private val BINDS = ClassName.get("dagger", "Binds")
-    private val MODULE = ClassName.get("dagger", "Module")
-
-    private fun ClassName.bindMethodName() = "bind_" + reflectionName().replace('.', '_')
-  }
 }
+
+private val BINDS = ClassName.get("dagger", "Binds")
+private val MODULE = ClassName.get("dagger", "Module")
+private fun ClassName.bindMethodName() = "bind_" + reflectionName().replace('.', '_')
+private fun ClassName.assistedModuleName(): ClassName = peerClass("AssistedInject_" + simpleName())
