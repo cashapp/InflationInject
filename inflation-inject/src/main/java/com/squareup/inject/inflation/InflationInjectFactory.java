@@ -9,18 +9,18 @@ import androidx.annotation.Nullable;
 import java.util.Map;
 import javax.inject.Inject;
 
-public final class DaggerLayoutInflaterFactory implements LayoutInflater.Factory2 {
+public final class InflationInjectFactory implements LayoutInflater.Factory2 {
   private final Map<String, ViewFactory> factories;
   private final @Nullable LayoutInflater.Factory delegate;
   private final @Nullable LayoutInflater.Factory2 delegate2;
 
   @Inject
-  public DaggerLayoutInflaterFactory(@NonNull Map<String, ViewFactory> factories) {
+  public InflationInjectFactory(@NonNull Map<String, ViewFactory> factories) {
     this(factories, null);
   }
 
   @SuppressWarnings("ConstantConditions") // Validating API invariants.
-  public DaggerLayoutInflaterFactory(@NonNull Map<String, ViewFactory> factories,
+  public InflationInjectFactory(@NonNull Map<String, ViewFactory> factories,
       @Nullable LayoutInflater.Factory delegate) {
     if (factories == null) throw new NullPointerException("factories == null");
     this.factories = factories;
@@ -29,7 +29,7 @@ public final class DaggerLayoutInflaterFactory implements LayoutInflater.Factory
   }
 
   @SuppressWarnings("ConstantConditions") // Validating API invariants.
-  public DaggerLayoutInflaterFactory(@NonNull Map<String, ViewFactory> factories,
+  public InflationInjectFactory(@NonNull Map<String, ViewFactory> factories,
       @Nullable LayoutInflater.Factory2 delegate) {
     if (factories == null) throw new NullPointerException("factories == null");
     this.factories = factories;
