@@ -17,11 +17,11 @@ dependencies {
   compileOnly deps.autoService
   kapt deps.autoService
 
-  testCompile deps.junit
-  testCompile deps.truth
-  testCompile deps.compileTesting
-  testCompile deps.inject
-  testCompile files(Jvm.current().getToolsJar())
+  testImplementation deps.junit
+  testImplementation deps.truth
+  testImplementation deps.compileTesting
+  testImplementation deps.inject
+  testImplementation files(Jvm.current().getToolsJar())
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
