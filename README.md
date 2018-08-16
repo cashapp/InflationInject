@@ -55,16 +55,20 @@ The library will generate the `AssistedInject_PresenterModule` for us.
 Download
 --------
 
+![Maven Central](https://img.shields.io/maven-central/v/com.squareup.inject/assisted-inject-processor.svg)
+
 ```groovy
-compileOnly 'com.squareup.inject:assisted-inject-annotations:0.1.1'
-annotationProcessor 'com.squareup.inject:assisted-inject-processor:0.1.1'
+compileOnly 'com.squareup.inject:assisted-inject-annotations:x.y.z'
+annotationProcessor 'com.squareup.inject:assisted-inject-processor:x.y.z'
 ```
 
 With Dagger 2:
 
+![Maven Central](https://img.shields.io/maven-central/v/com.squareup.inject/assisted-inject-processor-dagger2.svg)
+
 ```groovy
-compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:0.1.1'
-annotationProcessor 'com.squareup.inject:assisted-inject-processor-dagger2:0.1.1'
+compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:x.y.z'
+annotationProcessor 'com.squareup.inject:assisted-inject-processor-dagger2:x.y.z'
 ```
 
 
