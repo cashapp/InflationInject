@@ -100,6 +100,13 @@ class AssistedInjectProcessor : AbstractProcessor() {
   }
 
   private fun parseRequest(type: TypeElement): AssistedInjectRequest {
+    if (PRIVATE in type.modifiers) {
+      throw StopProcessingException("@AssistedInject-using types must not be private", type)
+    }
+    if (type.enclosingElement.kind == CLASS && STATIC !in type.modifiers) {
+      throw StopProcessingException("Nested @AssistedInject-using types must be static", type)
+    }
+
     val constructor = findAssistedConstructor(type)
 
     val parameterKeys = constructor.parameters.map(VariableElement::asParameterKey)
@@ -118,12 +125,6 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val constructors = type.enclosedElements
         .filter { it.kind == CONSTRUCTOR }
         .cast<ExecutableElement>()
-    if (constructors.size == 1) {
-      // Only one constructor (common case). Use it! This also allows better error messages to be
-      // produced in the case where you have no @Assisted parameters on this constructor or are
-      // missing @AssistedInject.
-      return constructors.single()
-    }
 
     val assistedConstructors = constructors.filter { it.hasAnnotation<AssistedInject>() }
     if (assistedConstructors.isEmpty()) {
@@ -134,7 +135,12 @@ class AssistedInjectProcessor : AbstractProcessor() {
     if (assistedConstructors.size > 1) {
       throw StopProcessingException("Multiple @AssistedInject-annotated constructors found.", type)
     }
-    return assistedConstructors.single()
+    val constructor = assistedConstructors.single()
+
+    if (PRIVATE in constructor.modifiers) {
+      throw StopProcessingException("@AssistedInject constructor must not be private.", constructor)
+    }
+    return constructor
   }
 
   private fun validateProvidedKeys(method: ExecutableElement, providedKeys: List<ParameterKey>) {
@@ -178,6 +184,9 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val factory = types.single()
     if (factory.kind != INTERFACE) {
       throw StopProcessingException("@AssistedInject.Factory must be an interface.", factory)
+    }
+    if (PRIVATE in factory.modifiers) {
+      throw StopProcessingException("@AssistedInject.Factory must not be private.", factory)
     }
     return factory
   }
