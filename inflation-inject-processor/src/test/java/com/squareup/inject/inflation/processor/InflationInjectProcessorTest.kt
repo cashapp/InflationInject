@@ -500,6 +500,35 @@ class InflationInjectProcessorTest {
         .`in`(inputView).onLine(8)
   }
 
+  @Ignore("Not implemented")
+  @Test fun multipleInflationInjectConstructorsFails() {
+    val inputView = JavaFileObjects.forSourceString("test.TestView", """
+      package test;
+
+      import android.view.View;
+      import com.squareup.inject.inflation.InflationInject;
+
+      class TestView extends View {
+        @InflationInject
+        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+          super(context, attrs);
+        }
+
+        @InflationInject
+        TestView(@Assisted Context context, @Assisted AttributeSet attrs, String foo) {
+          super(context, attrs);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(inputView)
+        .processedWith(InflationInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("Something about multiple constructors")
+        .`in`(inputView).onLine(9)
+  }
+
   // TODO multiple modules fails
   // TODO module and no inflation injects (what do we do here? bind empty map? fail?)
 }
