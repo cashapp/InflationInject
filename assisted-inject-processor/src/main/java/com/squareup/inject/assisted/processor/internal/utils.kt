@@ -36,10 +36,6 @@ fun AnnotatedConstruct.hasAnnotation(qualifiedName: String) = annotationMirrors
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 inline fun <T> Iterable<*>.cast() = map { it as T }
 
-/** Return a list of duplicated items in the [Iterable]. */
-// TODO https://youtrack.jetbrains.com/issue/KT-18405
-fun <T> Iterable<T>.duplicates(): List<T> = filterNotTo(mutableListOf(), mutableSetOf<T>()::add)
-
 inline fun <T : Any, I> T.applyEach(items: Iterable<I>, func: T.(I) -> Unit): T {
   items.forEach { item -> func(item) }
   return this

@@ -166,6 +166,66 @@ class AssistedInjectProcessorTest {
         .generatesSources(expected)
   }
 
+  @Test fun duplicateProvided() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(String foo, @Assisted String bar, String baz) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("""
+          Duplicate non-@Assisted parameters declared. Forget a qualifier annotation?
+             * java.lang.String foo
+             * java.lang.String baz
+        """.trimIndent())
+        .`in`(input).onLine(9)
+  }
+
+  @Test fun duplicateAssisted() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(@Assisted String foo, String bar, @Assisted String baz) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String foo, String baz);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("""
+          Duplicate @Assisted parameters declared. Forget a qualifier annotation?
+             * @Assisted java.lang.String foo
+             * @Assisted java.lang.String baz
+        """.trimIndent())
+        .`in`(input).onLine(9)
+  }
+
   @Test fun providedQualifier() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
