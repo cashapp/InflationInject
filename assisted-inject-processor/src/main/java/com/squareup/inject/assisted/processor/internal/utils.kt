@@ -44,8 +44,3 @@ inline fun <T : Any, I> T.applyEach(items: Iterable<I>, func: T.(I) -> Unit): T 
   items.forEach { item -> func(item) }
   return this
 }
-
-inline fun <T : Any, I> T.applyEachIndexed(items: Iterable<I>, func: T.(Int, I) -> Unit): T {
-  items.forEachIndexed { index, item ->  func(index, item) }
-  return this
-}

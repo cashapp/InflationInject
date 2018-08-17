@@ -1,7 +1,6 @@
 package com.squareup.inject.assisted.processor
 
 import com.squareup.inject.assisted.processor.internal.applyEach
-import com.squareup.inject.assisted.processor.internal.applyEachIndexed
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -81,12 +80,8 @@ data class AssistedInjection(
             .applyEach(assistedKeys) { key ->
               addParameter(key.type, key.name)
             }
-            .addCode("$[return new \$T(\n", targetType)
-            .applyEachIndexed(parameterKeys) { index, key ->
-              if (index > 0) addCode(",\n")
-              addCode(key.argumentProvider)
-            }
-            .addCode(");$]\n")
+            .addStatement("return new \$T(\n\$L)", targetType,
+                parameterKeys.map(ParameterKey::argumentProvider).joinToCode(",\n"))
             .build())
         .build()
   }
@@ -98,6 +93,8 @@ private fun TypeName.asClassName() = when (this) {
   is ParameterizedTypeName -> rawType
   else -> throw IllegalStateException("Cannot extract raw type from $this")
 }
+
+private fun Iterable<CodeBlock>.joinToCode(separator: String) = CodeBlock.join(this, separator)
 
 private val ParameterKey.type get() = TypeName.get(key.type)
 
