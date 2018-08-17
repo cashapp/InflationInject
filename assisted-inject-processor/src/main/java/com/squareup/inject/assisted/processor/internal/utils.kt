@@ -33,6 +33,18 @@ fun AnnotatedConstruct.hasAnnotation(qualifiedName: String) = annotationMirrors
     .map { it.annotationType.asElement() as TypeElement }
     .any { it.qualifiedName.contentEquals(qualifiedName) }
 
+// TODO Maybe replaced by https://youtrack.jetbrains.com/issue/KT-13814?
+fun <K, V : Any> Iterable<K>.associateWithNotNull(func: (K) -> V?): Map<K, V> {
+  val map = mutableMapOf<K, V>()
+  for (key in this) {
+    val value = func(key)
+    if (value != null) {
+      map[key] = value
+    }
+  }
+  return map
+}
+
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 inline fun <T> Iterable<*>.cast() = map { it as T }
 
