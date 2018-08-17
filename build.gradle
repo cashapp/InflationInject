@@ -39,6 +39,14 @@ subprojects {
     jcenter()
   }
 
+  // Guava is depended on transitively. Force it to the same version to prevent missing methods.
+  // This occurs when the compilation classpath picks 23.x whereas tests need 25.x.
+  configurations.all {
+    it.resolutionStrategy {
+      it.force(deps.guava)
+    }
+  }
+
   group = GROUP
   version = VERSION_NAME
 }

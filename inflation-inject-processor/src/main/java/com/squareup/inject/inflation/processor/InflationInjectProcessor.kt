@@ -2,6 +2,7 @@ package com.squareup.inject.inflation.processor
 
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.processor.AssistedInjection
+import com.squareup.inject.assisted.processor.Key
 import com.squareup.inject.assisted.processor.asParameterKey
 import com.squareup.inject.assisted.processor.assistedInjectFactoryName
 import com.squareup.inject.assisted.processor.internal.cast
@@ -55,7 +56,8 @@ class InflationInjectProcessor : AbstractProcessor() {
       val type = constructor.enclosingElement as TypeElement
       val targetType = ClassName.get(type)
       val parameterKeys = constructor.parameters.map(VariableElement::asParameterKey)
-      val assistedInjection = AssistedInjection(targetType, parameterKeys, FACTORY, "create", VIEW)
+      val assistedInjection = AssistedInjection(targetType, parameterKeys, FACTORY, "create", VIEW,
+          assistedKeys = FACTORY_KEYS)
 
       val generatedTypeSpec = assistedInjection.brewJava()
           .toBuilder()
@@ -127,5 +129,8 @@ private val INTO_MAP = ClassName.get("dagger.multibindings", "IntoMap")
 private val STRING_KEY = ClassName.get("dagger.multibindings", "StringKey")
 private val VIEW = ClassName.get("android.view", "View")
 private val FACTORY = ClassName.get(ViewFactory::class.java)
+private val FACTORY_KEYS = listOf(
+    Key(ClassName.get("android.content", "Context")),
+    Key(ClassName.get("android.util", "AttributeSet")))
 private fun ClassName.bindMethodName() = "bind_" + reflectionName().replace('.', '_')
 private fun ClassName.inflationModuleName() = peerClass("InflationInject_" + simpleName())

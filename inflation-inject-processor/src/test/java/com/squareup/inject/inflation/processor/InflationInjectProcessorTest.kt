@@ -149,7 +149,6 @@ class InflationInjectProcessorTest {
         .generatesSources(expectedFactory)
   }
 
-  @Ignore("Override has parameter ordering based on constructor and not factory")
   @Test fun contextAndAttributeSetSwapped() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;

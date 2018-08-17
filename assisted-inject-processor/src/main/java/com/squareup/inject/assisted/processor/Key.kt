@@ -15,31 +15,21 @@
  */
 package com.squareup.inject.assisted.processor
 
-import com.google.auto.common.AnnotationMirrors
-import com.google.auto.common.MoreTypes
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
-import javax.lang.model.element.AnnotationMirror
+import com.squareup.javapoet.AnnotationSpec
+import com.squareup.javapoet.TypeName
 import javax.lang.model.element.VariableElement
-import javax.lang.model.type.TypeMirror
 
 /** Represents a type and an optional qualifier annotation for a binding. */
 data class Key(
-    val type: TypeMirror,
-    val qualifier: AnnotationMirror?
+  val type: TypeName,
+  val qualifier: AnnotationSpec? = null
 ) {
   override fun toString() = qualifier?.let { "$it $type" } ?: type.toString()
-
-  // Wrap type and qualifier so that we can provide accurate equals and hashCode.
-  private val wrappedType = MoreTypes.equivalence().wrap(type)
-  private val wrappedQualifier = AnnotationMirrors.equivalence().wrap(qualifier)
-
-  override fun hashCode() = wrappedType.hashCode() * 37 + wrappedQualifier.hashCode()
-  override fun equals(other: Any?) =
-      other is Key && wrappedType == other.wrappedType && wrappedQualifier == other.wrappedQualifier
 }
 
 /** Create from this type and any qualifier annotation. */
-fun VariableElement.asKey() = Key(asType(),
+fun VariableElement.asKey() = Key(TypeName.get(asType()),
     annotationMirrors.find {
       it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
-    })
+    }?.let { AnnotationSpec.get(it) })
