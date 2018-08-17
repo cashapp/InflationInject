@@ -26,7 +26,7 @@ data class AssistedInjectRequest(
     val parameterKeys: List<ParameterKey>
 ) {
   val generatedClassName: ClassName =
-      ClassName.get(type).peerClass(type.simpleName.toString() + SUFFIX)
+      ClassName.get(type).assistedInjectFactoryName()
 
   fun brewJava(): TypeSpec {
     val typeName = TypeName.get(type.asType())
@@ -84,7 +84,7 @@ data class AssistedInjectRequest(
   private val ParameterKey.argumentProvider
     get() = CodeBlock.of(if (isAssisted) "\$N" else "\$N.get()", name)
 
-  companion object {
-    const val SUFFIX = "_AssistedFactory"
-  }
 }
+
+fun ClassName.assistedInjectFactoryName(): ClassName =
+    peerClass(simpleName() + "_AssistedFactory")

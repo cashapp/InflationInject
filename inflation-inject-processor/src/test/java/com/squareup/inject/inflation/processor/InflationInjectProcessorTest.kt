@@ -529,6 +529,103 @@ class InflationInjectProcessorTest {
         .`in`(inputView).onLine(9)
   }
 
-  // TODO multiple modules fails
+  @Test fun moduleWithoutModuleAnnotationFails() {
+    val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+
+      @InflationModule
+      abstract class OneModule {}
+    """)
+
+    assertAbout(javaSource())
+        .that(moduleOne)
+        .processedWith(InflationInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("@InflationModule must also be annotated with @Module.")
+        .`in`(moduleOne).onLine(7)
+  }
+
+  @Ignore("Not yet validated.")
+  @Test fun moduleWithNoIncludesFails() {
+    val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module
+      abstract class OneModule {}
+    """)
+
+    assertAbout(javaSource())
+        .that(moduleOne)
+        .processedWith(InflationInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining(
+            "@InflationModule must @Module(include = InflationInject_OneModule.class).")
+        .`in`(moduleOne).onLine(9)
+  }
+
+  @Ignore("Not yet validated.")
+  @Test fun moduleWithoutIncludeFails() {
+    val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = TwoModule.class)
+      abstract class OneModule {}
+
+      @Module
+      abstract class TwoModule {}
+    """)
+
+    assertAbout(javaSource())
+        .that(moduleOne)
+        .processedWith(InflationInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining(
+            "@InflationModule must @Module(include = InflationInject_OneModule.class).")
+        .`in`(moduleOne).onLine(9)
+  }
+
+  @Test fun multipleModulesFails() {
+    val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = AssistedInject_OneModule.class)
+      abstract class OneModule {}
+    """)
+    val moduleTwo = JavaFileObjects.forSourceString("test.TwoModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = AssistedInject_TwoModule.class)
+      abstract class TwoModule {}
+    """)
+
+    assertAbout(javaSources())
+        .that(listOf(moduleOne, moduleTwo))
+        .processedWith(InflationInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("Multiple @InflationModule-annotated modules found.")
+        .`in`(moduleOne).onLine(9)
+        .and()
+        .withErrorContaining("Multiple @InflationModule-annotated modules found.")
+        .`in`(moduleTwo).onLine(9)
+  }
+
   // TODO module and no inflation injects (what do we do here? bind empty map? fail?)
 }
