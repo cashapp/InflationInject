@@ -1,7 +1,6 @@
 package com.squareup.inject.assisted.processor
 
 import com.squareup.inject.assisted.processor.internal.applyEach
-import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -78,9 +77,8 @@ data class AssistedInjection(
               }
             }
             .applyEach(assistedKeys) { key ->
-              val parameterType = TypeName.get(key.type)
               val parameterName = keyToParameterKey.getValue(key).name
-              addParameter(parameterType, parameterName)
+              addParameter(key.type, parameterName)
             }
             .addStatement("return new \$T(\n\$L)", targetType,
                 parameterKeys.map(ParameterKey::argumentProvider).joinToCode(",\n"))
@@ -98,13 +96,11 @@ private fun TypeName.asClassName() = when (this) {
 
 private fun Iterable<CodeBlock>.joinToCode(separator: String) = CodeBlock.join(this, separator)
 
-private val ParameterKey.type get() = TypeName.get(key.type)
-
 private val ParameterKey.providerType: TypeName
   get() {
-    val type = ParameterizedTypeName.get(JAVAX_PROVIDER, type)
+    val type = ParameterizedTypeName.get(JAVAX_PROVIDER, key.type)
     key.qualifier?.let {
-      return type.annotated(AnnotationSpec.get(it))
+      return type.annotated(it)
     }
     return type
   }

@@ -12,8 +12,6 @@ dependencies {
   implementation project(':assisted-inject-processor')
   implementation deps.kotlin
   implementation deps.javaPoet
-  // Used transitively. Force a newer version for Truth on the test classpath.
-  implementation deps.guava
 
   compileOnly deps.autoService
   kapt deps.autoService
