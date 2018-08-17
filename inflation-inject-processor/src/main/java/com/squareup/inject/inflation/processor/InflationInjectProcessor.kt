@@ -3,7 +3,7 @@ package com.squareup.inject.inflation.processor
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.processor.AssistedInjection
 import com.squareup.inject.assisted.processor.Key
-import com.squareup.inject.assisted.processor.asParameterKey
+import com.squareup.inject.assisted.processor.asDependencyRequest
 import com.squareup.inject.assisted.processor.assistedInjectFactoryName
 import com.squareup.inject.assisted.processor.internal.cast
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
@@ -28,7 +28,6 @@ import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
 import javax.tools.Diagnostic.Kind.ERROR
 
 @AutoService(Processor::class)
@@ -55,9 +54,9 @@ class InflationInjectProcessor : AbstractProcessor() {
     constructors.forEach { constructor ->
       val type = constructor.enclosingElement as TypeElement
       val targetType = ClassName.get(type)
-      val parameterKeys = constructor.parameters.map(VariableElement::asParameterKey)
-      val assistedInjection = AssistedInjection(targetType, parameterKeys, FACTORY, "create", VIEW,
-          assistedKeys = FACTORY_KEYS)
+      val dependencyRequests = constructor.parameters.map { it.asDependencyRequest() }
+      val assistedInjection = AssistedInjection(targetType, dependencyRequests, FACTORY, "create",
+          VIEW, assistedKeys = FACTORY_KEYS)
 
       val generatedTypeSpec = assistedInjection.brewJava()
           .toBuilder()
