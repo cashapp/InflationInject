@@ -29,21 +29,21 @@ data class AssistedInjection(
   /** The factory method return type. [targetType] must be assignable to this type. */
   val returnType: TypeName = targetType,
   /**
-   * The factory method parameter keys. These default to the assisted [parameterKeys] and when
-   * supplied must always match them, but the order is allowed to be different.
+   * The factory method parameter keys. These default to the keys of the assisted [parameterKeys]
+   * and when supplied must always match them, but the order is allowed to be different.
    */
-  val assistedKeys: List<ParameterKey> = parameterKeys.filter(ParameterKey::isAssisted)
+  val assistedKeys: List<Key> = parameterKeys.filter { it.isAssisted }.map { it.key }
 ) {
+  private val keyToParameterKey = parameterKeys.filter { it.isAssisted }.associateBy { it.key }
   init {
-    val assistedParameterKeys = parameterKeys.filter(ParameterKey::isAssisted)
-    check(assistedParameterKeys.toSet() == assistedKeys.toSet()) {
+    check(keyToParameterKey.keys == assistedKeys.toSet()) {
       """
-        assistedKeys must contains the same elements as the assisted parameterKeys.
+        assistedKeys must contain the same elements as the assisted parameterKeys.
 
         * assistedKeys:
             $assistedKeys
         * assisted parameterKeys:
-            $assistedParameterKeys
+            ${keyToParameterKey.keys}
       """.trimIndent()
     }
   }
@@ -51,7 +51,7 @@ data class AssistedInjection(
   /** The type generated from [brewJava]. */
   val generatedType = targetType.asClassName().assistedInjectFactoryName()
 
-  private val providedKeys = parameterKeys.filterNot(ParameterKey::isAssisted)
+  private val providedKeys = parameterKeys.filterNot { it.isAssisted }
 
   fun brewJava(): TypeSpec {
     return TypeSpec.classBuilder(generatedType)
@@ -78,7 +78,9 @@ data class AssistedInjection(
               }
             }
             .applyEach(assistedKeys) { key ->
-              addParameter(key.type, key.name)
+              val parameterType = TypeName.get(key.type)
+              val parameterName = keyToParameterKey.getValue(key).name
+              addParameter(parameterType, parameterName)
             }
             .addStatement("return new \$T(\n\$L)", targetType,
                 parameterKeys.map(ParameterKey::argumentProvider).joinToCode(",\n"))
