@@ -25,7 +25,9 @@ data class ParameterKey(
     /** True when fulfilled by the caller. Otherwise fulfilled by a JSR 330 provider. */
     val isAssisted: Boolean,
     val name: String
-)
+) {
+  override fun toString() = (if (isAssisted) "@Assisted " else "") + "$key $name"
+}
 
 fun VariableElement.asParameterKey() =
     ParameterKey(asKey(), hasAnnotation<Assisted>(), simpleName.toString())

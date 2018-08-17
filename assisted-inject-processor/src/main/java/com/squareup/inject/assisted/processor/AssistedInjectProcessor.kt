@@ -19,7 +19,6 @@ import com.google.auto.common.MoreTypes
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.processor.internal.cast
-import com.squareup.inject.assisted.processor.internal.duplicates
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.javapoet.ClassName
@@ -156,11 +155,11 @@ class AssistedInjectProcessor : AbstractProcessor() {
       throw StopProcessingException(
           "Assisted injection requires at least one non-@Assisted parameter.", method)
     }
-    val duplicateKeys = providedKeys.duplicates()
-    if (duplicateKeys.isNotEmpty()) {
+    val duplicates = providedKeys.groupBy { it.key }.filterValues { it.size > 1 }.values.flatten()
+    if (duplicates.isNotEmpty()) {
       throw StopProcessingException(
           "Duplicate non-@Assisted parameters declared. Forget a qualifier annotation?"
-              + duplicateKeys.toSet().joinToString("\n * ", prefix = "\n * "),
+              + duplicates.joinToString("\n * ", prefix = "\n * "),
           method)
     }
   }
@@ -170,11 +169,11 @@ class AssistedInjectProcessor : AbstractProcessor() {
       throw StopProcessingException(
           "Assisted injection requires at least one @Assisted parameter.", method)
     }
-    val duplicateKeys = assistedKeys.duplicates()
-    if (duplicateKeys.isNotEmpty()) {
+    val duplicates = assistedKeys.groupBy { it.key }.filterValues { it.size > 1 }.values.flatten()
+    if (duplicates.isNotEmpty()) {
       throw StopProcessingException(
           "Duplicate @Assisted parameters declared. Forget a qualifier annotation?"
-              + duplicateKeys.toSet().joinToString("\n * ", prefix = "\n * "),
+              + duplicates.joinToString("\n * ", prefix = "\n * "),
           method)
     }
   }
