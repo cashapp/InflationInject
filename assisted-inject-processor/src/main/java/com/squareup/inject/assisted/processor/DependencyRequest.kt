@@ -20,14 +20,14 @@ import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import javax.lang.model.element.VariableElement
 
 /** Associates a [Key] with its desired use as assisted or not. */
-data class ParameterKey(
-    val key: Key,
-    /** True when fulfilled by the caller. Otherwise fulfilled by a JSR 330 provider. */
-    val isAssisted: Boolean,
-    val name: String
+data class DependencyRequest(
+  val key: Key,
+  /** True when fulfilled by the caller. Otherwise fulfilled by a JSR 330 provider. */
+  val isAssisted: Boolean,
+  val name: String
 ) {
   override fun toString() = (if (isAssisted) "@Assisted " else "") + "$key $name"
 }
 
-fun VariableElement.asParameterKey() =
-    ParameterKey(asKey(), hasAnnotation<Assisted>(), simpleName.toString())
+fun VariableElement.asDependencyRequest() =
+    DependencyRequest(asKey(), hasAnnotation<Assisted>(), simpleName.toString())

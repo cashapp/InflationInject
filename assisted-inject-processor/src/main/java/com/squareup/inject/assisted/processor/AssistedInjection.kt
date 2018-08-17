@@ -20,7 +20,7 @@ data class AssistedInjection(
   /** The type which will be instantiated inside the factory. */
   val targetType: TypeName,
   /** TODO */
-  val parameterKeys: List<ParameterKey>,
+  val dependencyRequests: List<DependencyRequest>,
   /** The factory interface type. */
   val factoryType: ClassName,
   /** Name of the factory's only method. */
@@ -28,21 +28,21 @@ data class AssistedInjection(
   /** The factory method return type. [targetType] must be assignable to this type. */
   val returnType: TypeName = targetType,
   /**
-   * The factory method parameter keys. These default to the keys of the assisted [parameterKeys]
+   * The factory method keys. These default to the keys of the assisted [dependencyRequests]
    * and when supplied must always match them, but the order is allowed to be different.
    */
-  val assistedKeys: List<Key> = parameterKeys.filter { it.isAssisted }.map { it.key }
+  val assistedKeys: List<Key> = dependencyRequests.filter { it.isAssisted }.map { it.key }
 ) {
-  private val keyToParameterKey = parameterKeys.filter { it.isAssisted }.associateBy { it.key }
+  private val keyToRequest = dependencyRequests.filter { it.isAssisted }.associateBy { it.key }
   init {
-    check(keyToParameterKey.keys == assistedKeys.toSet()) {
+    check(keyToRequest.keys == assistedKeys.toSet()) {
       """
-        assistedKeys must contain the same elements as the assisted parameterKeys.
+        assistedKeys must contain the same elements as the assisted dependencyRequests.
 
         * assistedKeys:
             $assistedKeys
-        * assisted parameterKeys:
-            ${keyToParameterKey.keys}
+        * assisted dependencyRequests:
+            ${keyToRequest.keys}
       """.trimIndent()
     }
   }
@@ -50,7 +50,7 @@ data class AssistedInjection(
   /** The type generated from [brewJava]. */
   val generatedType = targetType.asClassName().assistedInjectFactoryName()
 
-  private val providedKeys = parameterKeys.filterNot { it.isAssisted }
+  private val providedKeys = dependencyRequests.filterNot { it.isAssisted }
 
   fun brewJava(): TypeSpec {
     return TypeSpec.classBuilder(generatedType)
@@ -77,11 +77,11 @@ data class AssistedInjection(
               }
             }
             .applyEach(assistedKeys) { key ->
-              val parameterName = keyToParameterKey.getValue(key).name
+              val parameterName = keyToRequest.getValue(key).name
               addParameter(key.type, parameterName)
             }
             .addStatement("return new \$T(\n\$L)", targetType,
-                parameterKeys.map(ParameterKey::argumentProvider).joinToCode(",\n"))
+                dependencyRequests.map { it.argumentProvider }.joinToCode(",\n"))
             .build())
         .build()
   }
@@ -96,7 +96,7 @@ private fun TypeName.asClassName() = when (this) {
 
 private fun Iterable<CodeBlock>.joinToCode(separator: String) = CodeBlock.join(this, separator)
 
-private val ParameterKey.providerType: TypeName
+private val DependencyRequest.providerType: TypeName
   get() {
     val type = ParameterizedTypeName.get(JAVAX_PROVIDER, key.type)
     key.qualifier?.let {
@@ -105,7 +105,7 @@ private val ParameterKey.providerType: TypeName
     return type
   }
 
-private val ParameterKey.argumentProvider
+private val DependencyRequest.argumentProvider
   get() = CodeBlock.of(if (isAssisted) "\$N" else "\$N.get()", name)
 
 fun ClassName.assistedInjectFactoryName(): ClassName =

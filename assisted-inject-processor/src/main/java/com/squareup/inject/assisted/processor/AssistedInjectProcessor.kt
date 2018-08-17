@@ -116,16 +116,16 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
     val constructor = findAssistedConstructor(type)
 
-    val parameterKeys = constructor.parameters.map(VariableElement::asParameterKey)
-    val (assistedKeys, providedKeys) = parameterKeys.partition(ParameterKey::isAssisted)
-    validateAssistedKeys(constructor, assistedKeys)
-    validateProvidedKeys(constructor, providedKeys)
+    val requests = constructor.parameters.map { it.asDependencyRequest() }
+    val (assistedRequests, providedRequests) = requests.partition { it.isAssisted }
+    validateAssistedRequests(constructor, assistedRequests)
+    validateProvidedRequests(constructor, providedRequests)
 
     val factoryType = findFactoryType(type)
     val factoryMethod = findFactoryMethod(factoryType, type)
-    validateFactoryKeys(factoryMethod, assistedKeys.map(ParameterKey::key).toSet())
+    validateFactoryKeys(factoryMethod, assistedRequests.map { it.key }.toSet())
 
-    return AssistedInjectRequest(type, factoryType, factoryMethod, parameterKeys)
+    return AssistedInjectRequest(type, factoryType, factoryMethod, requests)
   }
 
   private fun findAssistedConstructor(type: TypeElement): ExecutableElement {
@@ -150,12 +150,15 @@ class AssistedInjectProcessor : AbstractProcessor() {
     return constructor
   }
 
-  private fun validateProvidedKeys(method: ExecutableElement, providedKeys: List<ParameterKey>) {
-    if (providedKeys.isEmpty()) {
+  private fun validateProvidedRequests(
+    method: ExecutableElement,
+    requests: List<DependencyRequest>
+  ) {
+    if (requests.isEmpty()) {
       throw StopProcessingException(
           "Assisted injection requires at least one non-@Assisted parameter.", method)
     }
-    val duplicates = providedKeys.groupBy { it.key }.filterValues { it.size > 1 }.values.flatten()
+    val duplicates = requests.groupBy { it.key }.filterValues { it.size > 1 }.values.flatten()
     if (duplicates.isNotEmpty()) {
       throw StopProcessingException(
           "Duplicate non-@Assisted parameters declared. Forget a qualifier annotation?"
@@ -164,12 +167,15 @@ class AssistedInjectProcessor : AbstractProcessor() {
     }
   }
 
-  private fun validateAssistedKeys(method: ExecutableElement, assistedKeys: List<ParameterKey>) {
-    if (assistedKeys.isEmpty()) {
+  private fun validateAssistedRequests(
+    method: ExecutableElement,
+    requests: List<DependencyRequest>
+  ) {
+    if (requests.isEmpty()) {
       throw StopProcessingException(
           "Assisted injection requires at least one @Assisted parameter.", method)
     }
-    val duplicates = assistedKeys.groupBy { it.key }.filterValues { it.size > 1 }.values.flatten()
+    val duplicates = requests.groupBy { it.key }.filterValues { it.size > 1 }.values.flatten()
     if (duplicates.isNotEmpty()) {
       throw StopProcessingException(
           "Duplicate @Assisted parameters declared. Forget a qualifier annotation?"
@@ -242,14 +248,14 @@ internal data class AssistedInjectRequest(
   val type: TypeElement,
   val factoryType: TypeElement,
   val factoryMethod: ExecutableElement,
-  val parameterKeys: List<ParameterKey>
+  val dependencyRequests: List<DependencyRequest>
 ) {
   fun toInjection(): AssistedInjection {
     val targetType = TypeName.get(type.asType())
     val factoryType = ClassName.get(factoryType)
     val returnType = ClassName.get(factoryMethod.returnType)
     val methodName = factoryMethod.simpleName.toString()
-    return AssistedInjection(targetType, parameterKeys, factoryType, methodName, returnType)
+    return AssistedInjection(targetType, dependencyRequests, factoryType, methodName, returnType)
   }
 }
 
