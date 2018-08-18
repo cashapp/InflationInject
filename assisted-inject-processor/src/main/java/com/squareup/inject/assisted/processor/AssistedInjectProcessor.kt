@@ -40,7 +40,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
-import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 
 @AutoService(Processor::class)
@@ -52,20 +51,19 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
   override fun init(env: ProcessingEnvironment) {
     super.init(env)
-    this.types = env.typeUtils
     this.messager = env.messager
     this.filer = env.filer
   }
 
-  private lateinit var types: Types
   private lateinit var messager: Messager
   private lateinit var filer: Filer
 
   override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-    roundEnv.findCandidateTypeElements()
-        .mapNotNull { it.toElementsOrNull() }
-        .associateWithNotNull { it.toInjectionOrNull() }
-        .forEach(::generate)
+    roundEnv.findAssistedInjectCandidateTypeElements()
+        .mapNotNull { it.toAssistedInjectElementsOrNull() }
+        .associateWithNotNull { it.toAssistedInjectionOrNull() }
+        .forEach(::writeAssistedInject)
+
     return false
   }
 
@@ -74,7 +72,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
    * - Having a constructor annotated with [AssistedInject]
    * - Having a nested type annotated with [AssistedInject.Factory]
    */
-  private fun RoundEnvironment.findCandidateTypeElements(): List<TypeElement> {
+  private fun RoundEnvironment.findAssistedInjectCandidateTypeElements(): List<TypeElement> {
     // Grab types with only @AssistedInject.Factory so we can detect missing @AssistedInject.
     val (enclosed, orphaned) = findElementsAnnotatedWith<AssistedInject.Factory>()
         .partition { it.enclosingElement.kind == CLASS }
@@ -99,8 +97,9 @@ class AssistedInjectProcessor : AbstractProcessor() {
    * - Single nested, non-private interface factory type
    * - Single abstract factory method
    */
-  private fun TypeElement.toElementsOrNull(): AssistedInjectElements? {
+  private fun TypeElement.toAssistedInjectElementsOrNull(): AssistedInjectElements? {
     var valid = true
+
     if (PRIVATE in modifiers) {
       error("@AssistedInject-using types must not be private", this)
       valid = false
@@ -178,32 +177,34 @@ class AssistedInjectProcessor : AbstractProcessor() {
    * - At least one provided parameter and no duplicates
    * - Factory method parameters match assisted parameters in any order
    */
-  private fun AssistedInjectElements.toInjectionOrNull(): AssistedInjection? {
+  private fun AssistedInjectElements.toAssistedInjectionOrNull(): AssistedInjection? {
     var valid = true
 
     val requests = targetConstructor.parameters.map { it.asDependencyRequest() }
     val (assistedRequests, providedRequests) = requests.partition { it.isAssisted }
-    if (providedRequests.isEmpty()) {
-      error("Assisted injection requires at least one non-@Assisted parameter.", targetConstructor)
-      valid = false
-    }
     if (assistedRequests.isEmpty()) {
       error("Assisted injection requires at least one @Assisted parameter.", targetConstructor)
       valid = false
+    } else {
+      val assistedDuplicates = assistedRequests.groupBy { it.key }.filterValues { it.size > 1 }
+      if (assistedDuplicates.isNotEmpty()) {
+        error("Duplicate @Assisted parameters declared. Forget a qualifier annotation?"
+            + assistedDuplicates.values.flatten().joinToString("\n * ", prefix = "\n * "),
+            targetConstructor)
+        valid = false
+      }
     }
-    val assistedDuplicates = assistedRequests.groupBy { it.key }.filterValues { it.size > 1 }
-    if (assistedDuplicates.isNotEmpty()) {
-      error("Duplicate @Assisted parameters declared. Forget a qualifier annotation?"
-              + assistedDuplicates.values.flatten().joinToString("\n * ", prefix = "\n * "),
-          targetConstructor)
+    if (providedRequests.isEmpty()) {
+      error("Assisted injection requires at least one non-@Assisted parameter.", targetConstructor)
       valid = false
-    }
-    val providedDuplicates = providedRequests.groupBy { it.key }.filterValues { it.size > 1 }
-    if (providedDuplicates.isNotEmpty()) {
-      error("Duplicate non-@Assisted parameters declared. Forget a qualifier annotation?"
-              + providedDuplicates.values.flatten().joinToString("\n * ", prefix = "\n * "),
-          targetConstructor)
-      valid = false
+    } else {
+      val providedDuplicates = providedRequests.groupBy { it.key }.filterValues { it.size > 1 }
+      if (providedDuplicates.isNotEmpty()) {
+        error("Duplicate non-@Assisted parameters declared. Forget a qualifier annotation?"
+            + providedDuplicates.values.flatten().joinToString("\n * ", prefix = "\n * "),
+            targetConstructor)
+        valid = false
+      }
     }
 
     val expectedKeys = assistedRequests.map { it.key }.toSet()
@@ -235,7 +236,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     return AssistedInjection(targetType, requests, factoryType, methodName, returnType, factoryKeys)
   }
 
-  private fun generate(elements: AssistedInjectElements, injection: AssistedInjection) {
+  private fun writeAssistedInject(elements: AssistedInjectElements, injection: AssistedInjection) {
     val generatedTypeSpec = injection.brewJava()
         .toBuilder()
         .addOriginatingElement(elements.targetType)

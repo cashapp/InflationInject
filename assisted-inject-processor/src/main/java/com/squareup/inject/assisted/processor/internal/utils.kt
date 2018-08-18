@@ -15,6 +15,9 @@
  */
 package com.squareup.inject.assisted.processor.internal
 
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.AnnotatedConstruct
 import javax.lang.model.element.Element
@@ -51,4 +54,11 @@ inline fun <T> Iterable<*>.cast() = map { it as T }
 inline fun <T : Any, I> T.applyEach(items: Iterable<I>, func: T.(I) -> Unit): T {
   items.forEach { item -> func(item) }
   return this
+}
+
+// TODO https://github.com/square/javapoet/issues/671
+fun TypeName.rawClassName(): ClassName = when (this) {
+  is ClassName -> this
+  is ParameterizedTypeName -> rawType
+  else -> throw IllegalStateException("Cannot extract raw class name from $this")
 }
