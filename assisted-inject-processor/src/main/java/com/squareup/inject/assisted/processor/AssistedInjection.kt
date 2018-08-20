@@ -96,9 +96,16 @@ private fun TypeName.asClassName() = when (this) {
 
 private fun Iterable<CodeBlock>.joinToCode(separator: String) = CodeBlock.join(this, separator)
 
+/** True when this key represents a parameterized JSR 330 `Provider`. */
+private val Key.isProvider get() = type is ParameterizedTypeName && type.rawType == JAVAX_PROVIDER
+
 private val DependencyRequest.providerType: TypeName
   get() {
-    val type = ParameterizedTypeName.get(JAVAX_PROVIDER, key.type)
+    val type = if (key.isProvider) {
+      key.type // Do not wrap a Provider inside another Provider.
+    } else {
+      ParameterizedTypeName.get(JAVAX_PROVIDER, key.type)
+    }
     key.qualifier?.let {
       return type.annotated(it)
     }
@@ -106,7 +113,7 @@ private val DependencyRequest.providerType: TypeName
   }
 
 private val DependencyRequest.argumentProvider
-  get() = CodeBlock.of(if (isAssisted) "\$N" else "\$N.get()", name)
+  get() = CodeBlock.of(if (isAssisted || key.isProvider) "\$N" else "\$N.get()", name)
 
 fun ClassName.assistedInjectFactoryName(): ClassName =
     peerClass(simpleName() + "_AssistedFactory")

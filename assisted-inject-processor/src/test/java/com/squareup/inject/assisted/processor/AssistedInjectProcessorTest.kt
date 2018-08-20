@@ -71,6 +71,55 @@ class AssistedInjectProcessorTest {
         .generatesSources(expected)
   }
 
+  @Test fun provider() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+      import javax.inject.Provider;
+
+      class Test {
+        @AssistedInject
+        Test(Provider<Long> foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String bar);
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Long;
+      import java.lang.Override;
+      import java.lang.String;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public Test create(String bar) {
+          return new Test(foo, bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
   @Test fun factoryParameterNameIsNotUsedInTheImpl() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
