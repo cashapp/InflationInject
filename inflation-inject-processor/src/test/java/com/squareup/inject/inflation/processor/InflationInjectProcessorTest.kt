@@ -268,6 +268,98 @@ class InflationInjectProcessorTest {
         .generatesSources(expectedFactory)
   }
 
+  @Test fun baseAndSubtypeInjection() {
+    val longView = JavaFileObjects.forSourceString("test.LongView", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.widget.LinearLayout;
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.InflationInject;
+
+      class LongView extends LinearLayout {
+        @InflationInject
+        LongView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+          super(context, attrs);
+        }
+      }
+    """)
+    val stringView = JavaFileObjects.forSourceString("test.StringView", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.widget.LinearLayout;
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.InflationInject;
+
+      class StringView extends LongView {
+        @InflationInject
+        StringView(@Assisted Context context, @Assisted AttributeSet attrs, String foo) {
+          super(context, attrs, Long.parseLong(foo));
+        }
+      }
+    """)
+
+    val expectedLongFactory = JavaFileObjects.forSourceString("test.LongView_AssistedFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.inflation.ViewFactory;
+      import java.lang.Long;
+      import java.lang.Override;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class LongView_AssistedFactory implements ViewFactory {
+        private final Provider<Long> foo;
+
+        @Inject public LongView_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet attrs) {
+          return new LongView(context, attrs, foo.get());
+        }
+      }
+    """)
+    val expectedStringFactory = JavaFileObjects.forSourceString("test.StringView_AssistedFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.inflation.ViewFactory;
+      import java.lang.Override;
+      import java.lang.String;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class StringView_AssistedFactory implements ViewFactory {
+        private final Provider<String> foo;
+
+        @Inject public LongView_AssistedFactory(Provider<String> foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet attrs) {
+          return new StringView(context, attrs, foo.get());
+        }
+      }
+    """)
+
+    assertAbout(javaSources())
+        .that(listOf(longView, stringView))
+        .processedWith(InflationInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedLongFactory, expectedStringFactory)
+  }
+
+
   @Test fun constructorMissingAssistedParametersFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
