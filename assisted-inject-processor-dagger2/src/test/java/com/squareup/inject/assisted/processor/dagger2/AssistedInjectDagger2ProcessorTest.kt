@@ -91,7 +91,7 @@ class AssistedInjectDagger2ProcessorTest {
         .that(moduleOne)
         .processedWith(AssistedInjectDagger2Processor())
         .failsToCompile()
-        .withErrorContaining("@AssistedModule must also be annotated with @Module.")
+        .withErrorContaining("@AssistedModule must also be annotated as a Dagger @Module")
         .`in`(moduleOne).onLine(7)
   }
 

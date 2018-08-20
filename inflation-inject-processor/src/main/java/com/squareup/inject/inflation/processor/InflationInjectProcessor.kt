@@ -166,11 +166,7 @@ class InflationInjectProcessor : AbstractProcessor() {
    * [InflationModule].
    */
   private fun RoundEnvironment.findInflationModuleTypeElement(): TypeElement? {
-    val inflationModules = findElementsAnnotatedWith<InflationModule>()
-        .cast<TypeElement>()
-    if (inflationModules.isEmpty()) {
-      return null
-    }
+    val inflationModules = findElementsAnnotatedWith<InflationModule>().cast<TypeElement>()
     if (inflationModules.size > 1) {
       inflationModules.forEach {
         error("Multiple @InflationModule-annotated modules found.", it)
@@ -178,7 +174,7 @@ class InflationInjectProcessor : AbstractProcessor() {
       return null
     }
 
-    return inflationModules.single()
+    return inflationModules.singleOrNull()
   }
 
   private fun TypeElement.toInflationModuleElementsOrNull(
