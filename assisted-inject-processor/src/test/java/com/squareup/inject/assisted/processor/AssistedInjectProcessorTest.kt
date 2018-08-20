@@ -904,6 +904,53 @@ class AssistedInjectProcessorTest {
         .generatesSources(expected)
   }
 
+  @Test fun assistedParameterOrderDifferentInFactory() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(Long foo, @Assisted String bar, @Assisted Long baz) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(Long baz, String bar);
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Long;
+      import java.lang.Override;
+      import java.lang.String;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public Test create(Long baz, String bar) {
+          return new Test(foo.get(), bar, baz);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
 
   @Test fun defaultMethod() {
     val input = JavaFileObjects.forSourceString("test.Test", """
