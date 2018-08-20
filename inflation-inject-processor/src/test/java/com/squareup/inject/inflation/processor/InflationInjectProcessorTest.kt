@@ -105,16 +105,6 @@ class InflationInjectProcessorTest {
         }
       }
     """)
-    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
-      package test;
-
-      import com.squareup.inject.inflation.InflationModule;
-      import dagger.Module;
-
-      @InflationModule
-      @Module(includes = InflationInject_TestModule.class)
-      abstract class TestModule {}
-    """)
 
     val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
       package test;
@@ -141,8 +131,8 @@ class InflationInjectProcessorTest {
       }
     """)
 
-    assertAbout(javaSources())
-        .that(listOf(inputView, inputModule))
+    assertAbout(javaSource())
+        .that(inputView)
         .processedWith(InflationInjectProcessor())
         .compilesWithoutError()
         .and()
@@ -165,16 +155,6 @@ class InflationInjectProcessorTest {
           super(context, attrs);
         }
       }
-    """)
-    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
-      package test;
-
-      import com.squareup.inject.inflation.InflationModule;
-      import dagger.Module;
-
-      @InflationModule
-      @Module(includes = InflationInject_TestModule.class)
-      abstract class TestModule {}
     """)
 
     val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
@@ -202,8 +182,8 @@ class InflationInjectProcessorTest {
       }
     """)
 
-    assertAbout(javaSources())
-        .that(listOf(inputView, inputModule))
+    assertAbout(javaSource())
+        .that(inputView)
         .processedWith(InflationInjectProcessor())
         .compilesWithoutError()
         .and()
@@ -254,16 +234,6 @@ class InflationInjectProcessorTest {
         }
       }
     """)
-    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
-      package test;
-
-      import com.squareup.inject.inflation.InflationModule;
-      import dagger.Module;
-
-      @InflationModule
-      @Module(includes = InflationInject_TestModule.class)
-      abstract class TestModule {}
-    """)
 
     val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
       package test;
@@ -290,15 +260,14 @@ class InflationInjectProcessorTest {
       }
     """)
 
-    assertAbout(javaSources())
-        .that(listOf(inputView, inputModule))
+    assertAbout(javaSource())
+        .that(inputView)
         .processedWith(InflationInjectProcessor())
         .compilesWithoutError()
         .and()
         .generatesSources(expectedFactory)
   }
 
-  @Ignore("Not implemented")
   @Test fun constructorMissingAssistedParametersFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
@@ -318,11 +287,16 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about missing required assisted params")
+        .withErrorContaining("""
+          Inflation injection requires Context and AttributeSet @Assisted parameters.
+              Found:
+                []
+              Expected:
+                [android.content.Context, android.util.AttributeSet]
+          """.trimIndent())
         .`in`(inputView).onLine(9)
   }
 
-  @Ignore("Not implemented")
   @Test fun constructorExtraAssistedParameterFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
@@ -330,6 +304,7 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
@@ -344,17 +319,23 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about missing required assisted params")
-        .`in`(inputView).onLine(9)
+        .withErrorContaining("""
+          Inflation injection requires Context and AttributeSet @Assisted parameters.
+              Found:
+                [android.content.Context, android.util.AttributeSet, java.lang.String]
+              Expected:
+                [android.content.Context, android.util.AttributeSet]
+          """.trimIndent())
+        .`in`(inputView).onLine(12)
   }
 
-  @Ignore("Not implemented")
   @Test fun constructorMissingContextFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
 
       import android.util.AttributeSet;
       import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
@@ -369,17 +350,23 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about missing required assisted params")
-        .`in`(inputView).onLine(9)
+        .withErrorContaining("""
+          Inflation injection requires Context and AttributeSet @Assisted parameters.
+              Found:
+                [android.util.AttributeSet]
+              Expected:
+                [android.content.Context, android.util.AttributeSet]
+          """.trimIndent())
+        .`in`(inputView).onLine(11)
   }
 
-  @Ignore("Not implemented")
   @Test fun constructorMissingAttributeSetFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
 
       import android.content.Context;
       import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
@@ -394,16 +381,24 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about missing required assisted params")
-        .`in`(inputView).onLine(9)
+        .withErrorContaining("""
+          Inflation injection requires Context and AttributeSet @Assisted parameters.
+              Found:
+                [android.content.Context]
+              Expected:
+                [android.content.Context, android.util.AttributeSet]
+          """.trimIndent())
+        .`in`(inputView).onLine(11)
   }
 
-  @Ignore("Not implemented")
   @Test fun constructorMissingProvidedParametersWarns() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
 
+      import android.content.Context;
+      import android.util.AttributeSet;
       import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
@@ -418,17 +413,17 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .compilesWithoutError()
-        .withWarningContaining("Something about @InflationInject not being needed")
-        .`in`(inputView).onLine(9)
+        .withWarningContaining("Inflation injection requires at least one non-@Assisted parameter.")
+        .`in`(inputView).onLine(12)
         // .and().generatesNoFiles()
   }
 
-  @Ignore("Not implemented")
   @Test fun privateConstructorFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
 
       import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
@@ -443,16 +438,16 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about private constructor")
-        .`in`(inputView).onLine(9)
+        .withErrorContaining("@InflationInject constructor must not be private.")
+        .`in`(inputView).onLine(10)
   }
 
-  @Ignore("Not implemented")
   @Test fun nestedPrivateTypeFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
 
       import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
       class Outer {
@@ -469,16 +464,16 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about private type")
-        .`in`(inputView).onLine(8)
+        .withErrorContaining("@InflationInject-using types must not be private")
+        .`in`(inputView).onLine(9)
   }
 
-  @Ignore("Not implemented")
   @Test fun nestedNonStaticFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
 
       import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
       class Outer {
@@ -495,16 +490,16 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about nested non-static type")
-        .`in`(inputView).onLine(8)
+        .withErrorContaining("Nested @InflationInject-using types must be static")
+        .`in`(inputView).onLine(9)
   }
 
-  @Ignore("Not implemented")
   @Test fun multipleInflationInjectConstructorsFails() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
 
       import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
@@ -524,8 +519,8 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about multiple constructors")
-        .`in`(inputView).onLine(9)
+        .withErrorContaining("Multiple @InflationInject-annotated constructors found.")
+        .`in`(inputView).onLine(8)
   }
 
   @Test fun moduleWithoutModuleAnnotationFails() {
@@ -542,7 +537,7 @@ class InflationInjectProcessorTest {
         .that(moduleOne)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("@InflationModule must also be annotated with @Module.")
+        .withErrorContaining("@InflationModule must also be annotated as a Dagger @Module")
         .`in`(moduleOne).onLine(7)
   }
 

@@ -1,6 +1,7 @@
 package com.squareup.inject.assisted.processor
 
 import com.squareup.inject.assisted.processor.internal.applyEach
+import com.squareup.inject.assisted.processor.internal.rawClassName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -48,7 +49,7 @@ data class AssistedInjection(
   }
 
   /** The type generated from [brewJava]. */
-  val generatedType = targetType.asClassName().assistedInjectFactoryName()
+  val generatedType = targetType.rawClassName().assistedInjectFactoryName()
 
   private val providedKeys = dependencyRequests.filterNot { it.isAssisted }
 
@@ -85,13 +86,6 @@ data class AssistedInjection(
             .build())
         .build()
   }
-}
-
-// TODO https://github.com/square/javapoet/issues/671
-private fun TypeName.asClassName() = when (this) {
-  is ClassName -> this
-  is ParameterizedTypeName -> rawType
-  else -> throw IllegalStateException("Cannot extract raw type from $this")
 }
 
 private fun Iterable<CodeBlock>.joinToCode(separator: String) = CodeBlock.join(this, separator)
