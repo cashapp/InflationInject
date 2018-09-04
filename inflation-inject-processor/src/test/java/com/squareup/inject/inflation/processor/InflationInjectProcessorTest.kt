@@ -70,7 +70,7 @@ class InflationInjectProcessorTest {
       import dagger.multibindings.StringKey;
 
       @Module
-      public abstract class InflationInject_TestModule {
+      abstract class InflationInject_TestModule {
         private InflationInject_TestModule() {}
 
         @Binds
@@ -86,6 +86,62 @@ class InflationInjectProcessorTest {
         .compilesWithoutError()
         .and()
         .generatesSources(expectedFactory, expectedModule)
+  }
+
+  @Test fun public() {
+    val inputView = JavaFileObjects.forSourceString("test.TestView", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.InflationInject;
+
+      class TestView extends View {
+        @InflationInject
+        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+          super(context, attrs);
+        }
+      }
+    """)
+    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = InflationInject_TestModule.class)
+      public abstract class TestModule {}
+    """)
+
+    val expectedModule = JavaFileObjects.forSourceString("test.InflationModule_TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.ViewFactory;
+      import dagger.Binds;
+      import dagger.Module;
+      import dagger.multibindings.IntoMap;
+      import dagger.multibindings.StringKey;
+
+      @Module
+      public abstract class InflationInject_TestModule {
+        private InflationInject_TestModule() {}
+
+        @Binds
+        @IntoMap
+        @StringKey("test.TestView")
+        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
+      }
+    """)
+
+    assertAbout(javaSources())
+        .that(listOf(inputView, inputModule))
+        .processedWith(InflationInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedModule)
   }
 
   @Test fun assistedParametersLast() {

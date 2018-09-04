@@ -8,12 +8,14 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.Modifier.PRIVATE
+import javax.lang.model.element.Modifier.PUBLIC
 
 private val MODULE = ClassName.get("dagger", "Module")
 private val BINDS = ClassName.get("dagger", "Binds")
 
 data class AssistedInjectionModule(
   val moduleName: ClassName,
+  val public: Boolean,
   val targetNameToFactoryName: Map<TypeName, ClassName>
 ) {
   val generatedType = moduleName.assistedInjectModuleName()
@@ -22,6 +24,11 @@ data class AssistedInjectionModule(
     return TypeSpec.classBuilder(generatedType)
         .addAnnotation(MODULE)
         .addModifiers(ABSTRACT)
+        .apply {
+          if (public) {
+            addModifiers(PUBLIC)
+          }
+        }
         .addMethod(MethodSpec.constructorBuilder()
             .addModifiers(PRIVATE)
             .build())
