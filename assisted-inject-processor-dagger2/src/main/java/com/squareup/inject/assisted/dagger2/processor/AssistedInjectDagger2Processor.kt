@@ -33,6 +33,7 @@ import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.tools.Diagnostic.Kind.ERROR
 
@@ -92,7 +93,8 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
     val targetNameToFactoryNames = targetTypeToFactoryType
         .map { (target, factory) -> TypeName.get(target.asType()) to ClassName.get(factory) }
         .toMap()
-    return AssistedInjectionModule(moduleName, targetNameToFactoryNames)
+    val public = Modifier.PUBLIC in moduleType.modifiers
+    return AssistedInjectionModule(moduleName, public, targetNameToFactoryNames)
   }
 
   private fun writeInflationModule(

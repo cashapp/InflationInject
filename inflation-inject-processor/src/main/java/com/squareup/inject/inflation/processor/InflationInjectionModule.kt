@@ -20,6 +20,7 @@ private val STRING_KEY = ClassName.get("dagger.multibindings", "StringKey")
 
 data class InflationInjectionModule(
   val moduleName: ClassName,
+  val public: Boolean,
   val injectedNames: List<TypeName>
 ) {
   val generatedType = moduleName.inflationInjectModuleName()
@@ -27,7 +28,12 @@ data class InflationInjectionModule(
   fun brewJava(): TypeSpec {
     return TypeSpec.classBuilder(generatedType)
         .addAnnotation(MODULE)
-        .addModifiers(PUBLIC, ABSTRACT)
+        .addModifiers(ABSTRACT)
+        .apply {
+          if (public) {
+            addModifiers(PUBLIC)
+          }
+        }
         .addMethod(MethodSpec.constructorBuilder()
             .addModifiers(PRIVATE)
             .build())

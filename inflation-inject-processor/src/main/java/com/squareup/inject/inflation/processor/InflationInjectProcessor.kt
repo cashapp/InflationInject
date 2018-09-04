@@ -26,6 +26,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CLASS
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
@@ -194,7 +195,8 @@ class InflationInjectProcessor : AbstractProcessor() {
   private fun InflationModuleElements.toInflationInjectionModule(): InflationInjectionModule {
     val moduleName = ClassName.get(moduleType)
     val inflationNames = inflationTypes.map { TypeName.get(it.asType()) }
-    return InflationInjectionModule(moduleName, inflationNames)
+    val public = Modifier.PUBLIC in moduleType.modifiers
+    return InflationInjectionModule(moduleName, public, inflationNames)
   }
 
   private fun writeInflationModule(
