@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 0.2.1 *(2018-09-04)*
+----------------------------
+
+* Fix: Ensure the generated Dagger 2 module is public if the user-defined module is public.
+
+
 Version 0.2.0 *(2018-08-20)*
 ----------------------------
 
