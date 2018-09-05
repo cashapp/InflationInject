@@ -98,7 +98,7 @@ private val DependencyRequest.providerType: TypeName
     val type = if (key.isProvider) {
       key.type // Do not wrap a Provider inside another Provider.
     } else {
-      ParameterizedTypeName.get(JAVAX_PROVIDER, key.type)
+      ParameterizedTypeName.get(JAVAX_PROVIDER, key.type.box())
     }
     key.qualifier?.let {
       return type.annotated(it)
