@@ -246,18 +246,16 @@ class InflationInjectProcessorTest {
         .generatesSources(expectedFactory)
   }
 
-  @Ignore("Not implemented")
   @Test fun typeDoesNotExtendView() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
 
       import android.content.Context;
       import android.util.AttributeSet;
-      import android.view.View;
       import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.inflation.InflationInject;
 
-      class TestView extends View {
+      class TestView {
         @InflationInject
         TestView(@Assisted AttributeSet attrs, @Assisted Context context, Long foo) {
           super(context, attrs);
@@ -269,8 +267,8 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining("Something about not extending View")
-        .`in`(inputView).onLine(10)
+        .withErrorContaining("@InflationInject-using types must be subtypes of View")
+        .`in`(inputView).onLine(9)
   }
 
   @Test fun typeExtendsViewSubclass() {

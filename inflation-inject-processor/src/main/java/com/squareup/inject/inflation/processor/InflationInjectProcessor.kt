@@ -30,6 +30,8 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.WARNING
 
@@ -44,10 +46,14 @@ class InflationInjectProcessor : AbstractProcessor() {
     super.init(env)
     messager = env.messager
     filer = env.filer
+    types = env.typeUtils
+    viewType = env.elementUtils.getTypeElement("android.view.View").asType()
   }
 
   private lateinit var messager: Messager
   private lateinit var filer: Filer
+  private lateinit var types: Types
+  private lateinit var viewType: TypeMirror
 
   override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
     val inflationInjectElements = roundEnv.findInflationInjectCandidateTypeElements()
@@ -88,6 +94,10 @@ class InflationInjectProcessor : AbstractProcessor() {
     }
     if (enclosingElement.kind == CLASS && STATIC !in modifiers) {
       error("Nested @InflationInject-using types must be static", this)
+      valid = false
+    }
+    if (!types.isSubtype(asType(), viewType)) {
+      error("@InflationInject-using types must be subtypes of View", this)
       valid = false
     }
 
