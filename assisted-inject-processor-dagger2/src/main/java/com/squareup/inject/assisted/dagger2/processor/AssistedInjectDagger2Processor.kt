@@ -18,9 +18,13 @@ package com.squareup.inject.assisted.dagger2.processor
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.dagger2.AssistedModule
+import com.squareup.inject.assisted.processor.internal.MirrorValue
 import com.squareup.inject.assisted.processor.internal.applyEach
 import com.squareup.inject.assisted.processor.internal.cast
+import com.squareup.inject.assisted.processor.internal.castEach
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
+import com.squareup.inject.assisted.processor.internal.getAnnotation
+import com.squareup.inject.assisted.processor.internal.getValue
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -35,6 +39,7 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.util.Elements
 import javax.tools.Diagnostic.Kind.ERROR
 
 @AutoService(Processor::class)
@@ -46,22 +51,69 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
 
   override fun init(env: ProcessingEnvironment) {
     super.init(env)
-    this.messager = env.messager
-    this.filer = env.filer
+    messager = env.messager
+    filer = env.filer
+    elements = env.elementUtils
   }
 
   private lateinit var messager: Messager
   private lateinit var filer: Filer
+  private lateinit var elements: Elements
+
+  private var userModule: String? = null
 
   override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-    roundEnv.findAssistedModuleElementsOrNull()
-        ?.let { writeInflationModule(it, it.toInflationInjectionModule()) }
+    val assistedModuleElements = roundEnv.findAssistedModuleElementsOrNull()
+    if (assistedModuleElements != null) {
+      val moduleType = assistedModuleElements.moduleType
+
+      val userModuleFqcn = userModule
+      if (userModuleFqcn != null) {
+        val userModuleType = elements.getTypeElement(userModuleFqcn)
+        error("Multiple @AssistedModule-annotated modules found.", userModuleType)
+        error("Multiple @AssistedModule-annotated modules found.", moduleType)
+        userModule = null
+      } else {
+        userModule = moduleType.qualifiedName.toString()
+
+        val assistedInjectionModule = assistedModuleElements.toInflationInjectionModule()
+        writeInflationModule(assistedModuleElements, assistedInjectionModule)
+      }
+    }
+
+    // Wait until processing is ending to validate that the @AssistedModule's @Module annotation
+    // includes the generated type.
+    if (roundEnv.processingOver()) {
+      val userModuleFqcn = userModule
+      if (userModuleFqcn != null) {
+        // In the processing round in which we handle the @AssistedModule the @Module annotation's
+        // includes contain an <error> type because we haven't generated the inflation module yet.
+        // As a result, we need to re-lookup the element so that its referenced types are available.
+        val userModule = elements.getTypeElement(userModuleFqcn)
+
+        // Previous validation guarantees this annotation is present.
+        val moduleAnnotation = userModule.getAnnotation("dagger.Module")!!
+        // Dagger guarantees this property is present and is an array of types or errors.
+        val includes = moduleAnnotation.getValue("includes", elements)!!
+            .cast<MirrorValue.Array>()
+            .filterIsInstance<MirrorValue.Type>()
+
+        val generatedModuleName = ClassName.get(userModule).assistedInjectModuleName()
+        val referencesGeneratedModule = includes
+            .map { ClassName.get(it) }
+            .any { it == generatedModuleName }
+        if (!referencesGeneratedModule) {
+          error("@AssistedModule's @Module must include ${generatedModuleName.simpleName()}",
+              userModule)
+        }
+      }
+    }
 
     return false
   }
 
   private fun RoundEnvironment.findAssistedModuleElementsOrNull(): AssistedModuleElements? {
-    val assistedModules = findElementsAnnotatedWith<AssistedModule>().cast<TypeElement>()
+    val assistedModules = findElementsAnnotatedWith<AssistedModule>().castEach<TypeElement>()
     if (assistedModules.isEmpty()) {
       return null
     }
@@ -78,10 +130,8 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
       return null
     }
 
-    // TODO validate includes={} includes the generated type.
-
     val factoryTypeElements = findElementsAnnotatedWith<AssistedInject.Factory>()
-        .cast<TypeElement>()
+        .castEach<TypeElement>()
         // Ignore malformed factories without enclosing types. The other processor will validate.
         .associateByNotNull { it.enclosingElement as? TypeElement }
 

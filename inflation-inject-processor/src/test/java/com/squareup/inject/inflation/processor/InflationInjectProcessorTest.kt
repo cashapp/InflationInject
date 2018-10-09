@@ -687,7 +687,6 @@ class InflationInjectProcessorTest {
         .`in`(moduleOne).onLine(7)
   }
 
-  @Ignore("Not yet validated.")
   @Test fun moduleWithNoIncludesFails() {
     val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
       package test;
@@ -704,12 +703,10 @@ class InflationInjectProcessorTest {
         .that(moduleOne)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining(
-            "@InflationModule must @Module(include = InflationInject_OneModule.class).")
+        .withErrorContaining("@InflationModule's @Module must include InflationInject_OneModule")
         .`in`(moduleOne).onLine(9)
   }
 
-  @Ignore("Not yet validated.")
   @Test fun moduleWithoutIncludeFails() {
     val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
       package test;
@@ -729,8 +726,7 @@ class InflationInjectProcessorTest {
         .that(moduleOne)
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
-        .withErrorContaining(
-            "@InflationModule must @Module(include = InflationInject_OneModule.class).")
+        .withErrorContaining("@InflationModule's @Module must include InflationInject_OneModule")
         .`in`(moduleOne).onLine(9)
   }
 
@@ -765,6 +761,10 @@ class InflationInjectProcessorTest {
         .and()
         .withErrorContaining("Multiple @InflationModule-annotated modules found.")
         .`in`(moduleTwo).onLine(9)
+  }
+
+  @Ignore("No easy way to test this")
+  @Test fun multipleModulesAcrossRoundsFails() {
   }
 
   // TODO module and no inflation injects (what do we do here? bind empty map? fail?)

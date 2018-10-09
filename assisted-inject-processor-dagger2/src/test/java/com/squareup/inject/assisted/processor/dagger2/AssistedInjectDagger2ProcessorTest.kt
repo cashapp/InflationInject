@@ -148,7 +148,6 @@ class AssistedInjectDagger2ProcessorTest {
         .`in`(moduleOne).onLine(7)
   }
 
-  @Ignore("Not yet validated.")
   @Test fun moduleWithNoIncludesFails() {
     val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
       package test;
@@ -165,12 +164,10 @@ class AssistedInjectDagger2ProcessorTest {
         .that(moduleOne)
         .processedWith(AssistedInjectDagger2Processor())
         .failsToCompile()
-        .withErrorContaining(
-            "@AssistedModule must @Module(include = AssistedInject_OneModule.class).")
+        .withErrorContaining("@AssistedModule's @Module must include AssistedInject_OneModule")
         .`in`(moduleOne).onLine(9)
   }
 
-  @Ignore("Not yet validated.")
   @Test fun moduleWithoutIncludeFails() {
     val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
       package test;
@@ -190,8 +187,7 @@ class AssistedInjectDagger2ProcessorTest {
         .that(moduleOne)
         .processedWith(AssistedInjectDagger2Processor())
         .failsToCompile()
-        .withErrorContaining(
-            "@AssistedModule must @Module(include = AssistedInject_OneModule.class).")
+        .withErrorContaining("@AssistedModule's @Module must include AssistedInject_OneModule")
         .`in`(moduleOne).onLine(9)
   }
 
@@ -226,5 +222,9 @@ class AssistedInjectDagger2ProcessorTest {
         .and()
         .withErrorContaining("Multiple @AssistedModule-annotated modules found.")
         .`in`(moduleTwo).onLine(9)
+  }
+
+  @Ignore("No easy way to test this")
+  @Test fun multipleModulesAcrossRoundsFails() {
   }
 }
