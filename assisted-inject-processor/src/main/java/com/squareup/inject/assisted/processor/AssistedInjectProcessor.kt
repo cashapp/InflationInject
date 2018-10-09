@@ -17,6 +17,7 @@ package com.squareup.inject.assisted.processor
 
 import com.google.auto.common.MoreTypes
 import com.google.auto.service.AutoService
+import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.processor.internal.associateWithNotNull
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
@@ -46,6 +47,7 @@ import javax.tools.Diagnostic.Kind.ERROR
 class AssistedInjectProcessor : AbstractProcessor() {
   override fun getSupportedSourceVersion() = SourceVersion.latest()
   override fun getSupportedAnnotationTypes() = setOf(
+      Assisted::class.java.canonicalName,
       AssistedInject::class.java.canonicalName,
       AssistedInject.Factory::class.java.canonicalName)
 
@@ -63,6 +65,31 @@ class AssistedInjectProcessor : AbstractProcessor() {
         .mapNotNull { it.toAssistedInjectElementsOrNull() }
         .associateWithNotNull { it.toAssistedInjectionOrNull() }
         .forEach(::writeAssistedInject)
+
+    val assistedMethods = roundEnv.findElementsAnnotatedWith<Assisted>()
+        .map { it.enclosingElement as ExecutableElement }
+    // Error any non-constructor usage of @Assisted.
+    assistedMethods
+        .filterNot { it.simpleName.contentEquals("<init>") }
+        .forEach {
+          error("@Assisted is only supported on constructor parameters", it)
+        }
+    // Error any constructor usage of @Assisted which lacks method annotations.
+    assistedMethods
+        .filter { it.simpleName.contentEquals("<init>") }
+        .filter { it.annotationMirrors.isEmpty() }
+        .forEach {
+          error("@Assisted parameter use requires a constructor annotation such as " +
+              "@AssistedInject or @InflationInject", it)
+        }
+    // Error any constructor usage of @Assisted which also uses @Inject.
+    assistedMethods
+        .filter { it.simpleName.contentEquals("<init>") }
+        .filter { it.hasAnnotation("javax.inject.Inject") }
+        .forEach {
+          error("@Assisted parameter does not work with @Inject! Use @AssistedInject or " +
+              "@InflationInject", it)
+        }
 
     return false
   }
