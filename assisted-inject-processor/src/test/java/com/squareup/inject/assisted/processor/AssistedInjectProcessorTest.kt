@@ -605,24 +605,6 @@ class AssistedInjectProcessorTest {
         .`in`(input).onLine(7)
   }
 
-  @Test fun assistedWithoutInjectOrFactoryIsIgnored() {
-    val input = JavaFileObjects.forSourceString("test.Test", """
-      package test;
-
-      import com.squareup.inject.assisted.Assisted;
-
-      class Test {
-        Test(Long foo, @Assisted String bar) {}
-      }
-    """)
-
-    assertAbout(javaSource())
-        .that(input)
-        .processedWith(AssistedInjectProcessor())
-        .compilesWithoutError()
-        // TODO and generatedNoFiles() https://github.com/google/compile-testing/issues/15
-  }
-
   @Test fun noAssistedFactoryFails() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
@@ -1366,5 +1348,66 @@ class AssistedInjectProcessorTest {
         .failsToCompile()
         .withErrorContaining("@AssistedInject.Factory must not be private.")
         .`in`(input).onLine(12)
+  }
+
+  @Test fun assistedFailsIfUsedOnRegularMethod() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+
+      class Test {
+        void foo(Long foo, @Assisted String bar) {}
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("@Assisted is only supported on constructor parameters")
+        .`in`(input).onLine(7)
+  }
+
+  @Test fun assistedFailsIfUsedOnBareConstructor() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+
+      class Test {
+        Test(Long foo, @Assisted String bar) {}
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining(
+            "@Assisted parameter use requires a constructor annotation such as @AssistedInject or @InflationInject")
+        .`in`(input).onLine(7)
+  }
+
+  @Test fun assistedFailsIfUsedWithInject() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import javax.inject.Inject;
+
+      class Test {
+        @Inject
+        Test(Long foo, @Assisted String bar) {}
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining(
+            "@Assisted parameter does not work with @Inject! Use @AssistedInject or @InflationInject")
+        .`in`(input).onLine(9)
   }
 }
