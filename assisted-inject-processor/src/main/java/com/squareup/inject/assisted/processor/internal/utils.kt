@@ -20,8 +20,15 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.AnnotatedConstruct
+import javax.lang.model.element.AnnotationMirror
+import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.ErrorType
+import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Elements
+import javax.lang.model.util.SimpleAnnotationValueVisitor6
+import javax.lang.model.util.SimpleTypeVisitor6
 
 /** Return a list of elements annotated with `T`. */
 inline fun <reified T : Annotation> RoundEnvironment.findElementsAnnotatedWith(): Set<Element>
@@ -36,6 +43,43 @@ fun AnnotatedConstruct.hasAnnotation(qualifiedName: String) = annotationMirrors
     .map { it.annotationType.asElement() as TypeElement }
     .any { it.qualifiedName.contentEquals(qualifiedName) }
 
+/** Return the first annotation matching [qualifiedName] or null. */
+fun AnnotatedConstruct.getAnnotation(qualifiedName: String) = annotationMirrors
+    .firstOrNull {
+      (it.annotationType.asElement() as TypeElement).qualifiedName.contentEquals(qualifiedName)
+    }
+
+fun AnnotationMirror.getValue(property: String, elements: Elements) = elements
+    .getElementValuesWithDefaults(this)
+    .entries
+    .firstOrNull { it.key.simpleName.contentEquals(property) }
+    ?.value
+    ?.accept(MirrorValue.ValueVisitor, null)
+
+sealed class MirrorValue {
+  object Unmapped : MirrorValue()
+  object Error : MirrorValue()
+
+  data class Type(private val value: TypeMirror) : MirrorValue(), TypeMirror by value
+
+  data class Array(
+    private val value: List<MirrorValue>
+  ) : MirrorValue(), List<MirrorValue> by value
+
+  object ValueVisitor : SimpleAnnotationValueVisitor6<MirrorValue, Nothing?>() {
+    override fun defaultAction(o: Any, ignored: Nothing?) = Unmapped
+
+    override fun visitType(mirror: TypeMirror, ignored: Nothing?) = mirror.accept(TypeVisitor, null)
+
+    override fun visitArray(values: List<AnnotationValue>, ignored: Nothing?) =
+        Array(values.map { it.accept(this, null) })
+  }
+  private object TypeVisitor : SimpleTypeVisitor6<MirrorValue, Nothing?>() {
+    override fun visitError(type: ErrorType, ignored: Nothing?) = Error
+    override fun defaultAction(type: TypeMirror, ignored: Nothing?) = Type(type)
+  }
+}
+
 // TODO Maybe replaced by https://youtrack.jetbrains.com/issue/KT-13814?
 fun <K, V : Any> Iterable<K>.associateWithNotNull(func: (K) -> V?): Map<K, V> {
   val map = mutableMapOf<K, V>()
@@ -48,8 +92,12 @@ fun <K, V : Any> Iterable<K>.associateWithNotNull(func: (K) -> V?): Map<K, V> {
   return map
 }
 
+/** Equivalent to `this as T` for use in function chains. */
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
-inline fun <T> Iterable<*>.cast() = map { it as T }
+inline fun <T> Any.cast(): T = this as T
+
+@Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
+inline fun <T> Iterable<*>.castEach() = map { it as T }
 
 inline fun <T : Any, I> T.applyEach(items: Iterable<I>, func: T.(I) -> Unit): T {
   items.forEach { item -> func(item) }

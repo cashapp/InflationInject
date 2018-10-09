@@ -4,10 +4,14 @@ import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.processor.AssistedInjection
 import com.squareup.inject.assisted.processor.Key
 import com.squareup.inject.assisted.processor.asDependencyRequest
+import com.squareup.inject.assisted.processor.internal.MirrorValue
 import com.squareup.inject.assisted.processor.internal.applyEach
 import com.squareup.inject.assisted.processor.internal.associateWithNotNull
 import com.squareup.inject.assisted.processor.internal.cast
+import com.squareup.inject.assisted.processor.internal.castEach
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
+import com.squareup.inject.assisted.processor.internal.getAnnotation
+import com.squareup.inject.assisted.processor.internal.getValue
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.inject.inflation.InflationInject
 import com.squareup.inject.inflation.InflationModule
@@ -31,6 +35,7 @@ import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.WARNING
@@ -47,13 +52,17 @@ class InflationInjectProcessor : AbstractProcessor() {
     messager = env.messager
     filer = env.filer
     types = env.typeUtils
-    viewType = env.elementUtils.getTypeElement("android.view.View").asType()
+    elements = env.elementUtils
+    viewType = elements.getTypeElement("android.view.View").asType()
   }
 
   private lateinit var messager: Messager
   private lateinit var filer: Filer
   private lateinit var types: Types
+  private lateinit var elements: Elements
   private lateinit var viewType: TypeMirror
+
+  private var userModule: String? = null
 
   override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
     val inflationInjectElements = roundEnv.findInflationInjectCandidateTypeElements()
@@ -63,9 +72,53 @@ class InflationInjectProcessor : AbstractProcessor() {
         .associateWithNotNull { it.toAssistedInjectionOrNull() }
         .forEach(::writeInflationInject)
 
-    roundEnv.findInflationModuleTypeElement()
+    val inflationModuleElements = roundEnv.findInflationModuleTypeElement()
         ?.toInflationModuleElementsOrNull(inflationInjectElements)
-        ?.let { writeInflationModule(it, it.toInflationInjectionModule()) }
+
+    if (inflationModuleElements != null) {
+      val moduleType = inflationModuleElements.moduleType
+
+      val userModuleFqcn = userModule
+      if (userModuleFqcn != null) {
+        val userModuleType = elements.getTypeElement(userModuleFqcn)
+        error("Multiple @InflationModule-annotated modules found.", userModuleType)
+        error("Multiple @InflationModule-annotated modules found.", moduleType)
+        userModule = null
+      } else {
+        userModule = moduleType.qualifiedName.toString()
+
+        val inflationInjectionModule = inflationModuleElements.toInflationInjectionModule()
+        writeInflationModule(inflationModuleElements, inflationInjectionModule)
+      }
+    }
+
+    // Wait until processing is ending to validate that the @InflationModule's @Module annotation
+    // includes the generated type.
+    if (roundEnv.processingOver()) {
+      val userModuleFqcn = userModule
+      if (userModuleFqcn != null) {
+        // In the processing round in which we handle the @InflationModule the @Module annotation's
+        // includes contain an <error> type because we haven't generated the inflation module yet.
+        // As a result, we need to re-lookup the element so that its referenced types are available.
+        val userModule = elements.getTypeElement(userModuleFqcn)
+
+        // Previous validation guarantees this annotation is present.
+        val moduleAnnotation = userModule.getAnnotation("dagger.Module")!!
+        // Dagger guarantees this property is present and is an array of types or errors.
+        val includes = moduleAnnotation.getValue("includes", elements)!!
+            .cast<MirrorValue.Array>()
+            .filterIsInstance<MirrorValue.Type>()
+
+        val generatedModuleName = ClassName.get(userModule).inflationInjectModuleName()
+        val referencesGeneratedModule = includes
+            .map { ClassName.get(it) }
+            .any { it == generatedModuleName }
+        if (!referencesGeneratedModule) {
+          error("@InflationModule's @Module must include ${generatedModuleName.simpleName()}",
+              userModule)
+        }
+      }
+    }
 
     return false
   }
@@ -104,7 +157,7 @@ class InflationInjectProcessor : AbstractProcessor() {
     val constructors = enclosedElements
         .filter { it.kind == CONSTRUCTOR }
         .filter { it.hasAnnotation<InflationInject>() }
-        .cast<ExecutableElement>()
+        .castEach<ExecutableElement>()
     if (constructors.size > 1) {
       error("Multiple @InflationInject-annotated constructors found.", this)
       valid = false
@@ -177,7 +230,7 @@ class InflationInjectProcessor : AbstractProcessor() {
    * [InflationModule].
    */
   private fun RoundEnvironment.findInflationModuleTypeElement(): TypeElement? {
-    val inflationModules = findElementsAnnotatedWith<InflationModule>().cast<TypeElement>()
+    val inflationModules = findElementsAnnotatedWith<InflationModule>().castEach<TypeElement>()
     if (inflationModules.size > 1) {
       inflationModules.forEach {
         error("Multiple @InflationModule-annotated modules found.", it)
@@ -195,8 +248,6 @@ class InflationInjectProcessor : AbstractProcessor() {
       error("@InflationModule must also be annotated as a Dagger @Module", this)
       return null
     }
-
-    // TODO validate includes={} includes the generated type.
 
     val inflationTargetTypes = inflationInjectElements.map { it.targetType }
     return InflationModuleElements(this, inflationTargetTypes)

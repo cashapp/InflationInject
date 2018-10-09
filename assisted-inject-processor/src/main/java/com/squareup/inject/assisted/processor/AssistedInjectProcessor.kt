@@ -19,9 +19,9 @@ import com.google.auto.common.MoreTypes
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.processor.internal.associateWithNotNull
-import com.squareup.inject.assisted.processor.internal.cast
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
+import com.squareup.inject.assisted.processor.internal.castEach
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -112,7 +112,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val constructors = enclosedElements
         .filter { it.kind == CONSTRUCTOR }
         .filter { it.hasAnnotation<AssistedInject>() }
-        .cast<ExecutableElement>()
+        .castEach<ExecutableElement>()
     if (constructors.isEmpty()) {
       error("Assisted injection requires an @AssistedInject-annotated constructor " +
           "with at least one @Assisted parameter.", this)
@@ -124,7 +124,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
     val factoryTypes = enclosedElements
         .filter { it.hasAnnotation<AssistedInject.Factory>() }
-        .cast<TypeElement>()
+        .castEach<TypeElement>()
     if (factoryTypes.isEmpty()) {
       error("No nested @AssistedInject.Factory found.", this)
       valid = false
