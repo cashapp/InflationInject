@@ -16,6 +16,24 @@ android {
   lintOptions {
     checkReleaseBuilds false
   }
+
+  signingConfigs {
+    assisted {
+      storeFile file('signing.keystore')
+      storePassword 'assisted'
+      keyAlias 'assisted'
+      keyPassword 'assisted'
+    }
+  }
+
+  buildTypes {
+    debug {
+      signingConfig signingConfigs.assisted
+    }
+    release {
+      signingConfig signingConfigs.assisted
+    }
+  }
 }
 
 dependencies {
