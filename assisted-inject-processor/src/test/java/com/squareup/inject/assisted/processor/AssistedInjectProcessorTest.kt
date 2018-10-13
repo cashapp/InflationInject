@@ -168,54 +168,6 @@ class AssistedInjectProcessorTest {
         .generatesSources(expected)
   }
 
-  @Test fun factoryParameterNameIsNotUsedInTheImpl() {
-    val input = JavaFileObjects.forSourceString("test.Test", """
-      package test;
-
-      import com.squareup.inject.assisted.Assisted;
-      import com.squareup.inject.assisted.AssistedInject;
-
-      class Test {
-        @AssistedInject
-        Test(Long foo, @Assisted String bar) {}
-
-        @AssistedInject.Factory
-        interface Factory {
-          Test create(String blah);
-        }
-      }
-    """)
-
-    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
-      package test;
-
-      import java.lang.Long;
-      import java.lang.Override;
-      import java.lang.String;
-      import javax.inject.Inject;
-      import javax.inject.Provider;
-
-      public final class Test_AssistedFactory implements Test.Factory {
-        private final Provider<Long> foo;
-
-        @Inject public Test_AssistedFactory(Provider<Long> foo) {
-          this.foo = foo;
-        }
-
-        @Override public Test create(String bar) {
-          return new Test(foo.get(), bar);
-        }
-      }
-    """)
-
-    assertAbout(javaSource())
-        .that(input)
-        .processedWith(AssistedInjectProcessor())
-        .compilesWithoutError()
-        .and()
-        .generatesSources(expected)
-  }
-
   @Test fun providedAndAssistedSameType() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
@@ -311,17 +263,146 @@ class AssistedInjectProcessorTest {
       }
     """)
 
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Override;
+      import java.lang.String;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<String> bar;
+
+        @Inject public Test_AssistedFactory(Provider<String> bar) {
+          this.bar = bar;
+        }
+
+        @Override public Test create(String foo, String baz) {
+          return new Test(foo, bar.get(), baz);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
+  @Test fun duplicateAssistedOutOfOrder() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(@Assisted String foo, String bar, @Assisted String baz) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String baz, String foo);
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Override;
+      import java.lang.String;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<String> bar;
+
+        @Inject public Test_AssistedFactory(Provider<String> bar) {
+          this.bar = bar;
+        }
+
+        @Override public Test create(String baz, String foo) {
+          return new Test(foo, bar.get(), baz);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
+  @Test fun duplicateAssistedNameMismatch() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(@Assisted String foo, String bar, @Assisted String baz) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String foo, String fizz);
+        }
+      }
+    """)
+
     assertAbout(javaSource())
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Duplicate @Assisted parameters declared. Forget a qualifier annotation?
-             * @Assisted java.lang.String foo
-             * @Assisted java.lang.String baz
+          Factory method parameters do not match constructor @Assisted parameters.
+            Missing:
+             * java.lang.String baz
+            Unknown:
+             * java.lang.String fizz
         """.trimIndent())
-        .`in`(input).onLine(9)
+        .`in`(input).onLine(13)
   }
+
+  @Test fun nameMismatch() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(@Assisted String foo, String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String baz);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("""
+          Factory method parameters do not match constructor @Assisted parameters.
+            Missing:
+             * java.lang.String foo
+            Unknown:
+             * java.lang.String baz
+        """.trimIndent())
+        .`in`(input).onLine(13)
+  }
+
 
   @Test fun providedQualifier() {
     val input = JavaFileObjects.forSourceString("test.Test", """

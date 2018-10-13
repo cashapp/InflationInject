@@ -20,9 +20,9 @@ import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.processor.internal.associateWithNotNull
+import com.squareup.inject.assisted.processor.internal.castEach
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
-import com.squareup.inject.assisted.processor.internal.castEach
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -212,14 +212,6 @@ class AssistedInjectProcessor : AbstractProcessor() {
     if (assistedRequests.isEmpty()) {
       error("Assisted injection requires at least one @Assisted parameter.", targetConstructor)
       valid = false
-    } else {
-      val assistedDuplicates = assistedRequests.groupBy { it.key }.filterValues { it.size > 1 }
-      if (assistedDuplicates.isNotEmpty()) {
-        error("Duplicate @Assisted parameters declared. Forget a qualifier annotation?"
-            + assistedDuplicates.values.flatten().joinToString("\n * ", prefix = "\n * "),
-            targetConstructor)
-        valid = false
-      }
     }
     if (providedRequests.isEmpty()) {
       error("Assisted injection requires at least one non-@Assisted parameter.", targetConstructor)
@@ -234,20 +226,20 @@ class AssistedInjectProcessor : AbstractProcessor() {
       }
     }
 
-    val expectedKeys = assistedRequests.map { it.key }.toSet()
-    val factoryKeys = factoryMethod.parameters.map { it.asKey() }
-    val keys = factoryKeys.toSet()
+    val expectedKeys = assistedRequests.map { it.namedKey }.sorted()
+    val factoryKeys = factoryMethod.parameters.map { it.asNamedKey() }
+    val keys = factoryKeys.sorted()
     if (keys != expectedKeys) {
       val message = buildString {
         append("Factory method parameters do not match constructor @Assisted parameters.")
 
         val missingKeys = expectedKeys - keys
         if (missingKeys.isNotEmpty()) {
-          append(missingKeys.joinToString("\n * ", prefix = "\n\nMissing:\n * "))
+          append(missingKeys.joinToString("\n * ", prefix = "\nMissing:\n * "))
         }
         val unknownKeys = keys - expectedKeys
         if (unknownKeys.isNotEmpty()) {
-          append(unknownKeys.joinToString("\n * ", prefix = "\n\nUnknown:\n * "))
+          append(unknownKeys.joinToString("\n * ", prefix = "\nUnknown:\n * "))
         }
       }
       error(message, factoryMethod)

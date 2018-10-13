@@ -21,13 +21,15 @@ import javax.lang.model.element.VariableElement
 
 /** Associates a [Key] with its desired use as assisted or not. */
 data class DependencyRequest(
-  val key: Key,
+  val namedKey: NamedKey,
   /** True when fulfilled by the caller. Otherwise fulfilled by a JSR 330 provider. */
-  val isAssisted: Boolean,
-  val name: String
+  val isAssisted: Boolean
 ) {
+  val key get() = namedKey.key
+  val name get() = namedKey.name
+
   override fun toString() = (if (isAssisted) "@Assisted " else "") + "$key $name"
 }
 
 fun VariableElement.asDependencyRequest() =
-    DependencyRequest(asKey(), hasAnnotation<Assisted>(), simpleName.toString())
+    DependencyRequest(asNamedKey(), hasAnnotation<Assisted>())
