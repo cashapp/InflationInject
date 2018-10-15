@@ -2,6 +2,7 @@ package com.example;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -10,13 +11,19 @@ import com.squareup.inject.assisted.Assisted;
 import com.squareup.inject.inflation.InflationInject;
 
 @SuppressLint("ViewConstructor") // Created by Inflation Inject.
-public final class CustomView extends LinearLayout {
+public final class GreeterView extends LinearLayout {
   private final Greeter greeter;
 
   @InflationInject
-  public CustomView(@Assisted Context context, @Assisted AttributeSet attrs, Greeter greeter) {
+  GreeterView(@Assisted Context context, @Assisted AttributeSet attrs, Greeter.Factory greeter) {
     super(context, attrs);
-    this.greeter = greeter;
+
+    TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.GreeterView, 0,
+        R.style.GreeterViewDefaults);
+    String greeting = array.getString(R.styleable.GreeterView_greeting);
+    array.recycle();
+
+    this.greeter = greeter.create(greeting);
   }
 
   @Override protected void onFinishInflate() {
