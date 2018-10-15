@@ -34,6 +34,9 @@ android {
     }
     release {
       signingConfig signingConfigs.assisted
+
+      minifyEnabled true
+      proguardFiles(file('shrinker.pro'))
     }
   }
 }
