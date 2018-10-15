@@ -7,7 +7,7 @@ android {
     minSdkVersion 14
     targetSdkVersion 28
 
-    applicationId 'com.example.inflationinject'
+    applicationId 'com.example.assistedinject'
   }
 
   compileOptions {
@@ -42,6 +42,6 @@ dependencies {
   implementation deps.dagger
   annotationProcessor deps.daggerCompiler
 
-  implementation project(':inflation-inject')
-  annotationProcessor project(':inflation-inject-processor')
+  implementation project(':assisted-inject-annotations-dagger2')
+  annotationProcessor project(':assisted-inject-processor-dagger2')
 }
