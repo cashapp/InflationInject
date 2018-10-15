@@ -12,10 +12,10 @@ public final class MainActivity extends Activity {
     InflationInjectFactory factory = DaggerMainActivity_MainComponent.create().factory();
     getLayoutInflater().setFactory(factory);
 
-    setContentView(R.layout.custom_view);
+    setContentView(R.layout.greeter_view);
   }
 
-  @Component(modules = ViewModule.class)
+  @Component(modules = MainModule.class)
   interface MainComponent {
     InflationInjectFactory factory();
   }
