@@ -18,11 +18,12 @@ buildscript {
       'inject': 'javax.inject:javax.inject:1',
       'android': 'com.google.android:android:4.1.1.4',
       'androidxAnnotations': 'androidx.annotation:annotation:1.0.0',
+      'dexMemberList': 'com.jakewharton.dex:dex-member-list:3.2.1',
   ]
 
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.android.tools.build:gradle:3.3.0-alpha13'
   }
 
   repositories {
