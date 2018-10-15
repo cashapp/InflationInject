@@ -22,13 +22,20 @@ private val STRING_KEY = ClassName.get("dagger.multibindings", "StringKey")
 data class InflationInjectionModule(
   val moduleName: ClassName,
   val public: Boolean,
-  val injectedNames: List<TypeName>
+  val injectedNames: List<TypeName>,
+  /** An optional `@Generated` annotation marker. */
+  val generatedAnnotation: AnnotationSpec? = null
 ) {
   val generatedType = moduleName.inflationInjectModuleName()
 
   fun brewJava(): TypeSpec {
     return TypeSpec.classBuilder(generatedType)
         .addAnnotation(MODULE)
+        .apply {
+          if (generatedAnnotation != null) {
+            addAnnotation(generatedAnnotation)
+          }
+        }
         .addModifiers(ABSTRACT)
         .apply {
           if (public) {

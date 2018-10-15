@@ -3,6 +3,7 @@ package com.squareup.inject.assisted.processor
 import com.squareup.inject.assisted.processor.internal.applyEach
 import com.squareup.inject.assisted.processor.internal.peerClassWithReflectionNesting
 import com.squareup.inject.assisted.processor.internal.rawClassName
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -33,7 +34,9 @@ data class AssistedInjection(
    * The factory method keys. These default to the keys of the assisted [dependencyRequests]
    * and when supplied must always match them, but the order is allowed to be different.
    */
-  val assistedKeys: List<NamedKey> = dependencyRequests.filter { it.isAssisted }.map { it.namedKey }
+  val assistedKeys: List<NamedKey> = dependencyRequests.filter { it.isAssisted }.map { it.namedKey },
+  /** An optional `@Generated` annotation marker. */
+  val generatedAnnotation: AnnotationSpec? = null
 ) {
   init {
     val requestKeys = dependencyRequests.filter { it.isAssisted }.map { it.namedKey }
@@ -58,6 +61,11 @@ data class AssistedInjection(
     return TypeSpec.classBuilder(generatedType)
         .addModifiers(PUBLIC, FINAL)
         .addSuperinterface(factoryType)
+        .apply {
+          if (generatedAnnotation != null) {
+            addAnnotation(generatedAnnotation)
+          }
+        }
         .applyEach(providedKeys) {
           addField(it.providerType.withoutAnnotations(), it.name, PRIVATE, FINAL)
         }

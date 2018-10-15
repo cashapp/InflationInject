@@ -2,6 +2,7 @@ package com.squareup.inject.assisted.dagger2.processor
 
 import com.squareup.inject.assisted.processor.assistedInjectFactoryName
 import com.squareup.inject.assisted.processor.internal.rawClassName
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
@@ -16,13 +17,20 @@ private val BINDS = ClassName.get("dagger", "Binds")
 data class AssistedInjectionModule(
   val moduleName: ClassName,
   val public: Boolean,
-  val targetNameToFactoryName: Map<TypeName, ClassName>
+  val targetNameToFactoryName: Map<TypeName, ClassName>,
+  /** An optional `@Generated` annotation marker. */
+  val generatedAnnotation: AnnotationSpec? = null
 ) {
   val generatedType = moduleName.assistedInjectModuleName()
 
   fun brewJava(): TypeSpec {
     return TypeSpec.classBuilder(generatedType)
         .addAnnotation(MODULE)
+        .apply {
+          if (generatedAnnotation != null) {
+            addAnnotation(generatedAnnotation)
+          }
+        }
         .addModifiers(ABSTRACT)
         .apply {
           if (public) {

@@ -7,6 +7,14 @@ import com.google.testing.compile.JavaSourcesSubjectFactory.javaSources
 import org.junit.Ignore
 import org.junit.Test
 
+private const val GENERATED_TYPE = "javax.annotation.Generated" // TODO vary once JDK 9 works.
+private const val GENERATED_ANNOTATION = """
+@Generated(
+  value = "com.squareup.inject.inflation.processor.InflationInjectProcessor",
+  comments = "https://github.com/square/AssistedInject"
+)
+"""
+
 class InflationInjectProcessorTest {
   @Test fun simple() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
@@ -45,9 +53,11 @@ class InflationInjectProcessorTest {
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class TestView_AssistedFactory implements ViewFactory {
         private final Provider<Long> foo;
 
@@ -68,8 +78,10 @@ class InflationInjectProcessorTest {
       import dagger.Module;
       import dagger.multibindings.IntoMap;
       import dagger.multibindings.StringKey;
+      import $GENERATED_TYPE;
 
       @Module
+      $GENERATED_ANNOTATION
       abstract class InflationInject_TestModule {
         private InflationInject_TestModule() {}
 
@@ -124,8 +136,10 @@ class InflationInjectProcessorTest {
       import dagger.Module;
       import dagger.multibindings.IntoMap;
       import dagger.multibindings.StringKey;
+      import $GENERATED_TYPE;
 
       @Module
+      $GENERATED_ANNOTATION
       public abstract class InflationInject_TestModule {
         private InflationInject_TestModule() {}
 
@@ -183,9 +197,11 @@ class InflationInjectProcessorTest {
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Outer${'$'}TestView_AssistedFactory implements ViewFactory {
         private final Provider<Long> foo;
 
@@ -206,8 +222,10 @@ class InflationInjectProcessorTest {
       import dagger.Module;
       import dagger.multibindings.IntoMap;
       import dagger.multibindings.StringKey;
+      import $GENERATED_TYPE;
 
       @Module
+      $GENERATED_ANNOTATION
       abstract class InflationInject_TestModule {
         private InflationInject_TestModule() {}
 
@@ -254,9 +272,11 @@ class InflationInjectProcessorTest {
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class TestView_AssistedFactory implements ViewFactory {
         private final Provider<Long> foo;
 
@@ -369,9 +389,11 @@ class InflationInjectProcessorTest {
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class TestView_AssistedFactory implements ViewFactory {
         private final Provider<Long> foo;
 
@@ -445,9 +467,11 @@ class InflationInjectProcessorTest {
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class TestView_AssistedFactory implements ViewFactory {
         private final Provider<Long> foo;
 
@@ -512,9 +536,11 @@ class InflationInjectProcessorTest {
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Long;
       import java.lang.Override;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class LongView_AssistedFactory implements ViewFactory {
         private final Provider<Long> foo;
 
@@ -536,9 +562,11 @@ class InflationInjectProcessorTest {
       import com.squareup.inject.inflation.ViewFactory;
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class StringView_AssistedFactory implements ViewFactory {
         private final Provider<String> foo;
 

@@ -21,6 +21,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.processor.internal.associateWithNotNull
 import com.squareup.inject.assisted.processor.internal.castEach
+import com.squareup.inject.assisted.processor.internal.createGeneratedAnnotation
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.inject.assisted.processor.internal.toClassName
@@ -41,6 +42,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
+import javax.lang.model.util.Elements
 import javax.tools.Diagnostic.Kind.ERROR
 
 @AutoService(Processor::class)
@@ -53,12 +55,14 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
   override fun init(env: ProcessingEnvironment) {
     super.init(env)
-    this.messager = env.messager
-    this.filer = env.filer
+    messager = env.messager
+    filer = env.filer
+    elements = env.elementUtils
   }
 
   private lateinit var messager: Messager
   private lateinit var filer: Filer
+  private lateinit var elements: Elements
 
   override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
     roundEnv.findAssistedInjectCandidateTypeElements()
@@ -252,7 +256,9 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val factoryType = factoryType.toClassName()
     val returnType = factoryMethod.returnType.toTypeName()
     val methodName = factoryMethod.simpleName.toString()
-    return AssistedInjection(targetType, requests, factoryType, methodName, returnType, factoryKeys)
+    val generatedAnnotation = createGeneratedAnnotation(elements)
+    return AssistedInjection(targetType, requests, factoryType, methodName, returnType,
+        factoryKeys, generatedAnnotation)
   }
 
   private fun writeAssistedInject(elements: AssistedInjectElements, injection: AssistedInjection) {

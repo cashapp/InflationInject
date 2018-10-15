@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.squareup.inject.assisted.processor.dagger2
+package com.squareup.inject.assisted.dagger2.processor
 
 import com.google.common.truth.Truth.assertAbout
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory.javaSource
 import com.google.testing.compile.JavaSourcesSubjectFactory.javaSources
-import com.squareup.inject.assisted.dagger2.processor.AssistedInjectDagger2Processor
 import org.junit.Ignore
 import org.junit.Test
+
+private const val GENERATED_TYPE = "javax.annotation.Generated" // TODO vary once JDK 9 works.
+private const val GENERATED_ANNOTATION = """
+@Generated(
+  value = "com.squareup.inject.assisted.dagger2.processor.AssistedInjectDagger2Processor",
+  comments = "https://github.com/square/AssistedInject"
+)
+"""
 
 class AssistedInjectDagger2ProcessorTest {
   @Test fun simple() {
@@ -60,8 +67,10 @@ class AssistedInjectDagger2ProcessorTest {
 
       import dagger.Binds;
       import dagger.Module;
+      import $GENERATED_TYPE;
 
       @Module
+      $GENERATED_ANNOTATION
       abstract class AssistedInject_TestModule {
         private AssistedInject_TestModule() {}
 
@@ -113,8 +122,10 @@ class AssistedInjectDagger2ProcessorTest {
 
       import dagger.Binds;
       import dagger.Module;
+      import $GENERATED_TYPE;
 
       @Module
+      $GENERATED_ANNOTATION
       public abstract class AssistedInject_TestModule {
         private AssistedInject_TestModule() {}
 
@@ -168,8 +179,10 @@ class AssistedInjectDagger2ProcessorTest {
 
       import dagger.Binds;
       import dagger.Module;
+      import $GENERATED_TYPE;
 
       @Module
+      $GENERATED_ANNOTATION
       public abstract class AssistedInject_TestModule {
         private AssistedInject_TestModule() {}
 
