@@ -8,7 +8,7 @@ android {
     minSdkVersion 14
     targetSdkVersion 28
 
-    applicationId 'com.example.assistedinject'
+    applicationId 'com.example.inject.assisted'
   }
 
   compileOptions {
