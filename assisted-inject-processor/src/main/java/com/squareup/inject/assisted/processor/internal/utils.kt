@@ -29,6 +29,11 @@ import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Elements
 import javax.lang.model.util.SimpleAnnotationValueVisitor6
 import javax.lang.model.util.SimpleTypeVisitor6
+import kotlin.reflect.KClass
+
+fun TypeElement.toClassName(): ClassName = ClassName.get(this)
+fun TypeMirror.toTypeName(): TypeName = TypeName.get(this)
+fun KClass<*>.toClassName(): ClassName = ClassName.get(java)
 
 /** Return a list of elements annotated with `T`. */
 inline fun <reified T : Annotation> RoundEnvironment.findElementsAnnotatedWith(): Set<Element>

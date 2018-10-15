@@ -26,9 +26,9 @@ import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.getAnnotation
 import com.squareup.inject.assisted.processor.internal.getValue
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
-import com.squareup.javapoet.ClassName
+import com.squareup.inject.assisted.processor.internal.toClassName
+import com.squareup.inject.assisted.processor.internal.toTypeName
 import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.TypeName
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -98,9 +98,9 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
             .cast<MirrorValue.Array>()
             .filterIsInstance<MirrorValue.Type>()
 
-        val generatedModuleName = ClassName.get(userModule).assistedInjectModuleName()
+        val generatedModuleName = userModule.toClassName().assistedInjectModuleName()
         val referencesGeneratedModule = includes
-            .map { ClassName.get(it) }
+            .map { it.toTypeName() }
             .any { it == generatedModuleName }
         if (!referencesGeneratedModule) {
           error("@AssistedModule's @Module must include ${generatedModuleName.simpleName()}",
@@ -139,9 +139,9 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
   }
 
   private fun AssistedModuleElements.toInflationInjectionModule(): AssistedInjectionModule {
-    val moduleName = ClassName.get(moduleType)
+    val moduleName = moduleType.toClassName()
     val targetNameToFactoryNames = targetTypeToFactoryType
-        .map { (target, factory) -> TypeName.get(target.asType()) to ClassName.get(factory) }
+        .map { (target, factory) -> target.asType().toTypeName() to factory.toClassName() }
         .toMap()
     val public = Modifier.PUBLIC in moduleType.modifiers
     return AssistedInjectionModule(moduleName, public, targetNameToFactoryNames)
