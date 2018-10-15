@@ -17,12 +17,12 @@ buildscript {
       'robolectric': 'org.robolectric:robolectric:4.0-alpha-3',
       'inject': 'javax.inject:javax.inject:1',
       'android': 'com.google.android:android:4.1.1.4',
-      'androidxAnnotations': 'androidx.annotation:annotation:1.0.0-rc01',
+      'androidxAnnotations': 'androidx.annotation:annotation:1.0.0',
   ]
 
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-    classpath 'com.android.tools.build:gradle:3.2.0'
+    classpath 'com.android.tools.build:gradle:3.2.1'
   }
 
   repositories {

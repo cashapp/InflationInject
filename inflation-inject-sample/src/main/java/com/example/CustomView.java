@@ -1,5 +1,6 @@
 package com.example;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.EditText;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 import com.squareup.inject.assisted.Assisted;
 import com.squareup.inject.inflation.InflationInject;
 
+@SuppressLint("ViewConstructor") // Created by Inflation Inject.
 public final class CustomView extends LinearLayout {
   private final Greeter greeter;
 
