@@ -1,6 +1,7 @@
 package com.squareup.inject.assisted.processor
 
 import com.squareup.inject.assisted.processor.internal.applyEach
+import com.squareup.inject.assisted.processor.internal.peerClassWithReflectionNesting
 import com.squareup.inject.assisted.processor.internal.rawClassName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -109,4 +110,4 @@ private val DependencyRequest.argumentProvider
   get() = CodeBlock.of(if (isAssisted || key.isProvider) "\$N" else "\$N.get()", name)
 
 fun ClassName.assistedInjectFactoryName(): ClassName =
-    peerClass(simpleName() + "_AssistedFactory")
+    peerClassWithReflectionNesting(simpleName() + "_AssistedFactory")

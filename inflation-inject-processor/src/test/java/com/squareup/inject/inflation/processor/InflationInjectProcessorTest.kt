@@ -144,6 +144,89 @@ class InflationInjectProcessorTest {
         .generatesSources(expectedModule)
   }
 
+  @Test fun nested() {
+    val inputView = JavaFileObjects.forSourceString("test.TestView", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.InflationInject;
+
+      class Outer {
+        static class TestView extends View {
+          @InflationInject
+          TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+            super(context, attrs);
+          }
+        }
+      }
+    """)
+    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = InflationInject_TestModule.class)
+      abstract class TestModule {}
+    """)
+
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.inflation.ViewFactory;
+      import java.lang.Long;
+      import java.lang.Override;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      public final class Outer${'$'}TestView_AssistedFactory implements ViewFactory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet attrs) {
+          return new Outer.TestView(context, attrs, foo.get());
+        }
+      }
+    """)
+    val expectedModule = JavaFileObjects.forSourceString("test.InflationModule_TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.ViewFactory;
+      import dagger.Binds;
+      import dagger.Module;
+      import dagger.multibindings.IntoMap;
+      import dagger.multibindings.StringKey;
+
+      @Module
+      abstract class InflationInject_TestModule {
+        private InflationInject_TestModule() {}
+
+        @Binds
+        @IntoMap
+        @StringKey("test.Outer.TestView")
+        abstract ViewFactory bind_test_Outer${'$'}TestView(Outer${'$'}TestView_AssistedFactory factory);
+      }
+    """)
+    // TODO the above key seems wrong https://github.com/square/AssistedInject/issues/64
+
+    assertAbout(javaSources())
+        .that(listOf(inputView, inputModule))
+        .processedWith(InflationInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedFactory, expectedModule)
+  }
+
   @Test fun assistedParametersLast() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;

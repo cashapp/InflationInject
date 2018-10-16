@@ -2,6 +2,7 @@ package com.squareup.inject.inflation.processor
 
 import com.squareup.inject.assisted.processor.assistedInjectFactoryName
 import com.squareup.inject.assisted.processor.internal.applyEach
+import com.squareup.inject.assisted.processor.internal.peerClassWithReflectionNesting
 import com.squareup.inject.assisted.processor.internal.rawClassName
 import com.squareup.inject.inflation.ViewFactory
 import com.squareup.javapoet.AnnotationSpec
@@ -56,4 +57,5 @@ data class InflationInjectionModule(
 
 private fun ClassName.bindMethodName() = "bind_" + reflectionName().replace('.', '_')
 
-fun ClassName.inflationInjectModuleName(): ClassName = peerClass("InflationInject_" + simpleName())
+fun ClassName.inflationInjectModuleName(): ClassName =
+    peerClassWithReflectionNesting("InflationInject_" + simpleName())
