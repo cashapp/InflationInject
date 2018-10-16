@@ -7,7 +7,7 @@ android {
     minSdkVersion 14
     targetSdkVersion 28
 
-    applicationId 'com.example.inflationinject'
+    applicationId 'com.example.inject.inflation'
   }
 
   compileOptions {
