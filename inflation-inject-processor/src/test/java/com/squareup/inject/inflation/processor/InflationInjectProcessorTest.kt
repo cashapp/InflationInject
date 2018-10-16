@@ -231,11 +231,10 @@ class InflationInjectProcessorTest {
 
         @Binds
         @IntoMap
-        @StringKey("test.Outer.TestView")
+        @StringKey("test.Outer${'$'}TestView")
         abstract ViewFactory bind_test_Outer${'$'}TestView(Outer${'$'}TestView_AssistedFactory factory);
       }
     """)
-    // TODO the above key seems wrong https://github.com/square/AssistedInject/issues/64
 
     assertAbout(javaSources())
         .that(listOf(inputView, inputModule))
@@ -244,6 +243,92 @@ class InflationInjectProcessorTest {
         .and()
         .generatesSources(expectedFactory, expectedModule)
   }
+
+  @Ignore("Not handled properly. https://github.com/square/AssistedInject/issues/64")
+  @Test fun parameterized() {
+    val inputView = JavaFileObjects.forSourceString("test.TestView", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.InflationInject;
+
+      class TestView<T> extends View {
+        @InflationInject
+        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+          super(context, attrs);
+        }
+      }
+    """)
+    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = InflationInject_TestModule.class)
+      abstract class TestModule {}
+    """)
+
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.inflation.ViewFactory;
+      import java.lang.Long;
+      import java.lang.Override;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      public final class TestView_AssistedFactory implements ViewFactory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet attrs) {
+          return new TestView<?>(context, attrs, foo.get());
+        }
+      }
+    """)
+    val expectedModule = JavaFileObjects.forSourceString("test.InflationModule_TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.ViewFactory;
+      import dagger.Binds;
+      import dagger.Module;
+      import dagger.multibindings.IntoMap;
+      import dagger.multibindings.StringKey;
+      import $GENERATED_TYPE;
+
+      @Module
+      $GENERATED_ANNOTATION
+      abstract class InflationInject_TestModule {
+        private InflationInject_TestModule() {}
+
+        @Binds
+        @IntoMap
+        @StringKey("test.TestView")
+        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
+      }
+    """)
+
+    assertAbout(javaSources())
+        .that(listOf(inputView, inputModule))
+        .processedWith(InflationInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedFactory, expectedModule)
+  }
+
 
   @Test fun assistedParametersLast() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
