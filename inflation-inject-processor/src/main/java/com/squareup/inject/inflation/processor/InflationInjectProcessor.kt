@@ -260,7 +260,7 @@ class InflationInjectProcessor : AbstractProcessor() {
 
   private fun InflationModuleElements.toInflationInjectionModule(): InflationInjectionModule {
     val moduleName = moduleType.toClassName()
-    val inflationNames = inflationTypes.map { it.asType().toTypeName() }
+    val inflationNames = inflationTypes.map { it.toClassName() }
     val public = Modifier.PUBLIC in moduleType.modifiers
     val generatedAnnotation = createGeneratedAnnotation(elements)
     return InflationInjectionModule(moduleName, public, inflationNames, generatedAnnotation)
