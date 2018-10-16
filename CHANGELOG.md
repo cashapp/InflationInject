@@ -1,6 +1,25 @@
 Change Log
 ==========
 
+Version 0.3.0 *(2018-10-16)*
+----------------------------
+
+ * New: Allow multiple assisted parameters of the same type. This also brings validation that all
+   parameter names in the factory match those of the constructor. Without this, there is no way to
+   correctly match arguments when multiple of the same type are present.
+ * New: Validate that modules annotated with `@AssistedModule` or `@InflationModule` actually include
+   the generated module in their `includes=` list.
+ * New: Include a `@Generated` annotation which is appropriate for the target JDK on all generated code.
+ * Fix: Mark invalid usages of `@Assisted` at compile time:
+   * Cannot be used on a non-constructor parameter.
+   * Cannot be used on a constructor without `@AssistedInject` or `@InflationInject`.
+   * Cannot be used on a constructor which is annotated with `@Inject`.
+ * Fix: Inflation injection now validates that targets are subtypes of View rather than generating
+   code which fails to compile.
+ * Fix: Support injection of primitives by boxing them when generating a `Provider<..>` type.
+ * Fix: Generate correct code for types which are nested inside others.
+
+
 Version 0.2.1 *(2018-09-04)*
 ----------------------------
 
