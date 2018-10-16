@@ -22,6 +22,7 @@ import com.squareup.inject.assisted.processor.internal.MirrorValue
 import com.squareup.inject.assisted.processor.internal.applyEach
 import com.squareup.inject.assisted.processor.internal.cast
 import com.squareup.inject.assisted.processor.internal.castEach
+import com.squareup.inject.assisted.processor.internal.createGeneratedAnnotation
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.getAnnotation
 import com.squareup.inject.assisted.processor.internal.getValue
@@ -144,7 +145,9 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
         .map { (target, factory) -> target.asType().toTypeName() to factory.toClassName() }
         .toMap()
     val public = Modifier.PUBLIC in moduleType.modifiers
-    return AssistedInjectionModule(moduleName, public, targetNameToFactoryNames)
+    val generatedAnnotation = createGeneratedAnnotation(elements)
+    return AssistedInjectionModule(moduleName, public, targetNameToFactoryNames,
+        generatedAnnotation)
   }
 
   private fun writeInflationModule(

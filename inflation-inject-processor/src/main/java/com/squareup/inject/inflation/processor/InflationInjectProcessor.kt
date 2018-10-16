@@ -10,6 +10,7 @@ import com.squareup.inject.assisted.processor.internal.applyEach
 import com.squareup.inject.assisted.processor.internal.associateWithNotNull
 import com.squareup.inject.assisted.processor.internal.cast
 import com.squareup.inject.assisted.processor.internal.castEach
+import com.squareup.inject.assisted.processor.internal.createGeneratedAnnotation
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.getAnnotation
 import com.squareup.inject.assisted.processor.internal.getValue
@@ -213,7 +214,9 @@ class InflationInjectProcessor : AbstractProcessor() {
     if (!valid) return null
 
     val targetType = targetType.asType().toTypeName()
-    return AssistedInjection(targetType, requests, FACTORY, "create", VIEW, FACTORY_KEYS)
+    val generatedAnnotation = createGeneratedAnnotation(elements)
+    return AssistedInjection(targetType, requests, FACTORY, "create", VIEW,
+        FACTORY_KEYS, generatedAnnotation)
   }
 
   private fun writeInflationInject(elements: InflationInjectElements, injection: AssistedInjection) {
@@ -259,7 +262,8 @@ class InflationInjectProcessor : AbstractProcessor() {
     val moduleName = moduleType.toClassName()
     val inflationNames = inflationTypes.map { it.asType().toTypeName() }
     val public = Modifier.PUBLIC in moduleType.modifiers
-    return InflationInjectionModule(moduleName, public, inflationNames)
+    val generatedAnnotation = createGeneratedAnnotation(elements)
+    return InflationInjectionModule(moduleName, public, inflationNames, generatedAnnotation)
   }
 
   private fun writeInflationModule(

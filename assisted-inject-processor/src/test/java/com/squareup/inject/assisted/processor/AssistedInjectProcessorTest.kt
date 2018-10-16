@@ -22,6 +22,14 @@ import com.google.testing.compile.JavaSourcesSubjectFactory.javaSources
 import org.junit.Ignore
 import org.junit.Test
 
+private const val GENERATED_TYPE = "javax.annotation.Generated" // TODO vary once JDK 9 works.
+private const val GENERATED_ANNOTATION = """
+@Generated(
+  value = "com.squareup.inject.assisted.processor.AssistedInjectProcessor",
+  comments = "https://github.com/square/AssistedInject"
+)
+"""
+
 class AssistedInjectProcessorTest {
   @Test fun simple() {
     val input = JavaFileObjects.forSourceString("test.Test", """
@@ -47,9 +55,11 @@ class AssistedInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<Long> foo;
 
@@ -96,9 +106,11 @@ class AssistedInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<Long> foo;
 
@@ -144,9 +156,11 @@ class AssistedInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<Long> foo;
 
@@ -191,9 +205,11 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<String> foo;
 
@@ -268,9 +284,11 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<String> bar;
 
@@ -315,9 +333,11 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<String> bar;
 
@@ -431,9 +451,11 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<String> foo;
 
@@ -482,9 +504,11 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<String> foo;
 
@@ -530,10 +554,12 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Named;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<String> foo;
 
@@ -582,9 +608,11 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<String> foo;
 
@@ -991,9 +1019,11 @@ class AssistedInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<Long> foo;
 
@@ -1039,9 +1069,11 @@ class AssistedInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<Long> foo;
 
@@ -1244,9 +1276,11 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Long;
       import java.lang.Override;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Test_AssistedFactory implements Test.Factory {
         private final Provider<Long> foo;
 
@@ -1297,10 +1331,13 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Long;
       import java.lang.Override;
+
       import java.lang.String;
+      import $GENERATED_TYPE;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
+      $GENERATED_ANNOTATION
       public final class Outer${'$'}Test_AssistedFactory implements Outer.Test.Factory {
         private final Provider<Long> foo;
 

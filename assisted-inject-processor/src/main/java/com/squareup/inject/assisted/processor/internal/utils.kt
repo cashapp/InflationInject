@@ -15,9 +15,11 @@
  */
 package com.squareup.inject.assisted.processor.internal
 
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.AnnotatedConstruct
 import javax.lang.model.element.AnnotationMirror
@@ -129,4 +131,20 @@ fun TypeName.rawClassName(): ClassName = when (this) {
   is ClassName -> this
   is ParameterizedTypeName -> rawType
   else -> throw IllegalStateException("Cannot extract raw class name from $this")
+}
+
+/**
+ * Create a `@Generated` annotation using the correct type based on JDK version and availability on
+ * the compilation classpath, a `value` with the fully-qualified class name of the calling
+ * [Processor], and a comment pointing to this project's GitHub repo. Returns `null` if no
+ * annotation type is available on the classpath.
+ */
+fun Processor.createGeneratedAnnotation(elements: Elements): AnnotationSpec? {
+  val generatedType = elements.getTypeElement("javax.annotation.processing.Generated")
+      ?: elements.getTypeElement("javax.annotation.Generated")
+      ?: return null
+  return AnnotationSpec.builder(generatedType.toClassName())
+      .addMember("value", "\$S", javaClass.name)
+      .addMember("comments", "\$S", "https://github.com/square/AssistedInject")
+      .build()
 }
