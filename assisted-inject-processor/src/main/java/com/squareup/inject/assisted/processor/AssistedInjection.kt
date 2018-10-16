@@ -1,6 +1,7 @@
 package com.squareup.inject.assisted.processor
 
 import com.squareup.inject.assisted.processor.internal.applyEach
+import com.squareup.inject.assisted.processor.internal.joinToCode
 import com.squareup.inject.assisted.processor.internal.peerClassWithReflectionNesting
 import com.squareup.inject.assisted.processor.internal.rawClassName
 import com.squareup.javapoet.AnnotationSpec
@@ -95,8 +96,6 @@ data class AssistedInjection(
         .build()
   }
 }
-
-private fun Iterable<CodeBlock>.joinToCode(separator: String) = CodeBlock.join(this, separator)
 
 /** True when this key represents a parameterized JSR 330 `Provider`. */
 private val Key.isProvider get() = type is ParameterizedTypeName && type.rawType == JAVAX_PROVIDER
