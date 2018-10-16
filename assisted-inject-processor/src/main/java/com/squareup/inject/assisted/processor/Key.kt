@@ -16,6 +16,7 @@
 package com.squareup.inject.assisted.processor
 
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
+import com.squareup.inject.assisted.processor.internal.toTypeName
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.VariableElement
@@ -32,7 +33,7 @@ data class Key(
 }
 
 /** Create a [Key] from this type and any qualifier annotation. */
-fun VariableElement.asKey() = Key(TypeName.get(asType()),
+fun VariableElement.asKey() = Key(asType().toTypeName(),
     annotationMirrors.find {
       it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
     }?.let { AnnotationSpec.get(it) })

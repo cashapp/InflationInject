@@ -14,12 +14,13 @@ import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.getAnnotation
 import com.squareup.inject.assisted.processor.internal.getValue
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
+import com.squareup.inject.assisted.processor.internal.toClassName
+import com.squareup.inject.assisted.processor.internal.toTypeName
 import com.squareup.inject.inflation.InflationInject
 import com.squareup.inject.inflation.InflationModule
 import com.squareup.inject.inflation.ViewFactory
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.TypeName
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -110,9 +111,9 @@ class InflationInjectProcessor : AbstractProcessor() {
             .cast<MirrorValue.Array>()
             .filterIsInstance<MirrorValue.Type>()
 
-        val generatedModuleName = ClassName.get(userModule).inflationInjectModuleName()
+        val generatedModuleName = userModule.toClassName().inflationInjectModuleName()
         val referencesGeneratedModule = includes
-            .map { ClassName.get(it) }
+            .map { it.toTypeName() }
             .any { it == generatedModuleName }
         if (!referencesGeneratedModule) {
           error("@InflationModule's @Module must include ${generatedModuleName.simpleName()}",
@@ -211,7 +212,7 @@ class InflationInjectProcessor : AbstractProcessor() {
 
     if (!valid) return null
 
-    val targetType = TypeName.get(targetType.asType())
+    val targetType = targetType.asType().toTypeName()
     return AssistedInjection(targetType, requests, FACTORY, "create", VIEW, FACTORY_KEYS)
   }
 
@@ -255,8 +256,8 @@ class InflationInjectProcessor : AbstractProcessor() {
   }
 
   private fun InflationModuleElements.toInflationInjectionModule(): InflationInjectionModule {
-    val moduleName = ClassName.get(moduleType)
-    val inflationNames = inflationTypes.map { TypeName.get(it.asType()) }
+    val moduleName = moduleType.toClassName()
+    val inflationNames = inflationTypes.map { it.asType().toTypeName() }
     val public = Modifier.PUBLIC in moduleType.modifiers
     return InflationInjectionModule(moduleName, public, inflationNames)
   }
@@ -298,7 +299,7 @@ class InflationInjectProcessor : AbstractProcessor() {
 }
 
 private val VIEW = ClassName.get("android.view", "View")
-private val FACTORY = ClassName.get(ViewFactory::class.java)
+private val FACTORY = ViewFactory::class.toClassName()
 private val FACTORY_KEYS = listOf(
     NamedKey(Key(ClassName.get("android.content", "Context")), "context"),
     NamedKey(Key(ClassName.get("android.util", "AttributeSet")), "attrs"))

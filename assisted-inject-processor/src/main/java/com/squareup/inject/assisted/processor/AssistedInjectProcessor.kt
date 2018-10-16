@@ -23,9 +23,9 @@ import com.squareup.inject.assisted.processor.internal.associateWithNotNull
 import com.squareup.inject.assisted.processor.internal.castEach
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
-import com.squareup.javapoet.ClassName
+import com.squareup.inject.assisted.processor.internal.toClassName
+import com.squareup.inject.assisted.processor.internal.toTypeName
 import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.TypeName
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -248,9 +248,9 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
     if (!valid) return null
 
-    val targetType = TypeName.get(targetType.asType())
-    val factoryType = ClassName.get(factoryType)
-    val returnType = ClassName.get(factoryMethod.returnType)
+    val targetType = targetType.asType().toTypeName()
+    val factoryType = factoryType.toClassName()
+    val returnType = factoryMethod.returnType.toTypeName()
     val methodName = factoryMethod.simpleName.toString()
     return AssistedInjection(targetType, requests, factoryType, methodName, returnType, factoryKeys)
   }
