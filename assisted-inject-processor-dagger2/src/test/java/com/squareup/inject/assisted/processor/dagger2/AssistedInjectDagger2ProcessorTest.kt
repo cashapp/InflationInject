@@ -130,6 +130,61 @@ class AssistedInjectDagger2ProcessorTest {
         .generatesSources(expected)
   }
 
+  @Test fun nested() {
+    val test = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Outer {
+        static class Test {
+          @AssistedInject
+          Test(Long foo, @Assisted String bar) {}
+
+          @AssistedInject.Factory
+          interface Factory {}
+        }
+      }
+    """)
+    val testFactory = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      class Outer${'$'}Test_AssistedFactory implements Outer.Test.Factory {}
+    """)
+    val module = JavaFileObjects.forSourceString("test.TestModule", """
+      package test;
+
+      import com.squareup.inject.assisted.dagger2.AssistedModule;
+      import dagger.Module;
+
+      @AssistedModule
+      @Module(includes = AssistedInject_TestModule.class)
+      public abstract class TestModule {}
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.AssistedInject_TestModule", """
+      package test;
+
+      import dagger.Binds;
+      import dagger.Module;
+
+      @Module
+      public abstract class AssistedInject_TestModule {
+        private AssistedInject_TestModule() {}
+
+        @Binds abstract Outer.Test.Factory bind_test_Outer${'$'}Test(Outer${'$'}Test_AssistedFactory factory);
+      }
+    """)
+
+    assertAbout(javaSources())
+        .that(listOf(test, testFactory, module))
+        .processedWith(AssistedInjectDagger2Processor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
   @Test fun moduleWithoutModuleAnnotationFails() {
     val moduleOne = JavaFileObjects.forSourceString("test.OneModule", """
       package test;

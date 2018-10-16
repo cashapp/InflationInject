@@ -1272,7 +1272,6 @@ class AssistedInjectProcessorTest {
         .generatesSources(expected)
   }
 
-  @Ignore("Doesn't work yet")
   @Test fun nested() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
