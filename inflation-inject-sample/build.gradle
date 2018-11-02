@@ -44,6 +44,7 @@ android {
 dependencies {
   implementation deps.dagger
   annotationProcessor deps.daggerCompiler
+  implementation deps.appcompat
 
   implementation project(':inflation-inject')
   annotationProcessor project(':inflation-inject-processor')

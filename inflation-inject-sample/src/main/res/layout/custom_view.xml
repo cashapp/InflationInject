@@ -18,6 +18,13 @@
       android:layout_marginTop="8dp"
       android:hint="Show"
       />
+    <Button
+            android:id="@+id/openAppCompat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Open AppCompat Activity"
+    />
   <TextView
       android:id="@+id/output"
       android:layout_width="match_parent"
