@@ -15,6 +15,7 @@
  */
 package com.squareup.inject.assisted.processor
 
+import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.Assisted
@@ -43,6 +44,7 @@ import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
+import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 
 @AutoService(Processor::class)
@@ -58,11 +60,13 @@ class AssistedInjectProcessor : AbstractProcessor() {
     messager = env.messager
     filer = env.filer
     elements = env.elementUtils
+    types = env.typeUtils
   }
 
   private lateinit var messager: Messager
   private lateinit var filer: Filer
   private lateinit var elements: Elements
+  private lateinit var types: Types
 
   override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
     roundEnv.findAssistedInjectCandidateTypeElements()
@@ -182,11 +186,8 @@ class AssistedInjectProcessor : AbstractProcessor() {
       valid = false
     }
 
-    val factoryMethods = factoryType.enclosedElements
-        .filterIsInstance<ExecutableElement>() // Ignore non-method elements like constants.
+    val factoryMethods = MoreElements.getLocalAndInheritedMethods(factoryType, types, elements)
         .filterNot { it.isDefault } // Ignore default methods for convenience overloads.
-        .filterNot { STATIC in it.modifiers } // Ignore static helper methods.
-        .filterNot { PRIVATE in it.modifiers } // Ignore private helper methods for default methods.
     if (factoryMethods.isEmpty()) {
       error("Factory interface does not define a factory method.", factoryType)
       valid = false
