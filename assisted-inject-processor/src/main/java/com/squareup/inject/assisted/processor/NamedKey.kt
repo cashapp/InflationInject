@@ -1,6 +1,7 @@
 package com.squareup.inject.assisted.processor
 
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.TypeMirror
 
 private val namedKeyComparator = compareBy<NamedKey>({ it.key }, { it.name })
 
@@ -14,4 +15,4 @@ data class NamedKey(
 }
 
 /** Create a [NamedKey] from this type, any qualifier annotation, and the name. */
-fun VariableElement.asNamedKey() = NamedKey(asKey(), simpleName.toString())
+fun VariableElement.asNamedKey(mirror: TypeMirror = asType()) = NamedKey(asKey(mirror), simpleName.toString())
