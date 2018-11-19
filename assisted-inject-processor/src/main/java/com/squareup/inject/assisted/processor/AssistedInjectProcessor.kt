@@ -43,6 +43,8 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.ExecutableType
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
@@ -231,8 +233,14 @@ class AssistedInjectProcessor : AbstractProcessor() {
       }
     }
 
+    // Project the factory method (which may have come from a supertype) as if it were a member of
+    // the subtype to resolve any generic parameters.
+    val factoryExecutable = types.asMemberOf(factoryType.asType() as DeclaredType,
+        factoryMethod) as ExecutableType
+
     val expectedKeys = assistedRequests.map { it.namedKey }.sorted()
-    val factoryKeys = factoryMethod.parameters.map { it.asNamedKey() }
+    val factoryKeys = factoryMethod.parameters
+        .zip(factoryExecutable.parameterTypes) { element, mirror -> element.asNamedKey(mirror) }
     val keys = factoryKeys.sorted()
     if (keys != expectedKeys) {
       val message = buildString {
@@ -255,7 +263,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
     val targetType = targetType.asType().toTypeName()
     val factoryType = factoryType.toClassName()
-    val returnType = factoryMethod.returnType.toTypeName()
+    val returnType = factoryExecutable.returnType.toTypeName()
     val methodName = factoryMethod.simpleName.toString()
     val generatedAnnotation = createGeneratedAnnotation(elements)
     return AssistedInjection(targetType, requests, factoryType, methodName, returnType,

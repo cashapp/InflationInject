@@ -1331,7 +1331,6 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Long;
       import java.lang.Override;
-
       import java.lang.String;
       import $GENERATED_TYPE;
       import javax.inject.Inject;
@@ -1387,7 +1386,6 @@ class AssistedInjectProcessorTest {
 
       import java.lang.Long;
       import java.lang.Override;
-
       import java.lang.String;
       import $GENERATED_TYPE;
       import javax.inject.Inject;
@@ -1402,6 +1400,61 @@ class AssistedInjectProcessorTest {
         }
 
         @Override public BaseThing create(String bar) {
+          return new Test(foo.get(), bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
+  @Test fun factoryMethodInSupertypeWithGenerics() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      interface BaseThing<T> {
+        interface Factory<T> {
+          BaseThing<T> create(T bar);
+        }
+      }
+
+      class Test implements BaseThing<String> {
+        @AssistedInject
+        Test(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory extends BaseThing.Factory<String> {
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Long;
+      import java.lang.Override;
+      import java.lang.String;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public BaseThing<String> create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
