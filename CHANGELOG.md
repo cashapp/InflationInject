@@ -4,7 +4,7 @@ Change Log
 Version 0.3.1 *(2018-11-19)*
 ----------------------------
 
- * Fix: Honor abstract factory methods which come from supertypes / superinterfaces.
+ * Fix: Honor abstract factory methods which come from supertypes.
  * Fix: Support generic use in factory parameters and return type.
 
 
