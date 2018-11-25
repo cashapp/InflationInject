@@ -634,7 +634,7 @@ class AssistedInjectProcessorTest {
         .generatesSources(expected)
   }
 
-  @Test fun noAssistedParametersFails() {
+  @Test fun noAssistedParametersWarns() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
 
@@ -652,15 +652,41 @@ class AssistedInjectProcessorTest {
       }
     """)
 
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Override;
+      import java.lang.String;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<String> foo;
+
+        @Inject public Test_AssistedFactory(Provider<String> foo) {
+          this.foo = foo;
+        }
+
+        @Override public Test create() {
+          return new Test(foo.get());
+        }
+      }
+    """)
+
     assertAbout(javaSource())
         .that(input)
         .processedWith(AssistedInjectProcessor())
-        .failsToCompile()
-        .withErrorContaining("Assisted injection requires at least one @Assisted parameter")
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+        .withWarningContaining(
+            "Assisted injection without at least one @Assisted parameter can use @Inject")
         .`in`(input).onLine(9)
   }
 
-  @Test fun allAssistedParametersFails() {
+  @Test fun allAssistedParametersWarns() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
 
@@ -678,11 +704,33 @@ class AssistedInjectProcessorTest {
       }
     """)
 
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Override;
+      import java.lang.String;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+
+      $GENERATED_ANNOTATION
+      public final class Test_AssistedFactory implements Test.Factory {
+        @Inject public Test_AssistedFactory() {
+        }
+
+        @Override public Test create(String foo) {
+          return new Test(foo);
+        }
+      }
+    """)
+
     assertAbout(javaSource())
         .that(input)
         .processedWith(AssistedInjectProcessor())
-        .failsToCompile()
-        .withErrorContaining("Assisted injection requires at least one non-@Assisted parameter.")
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+        .withWarningContaining(
+            "Assisted injection without at least one non-@Assisted parameter doesn't need a factory")
         .`in`(input).onLine(9)
   }
 
