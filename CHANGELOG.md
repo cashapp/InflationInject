@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+Version 0.3.2 *(2018-11-27)*
+----------------------------
+
+ * Relax the message for when zero assisted parameters or zero provided parameters were used from being
+   an error to a warning. While assisted injection isn't needed in either of those cases, nothing actually
+   prevent it from still working.
+
+
 Version 0.3.1 *(2018-11-19)*
 ----------------------------
 
