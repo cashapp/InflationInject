@@ -39,6 +39,7 @@ import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.tools.Diagnostic.Kind.ERROR
@@ -61,9 +62,16 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
   private lateinit var filer: Filer
   private lateinit var elements: Elements
 
+  private val unprocessedFactoryNames = mutableListOf<Name>()
   private var userModule: String? = null
 
   override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
+    // Record factories as fully qualified names so they can safely be accessed in future
+    // processing rounds.
+    unprocessedFactoryNames += roundEnv.findElementsAnnotatedWith<AssistedInject.Factory>()
+        .castEach<TypeElement>()
+        .map { it.qualifiedName }
+
     val assistedModuleElements = roundEnv.findAssistedModuleElementsOrNull()
     if (assistedModuleElements != null) {
       val moduleType = assistedModuleElements.moduleType
@@ -131,8 +139,8 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
       return null
     }
 
-    val factoryTypeElements = findElementsAnnotatedWith<AssistedInject.Factory>()
-        .castEach<TypeElement>()
+    val factoryTypeElements = unprocessedFactoryNames
+        .map(elements::getTypeElement)
         // Ignore malformed factories without enclosing types. The other processor will validate.
         .associateByNotNull { it.enclosingElement as? TypeElement }
 
