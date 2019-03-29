@@ -25,12 +25,12 @@ import javax.lang.model.util.Elements
  * [Processor], and a comment pointing to this project's GitHub repo. Returns `null` if no
  * annotation type is available on the classpath.
  */
-fun Processor.createGeneratedAnnotation(elements: Elements): AnnotationSpec? {
+fun Processor.createGeneratedAnnotation(elements: Elements, comments: String = "https://github.com/square/AssistedInject"): AnnotationSpec? {
   val generatedType = elements.getTypeElement("javax.annotation.processing.Generated")
       ?: elements.getTypeElement("javax.annotation.Generated")
       ?: return null
   return AnnotationSpec.builder(generatedType.toClassName())
       .addMember("value", "\$S", javaClass.name)
-      .addMember("comments", "\$S", "https://github.com/square/AssistedInject")
+      .addMember("comments", "\$S", comments)
       .build()
 }
