@@ -26,7 +26,7 @@ data class AssistedInjection(
   /** TODO */
   val dependencyRequests: List<DependencyRequest>,
   /** The factory interface type. */
-  val factoryType: ClassName,
+  val factoryType: TypeName,
   /** Name of the factory's only method. */
   val factoryMethod: String,
   /** The factory method return type. [targetType] must be assignable to this type. */
