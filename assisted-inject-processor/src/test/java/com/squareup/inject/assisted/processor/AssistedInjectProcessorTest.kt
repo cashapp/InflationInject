@@ -249,16 +249,37 @@ class AssistedInjectProcessorTest {
       }
     """)
 
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Override;
+      import java.lang.String;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<String> foo;
+        private final Provider<String> baz;
+
+        @Inject public Test_AssistedFactory(Provider<String> foo, Provider<String> baz) {
+          this.foo = foo;
+          this.baz = baz;
+        }
+
+        @Override public Test create(String bar) {
+          return new Test(foo.get(), bar, baz.get());
+        }
+      }
+    """)
+
     assertAbout(javaSource())
         .that(input)
         .processedWith(AssistedInjectProcessor())
-        .failsToCompile()
-        .withErrorContaining("""
-          Duplicate non-@Assisted parameters declared. Forget a qualifier annotation?
-             * java.lang.String foo
-             * java.lang.String baz
-        """.trimIndent())
-        .`in`(input).onLine(9)
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
   }
 
   @Test fun duplicateAssisted() {
