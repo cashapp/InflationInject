@@ -6,7 +6,7 @@ Version 0.4.0 *(2019-04-05)*
 
  * New: Other annotation processors using this tool as a library can now specify factory superinterfaces
    with any type, not just a class.
- * Fix: Allow duplicates for provided dependencies. Dagger does not prohibit this so nor should this tool.
+ * Fix: Allow duplicates for provided dependencies. Dagger does not prohibit this so neither should this tool.
 
 
 Version 0.3.3 *(2019-03-07)*
