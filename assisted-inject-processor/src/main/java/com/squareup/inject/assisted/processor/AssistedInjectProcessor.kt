@@ -224,14 +224,6 @@ class AssistedInjectProcessor : AbstractProcessor() {
     if (providedRequests.isEmpty()) {
       warn("Assisted injection without at least one non-@Assisted parameter doesn't need a factory",
           targetConstructor)
-    } else {
-      val providedDuplicates = providedRequests.groupBy { it.key }.filterValues { it.size > 1 }
-      if (providedDuplicates.isNotEmpty()) {
-        error("Duplicate non-@Assisted parameters declared. Forget a qualifier annotation?"
-            + providedDuplicates.values.flatten().joinToString("\n * ", prefix = "\n * "),
-            targetConstructor)
-        valid = false
-      }
     }
 
     // Project the factory method (which may have come from a supertype) as if it were a member of
