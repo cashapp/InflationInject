@@ -29,7 +29,7 @@ import com.squareup.inject.assisted.processor.internal.toClassName
 import com.squareup.inject.assisted.processor.internal.toTypeName
 import com.squareup.javapoet.JavaFile
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -52,7 +52,7 @@ import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.WARNING
 
-@IncrementalAnnotationProcessor(ISOLATING)
+@IncrementalAnnotationProcessor(AGGREGATING)
 @AutoService(Processor::class)
 class AssistedInjectProcessor : AbstractProcessor() {
   override fun getSupportedSourceVersion() = SourceVersion.latest()
