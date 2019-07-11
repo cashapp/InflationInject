@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
   compileSdkVersion 28
@@ -40,17 +39,6 @@ android {
       proguardFiles(file('shrinker.pro'))
     }
   }
-
-  applicationVariants.all { variant ->
-    tasks.named("test${variant.name.capitalize()}UnitTest").configure {
-      // Ensure the APK has been built by the time the unit tests run.
-      it.dependsOn(variant.packageApplicationProvider)
-
-      // Supply the APK path to the tests with a system property.
-      def apkRelativePath = "build/outputs/apk/${variant.name}/${variant.outputs[0].outputFileName}"
-      it.systemProperty('apkPath', file(apkRelativePath).absolutePath)
-    }
-  }
 }
 
 dependencies {
@@ -59,9 +47,4 @@ dependencies {
 
   implementation project(':assisted-inject-annotations-dagger2')
   annotationProcessor project(':assisted-inject-processor-dagger2')
-
-  testImplementation deps.kotlin
-  testImplementation deps.junit
-  testImplementation deps.truth
-  testImplementation deps.dexMemberList
 }
