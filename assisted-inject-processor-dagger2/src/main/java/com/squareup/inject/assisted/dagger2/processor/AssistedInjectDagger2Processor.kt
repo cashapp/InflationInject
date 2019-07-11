@@ -30,6 +30,8 @@ import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.inject.assisted.processor.internal.toClassName
 import com.squareup.inject.assisted.processor.internal.toTypeName
 import com.squareup.javapoet.JavaFile
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -44,6 +46,7 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.tools.Diagnostic.Kind.ERROR
 
+@IncrementalAnnotationProcessor(AGGREGATING)
 @AutoService(Processor::class)
 class AssistedInjectDagger2Processor : AbstractProcessor() {
   override fun getSupportedSourceVersion() = SourceVersion.latest()

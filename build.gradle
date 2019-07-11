@@ -1,11 +1,13 @@
 buildscript {
   ext.versions = [
       'kotlin': '1.3.30',
+      'dagger': '2.23.2',
+      'incap' : '0.2',
   ]
 
   ext.deps = [
-      'dagger': 'com.google.dagger:dagger:2.17',
-      'daggerCompiler': 'com.google.dagger:dagger-compiler:2.17',
+      'dagger': "com.google.dagger:dagger:${versions.dagger}",
+      'daggerCompiler': "com.google.dagger:dagger-compiler:${versions.dagger}",
       'autoService': 'com.google.auto.service:auto-service:1.0-rc4',
       'autoCommon': 'com.google.auto:auto-common:0.10',
       'junit': 'junit:junit:4.12',
@@ -19,6 +21,10 @@ buildscript {
       'android': 'com.google.android:android:4.1.1.4',
       'androidxAnnotations': 'androidx.annotation:annotation:1.0.0',
       'dexMemberList': 'com.jakewharton.dex:dex-member-list:3.2.1',
+      'incap': [
+          'runtime': "net.ltgt.gradle.incap:incap:${versions.incap}",
+          'processor': "net.ltgt.gradle.incap:incap-processor:${versions.incap}",
+      ],
   ]
 
   dependencies {
