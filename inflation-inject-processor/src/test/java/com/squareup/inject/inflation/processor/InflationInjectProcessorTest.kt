@@ -54,6 +54,7 @@ class InflationInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -65,7 +66,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public View create(Context context, AttributeSet attrs) {
+        @Override @Nonnull public View create(Context context, AttributeSet attrs) {
           return new TestView(context, attrs, foo.get());
         }
       }
@@ -198,6 +199,7 @@ class InflationInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -209,7 +211,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public View create(Context context, AttributeSet attrs) {
+        @Override @Nonnull public View create(Context context, AttributeSet attrs) {
           return new Outer.TestView(context, attrs, foo.get());
         }
       }
@@ -358,6 +360,7 @@ class InflationInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -369,7 +372,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public View create(Context context, AttributeSet attrs) {
+        @Override @Nonnull public View create(Context context, AttributeSet attrs) {
           return new TestView(foo.get(), context, attrs);
         }
       }
@@ -475,6 +478,7 @@ class InflationInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -486,7 +490,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public View create(Context context, AttributeSet attrs) {
+        @Override @Nonnull public View create(Context context, AttributeSet attrs) {
           return new TestView(attrs, context, foo.get());
         }
       }
@@ -553,6 +557,7 @@ class InflationInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -564,7 +569,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public View create(Context context, AttributeSet attrs) {
+        @Override @Nonnull public View create(Context context, AttributeSet attrs) {
           return new TestView(context, attrs, foo.get());
         }
       }
@@ -622,6 +627,7 @@ class InflationInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -633,7 +639,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public View create(Context context, AttributeSet attrs) {
+        @Override @Nonnull public View create(Context context, AttributeSet attrs) {
           return new LongView(context, attrs, foo.get());
         }
       }
@@ -648,6 +654,7 @@ class InflationInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -659,7 +666,7 @@ class InflationInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public View create(Context context, AttributeSet attrs) {
+        @Override @Nonnull public View create(Context context, AttributeSet attrs) {
           return new StringView(context, attrs, foo.get());
         }
       }
