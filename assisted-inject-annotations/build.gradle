@@ -3,4 +3,9 @@ apply plugin: 'java-library'
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 
+dependencies {
+    //For @javax.annotations.Nonnull in generated code
+    api deps.jsr305
+}
+
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
