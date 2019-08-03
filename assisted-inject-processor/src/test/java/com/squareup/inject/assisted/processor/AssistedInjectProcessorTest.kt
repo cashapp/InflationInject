@@ -56,6 +56,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -67,7 +68,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -107,6 +108,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -118,7 +120,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo, bar);
         }
       }
@@ -157,6 +159,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -168,7 +171,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -206,6 +209,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -217,7 +221,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -255,6 +259,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -268,7 +273,7 @@ class AssistedInjectProcessorTest {
           this.baz = baz;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo.get(), bar, baz.get());
         }
       }
@@ -306,6 +311,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -317,7 +323,7 @@ class AssistedInjectProcessorTest {
           this.bar = bar;
         }
 
-        @Override public Test create(String foo, String baz) {
+        @Override @Nonnull public Test create(String foo, String baz) {
           return new Test(foo, bar.get(), baz);
         }
       }
@@ -355,6 +361,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -366,7 +373,7 @@ class AssistedInjectProcessorTest {
           this.bar = bar;
         }
 
-        @Override public Test create(String baz, String foo) {
+        @Override @Nonnull public Test create(String baz, String foo) {
           return new Test(foo, bar.get(), baz);
         }
       }
@@ -473,6 +480,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -484,7 +492,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -526,6 +534,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -537,7 +546,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -576,6 +585,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Named;
       import javax.inject.Provider;
@@ -588,7 +598,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -630,6 +640,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -641,7 +652,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(String bar) {
+        @Override @Nonnull public Test create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -679,6 +690,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -690,7 +702,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create() {
+        @Override @Nonnull public Test create() {
           return new Test(foo.get());
         }
       }
@@ -731,6 +743,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
 
       $GENERATED_ANNOTATION
@@ -738,7 +751,7 @@ class AssistedInjectProcessorTest {
         @Inject public Test_AssistedFactory() {
         }
 
-        @Override public Test create(String foo) {
+        @Override @Nonnull public Test create(String foo) {
           return new Test(foo);
         }
       }
@@ -1089,6 +1102,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -1100,7 +1114,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public TestBase create(String bar) {
+        @Override @Nonnull public TestBase create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -1139,6 +1153,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -1150,7 +1165,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Test create(Long baz, String bar) {
+        @Override @Nonnull public Test create(Long baz, String bar) {
           return new Test(foo.get(), bar, baz);
         }
       }
@@ -1346,6 +1361,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Long;
       import java.lang.Override;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -1359,6 +1375,7 @@ class AssistedInjectProcessorTest {
         }
 
         @Override
+        @Nonnull
         public <T extends Test.A & Test.B> Test<T> create(T bar) {
           return new Test<T>(
               foo.get(),
@@ -1402,6 +1419,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -1413,7 +1431,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public Outer.Test create(String bar) {
+        @Override @Nonnull public Outer.Test create(String bar) {
           return new Outer.Test(foo.get(), bar);
         }
       }
@@ -1457,6 +1475,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -1468,7 +1487,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public BaseThing create(String bar) {
+        @Override @Nonnull public BaseThing create(String bar) {
           return new Test(foo.get(), bar);
         }
       }
@@ -1512,6 +1531,7 @@ class AssistedInjectProcessorTest {
       import java.lang.Override;
       import java.lang.String;
       import $GENERATED_TYPE;
+      import javax.annotation.Nonnull;
       import javax.inject.Inject;
       import javax.inject.Provider;
 
@@ -1523,7 +1543,7 @@ class AssistedInjectProcessorTest {
           this.foo = foo;
         }
 
-        @Override public BaseThing<String> create(String bar) {
+        @Override @Nonnull public BaseThing<String> create(String bar) {
           return new Test(foo.get(), bar);
         }
       }

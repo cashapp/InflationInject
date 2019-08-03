@@ -12,6 +12,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
+import javax.annotation.Nonnull
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
@@ -80,6 +81,7 @@ data class AssistedInjection(
             .build())
         .addMethod(MethodSpec.methodBuilder(factoryMethod)
             .addAnnotation(Override::class.java)
+            .addAnnotation(Nonnull::class.java)
             .addModifiers(PUBLIC)
             .returns(returnType)
             .apply {
