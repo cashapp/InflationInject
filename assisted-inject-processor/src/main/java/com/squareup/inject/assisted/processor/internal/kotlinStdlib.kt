@@ -1,15 +1,9 @@
 package com.squareup.inject.assisted.processor.internal
 
-// TODO Maybe replaced by https://youtrack.jetbrains.com/issue/KT-13814?
-fun <K, V : Any> Iterable<K>.associateWithNotNull(func: (K) -> V?): Map<K, V> {
-  val map = mutableMapOf<K, V>()
-  for (key in this) {
-    val value = func(key)
-    if (value != null) {
-      map[key] = value
-    }
-  }
-  return map
+// TODO https://youtrack.jetbrains.com/issue/KT-4734
+fun <K, V : Any> Map<K, V?>.filterNotNullValues(): Map<K, V> {
+  @Suppress("UNCHECKED_CAST")
+  return filterValues { it != null } as Map<K, V>
 }
 
 /** Equivalent to `this as T` for use in function chains. */

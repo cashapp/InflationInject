@@ -20,9 +20,9 @@ import com.google.auto.common.MoreTypes
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import com.squareup.inject.assisted.processor.internal.associateWithNotNull
 import com.squareup.inject.assisted.processor.internal.castEach
 import com.squareup.inject.assisted.processor.internal.createGeneratedAnnotation
+import com.squareup.inject.assisted.processor.internal.filterNotNullValues
 import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.inject.assisted.processor.internal.toClassName
@@ -77,7 +77,8 @@ class AssistedInjectProcessor : AbstractProcessor() {
   override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
     roundEnv.findAssistedInjectCandidateTypeElements()
         .mapNotNull { it.toAssistedInjectElementsOrNull() }
-        .associateWithNotNull { it.toAssistedInjectionOrNull() }
+        .associateWith { it.toAssistedInjectionOrNull() }
+        .filterNotNullValues()
         .forEach(::writeAssistedInject)
 
     val assistedMethods = roundEnv.findElementsAnnotatedWith<Assisted>()
