@@ -22,7 +22,13 @@ import com.google.testing.compile.JavaSourcesSubjectFactory.javaSources
 import org.junit.Ignore
 import org.junit.Test
 
-private const val GENERATED_TYPE = "javax.annotation.Generated" // TODO vary once JDK 9 works.
+private val GENERATED_TYPE = try {
+  Class.forName("javax.annotation.processing.Generated")
+  "javax.annotation.processing.Generated"
+} catch (_: ClassNotFoundException) {
+  "javax.annotation.Generated"
+}
+
 private const val GENERATED_ANNOTATION = """
 @Generated(
   value = "com.squareup.inject.assisted.processor.AssistedInjectProcessor",
