@@ -145,7 +145,8 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
     val factoryTypeElements = unprocessedFactoryNames
         .map(elements::getTypeElement)
         // Ignore malformed factories without enclosing types. The other processor will validate.
-        .associateByNotNull { it.enclosingElement as? TypeElement }
+        .associateBy { it.enclosingElement as? TypeElement }
+        .filterNotNullKeys()
 
     return AssistedModuleElements(assistedModule, factoryTypeElements)
   }
@@ -188,14 +189,8 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
   )
 }
 
-// TODO Maybe replaced by https://youtrack.jetbrains.com/issue/KT-13814?
-private fun <K, V : Any> Iterable<V>.associateByNotNull(func: (V) -> K?): Map<K, V> {
-  val map = mutableMapOf<K, V>()
-  for (value in this) {
-    val key = func(value)
-    if (key != null) {
-      map[key] = value
-    }
-  }
-  return map
+// TODO https://youtrack.jetbrains.com/issue/KT-4734
+private fun <K : Any, V> Map<K?, V>.filterNotNullKeys(): Map<K, V> {
+  @Suppress("UNCHECKED_CAST")
+  return filterKeys { it != null } as Map<K, V>
 }
