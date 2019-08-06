@@ -368,7 +368,27 @@ class AssistedInjectDagger2ProcessorTest {
         .`in`(moduleOne).onLine(7)
   }
 
+  @Ignore("Should nested modules be allowed or be prohibited with a specific error?")
   @Test fun nestedModule() {
+    val test = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {}
+      }
+    """)
+    val testFactory = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      class Test_AssistedFactory implements Test.Factory {}
+    """)
     val module = JavaFileObjects.forSourceString("test.TestModule", """
       package test;
 
@@ -381,11 +401,28 @@ class AssistedInjectDagger2ProcessorTest {
           public abstract class TestModule {}
       }
     """)
+    val expected = JavaFileObjects.forSourceString("test.AssistedInject_TestModule", """
+      package test;
 
-    assertAbout(javaSource())
-      .that(module)
+      import dagger.Binds;
+      import dagger.Module;
+      import $GENERATED_TYPE;
+
+      @Module
+      $GENERATED_ANNOTATION
+      public abstract class AssistedInject_TestModule {
+        private AssistedInject_TestModule() {}
+
+        @Binds abstract Outer.Test.Factory bind_test_Test(Test_AssistedFactory factory);
+      }
+    """)
+
+    assertAbout(javaSources())
+      .that(listOf(test, testFactory, module))
       .processedWith(AssistedInjectDagger2Processor())
-      .compilesWithoutError() //TODO should it compile or be a specific error prohibiting nesting?
+      .compilesWithoutError()
+      .and()
+      .generatesSources(expected)
   }
 
   @Test fun moduleWithNoIncludesFails() {
