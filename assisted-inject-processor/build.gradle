@@ -24,7 +24,9 @@ dependencies {
   testImplementation deps.truth
   testImplementation deps.compileTesting
   testImplementation deps.inject
-  testImplementation files(Jvm.current().getToolsJar())
+  if (!Jvm.current().javaVersion.isJava9Compatible()) {
+    testImplementation files(Jvm.current().getToolsJar())
+  }
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
