@@ -32,6 +32,7 @@ import com.squareup.inject.assisted.processor.internal.toTypeName
 import com.squareup.javapoet.JavaFile
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
+import java.util.TreeMap
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -88,8 +89,8 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
       } else {
         userModule = moduleType.qualifiedName.toString()
 
-        val assistedInjectionModule = assistedModuleElements.toInflationInjectionModule()
-        writeInflationModule(assistedModuleElements, assistedInjectionModule)
+        val assistedInjectionModule = assistedModuleElements.toAssistedInjectionModule()
+        writeAssistedModule(assistedModuleElements, assistedInjectionModule)
       }
     }
 
@@ -99,7 +100,7 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
       val userModuleFqcn = userModule
       if (userModuleFqcn != null) {
         // In the processing round in which we handle the @AssistedModule the @Module annotation's
-        // includes contain an <error> type because we haven't generated the inflation module yet.
+        // includes contain an <error> type because we haven't generated the assisted module yet.
         // As a result, we need to re-lookup the element so that its referenced types are available.
         val userModule = elements.getTypeElement(userModuleFqcn)
 
@@ -151,18 +152,18 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
     return AssistedModuleElements(assistedModule, factoryTypeElements)
   }
 
-  private fun AssistedModuleElements.toInflationInjectionModule(): AssistedInjectionModule {
+  private fun AssistedModuleElements.toAssistedInjectionModule(): AssistedInjectionModule {
     val moduleName = moduleType.toClassName()
     val targetNameToFactoryNames = targetTypeToFactoryType
         .map { (target, factory) -> target.asType().toTypeName() to factory.toClassName() }
-        .toMap()
+        .toMap(TreeMap())
     val public = Modifier.PUBLIC in moduleType.modifiers
     val generatedAnnotation = createGeneratedAnnotation(elements)
     return AssistedInjectionModule(moduleName, public, targetNameToFactoryNames,
         generatedAnnotation)
   }
 
-  private fun writeInflationModule(
+  private fun writeAssistedModule(
     elements: AssistedModuleElements,
     module: AssistedInjectionModule
   ) {

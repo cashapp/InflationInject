@@ -15,6 +15,7 @@
  */
 package com.squareup.inject.assisted.dagger2.processor
 
+import com.google.common.collect.Collections2
 import com.google.common.truth.Truth.assertAbout
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourceSubjectFactory.javaSource
@@ -90,6 +91,96 @@ class AssistedInjectDagger2ProcessorTest {
         .compilesWithoutError()
         .and()
         .generatesSources(expected)
+  }
+
+  @Test fun moduleMethodsAreSorted() {
+    val one = JavaFileObjects.forSourceString("test.One", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class One {
+        @AssistedInject
+        One(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {}
+      }
+
+      class One_AssistedFactory implements One.Factory {}
+    """)
+    val two = JavaFileObjects.forSourceString("test.Two", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Two {
+        @AssistedInject
+        Two(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {}
+      }
+
+      class Two_AssistedFactory implements Two.Factory {}
+    """)
+    val three = JavaFileObjects.forSourceString("test.Three", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Three {
+        @AssistedInject
+        Three(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {}
+      }
+
+      class Three_AssistedFactory implements Three.Factory {}
+    """)
+    val module = JavaFileObjects.forSourceString("test.TestModule", """
+      package test;
+
+      import com.squareup.inject.assisted.dagger2.AssistedModule;
+      import dagger.Module;
+
+      @AssistedModule
+      @Module(includes = AssistedInject_TestModule.class)
+      abstract class TestModule {}
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.AssistedInject_TestModule", """
+      package test;
+
+      import dagger.Binds;
+      import dagger.Module;
+      import $GENERATED_TYPE;
+
+      @Module
+      $GENERATED_ANNOTATION
+      abstract class AssistedInject_TestModule {
+        private AssistedInject_TestModule() {}
+
+        @Binds abstract One.Factory bind_test_One(One_AssistedFactory factory);
+
+        @Binds abstract Three.Factory bind_test_Three(Three_AssistedFactory factory);
+
+        @Binds abstract Two.Factory bind_test_Two(Two_AssistedFactory factory);
+      }
+    """)
+
+    for (items in Collections2.permutations(listOf(one, two, three))) {
+      assertAbout(javaSources())
+          .that(items + module)
+          .processedWith(AssistedInjectDagger2Processor())
+          .compilesWithoutError()
+          .and()
+          .generatesSources(expected)
+    }
   }
 
   @Test fun public() {
