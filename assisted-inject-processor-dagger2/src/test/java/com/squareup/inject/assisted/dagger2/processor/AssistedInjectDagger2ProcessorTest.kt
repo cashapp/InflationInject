@@ -81,7 +81,7 @@ class AssistedInjectDagger2ProcessorTest {
       abstract class AssistedInject_TestModule {
         private AssistedInject_TestModule() {}
 
-        @Binds abstract Test.Factory bind_test_Test(Test_AssistedFactory factory);
+        @Binds abstract Test.Factory generatedFactory(Test_AssistedFactory factory);
       }
     """)
 
@@ -165,11 +165,9 @@ class AssistedInjectDagger2ProcessorTest {
       abstract class AssistedInject_TestModule {
         private AssistedInject_TestModule() {}
 
-        @Binds abstract One.Factory bind_test_One(One_AssistedFactory factory);
-
-        @Binds abstract Three.Factory bind_test_Three(Three_AssistedFactory factory);
-
-        @Binds abstract Two.Factory bind_test_Two(Two_AssistedFactory factory);
+        @Binds abstract One.Factory generatedFactory(One_AssistedFactory factory);
+        @Binds abstract Three.Factory generatedFactory(Three_AssistedFactory factory);
+        @Binds abstract Two.Factory generatedFactory(Two_AssistedFactory factory);
       }
     """)
 
@@ -226,7 +224,7 @@ class AssistedInjectDagger2ProcessorTest {
       public abstract class AssistedInject_TestModule {
         private AssistedInject_TestModule() {}
 
-        @Binds abstract Test.Factory bind_test_Test(Test_AssistedFactory factory);
+        @Binds abstract Test.Factory generatedFactory(Test_AssistedFactory factory);
       }
     """)
 
@@ -283,7 +281,7 @@ class AssistedInjectDagger2ProcessorTest {
       public abstract class AssistedInject_TestModule {
         private AssistedInject_TestModule() {}
 
-        @Binds abstract Outer.Test.Factory bind_test_Outer${'$'}Test(Outer${'$'}Test_AssistedFactory factory);
+        @Binds abstract Outer.Test.Factory generatedFactory(Outer${'$'}Test_AssistedFactory factory);
       }
     """)
 
@@ -338,7 +336,7 @@ class AssistedInjectDagger2ProcessorTest {
       public abstract class AssistedInject_TestModule {
         private AssistedInject_TestModule() {}
 
-        @Binds abstract Test.Factory bind_test_Test(Test_AssistedFactory factory);
+        @Binds abstract Test.Factory generatedFactory(Test_AssistedFactory factory);
       }
     """)
 

@@ -42,7 +42,7 @@ data class AssistedInjectionModule(
             .build())
         .applyEach(targetNameToFactoryName) { targetName, factoryName ->
           val rawTargetName = targetName.rawClassName()
-          addMethod(MethodSpec.methodBuilder(rawTargetName.bindMethodName())
+          addMethod(MethodSpec.methodBuilder("generatedFactory")
               .addAnnotation(BINDS)
               .addModifiers(ABSTRACT)
               .returns(factoryName)
@@ -52,8 +52,6 @@ data class AssistedInjectionModule(
         .build()
   }
 }
-
-private fun ClassName.bindMethodName() = "bind_" + reflectionName().replace('.', '_')
 
 fun ClassName.assistedInjectModuleName(): ClassName = peerClass("AssistedInject_" + simpleName())
 
