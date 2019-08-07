@@ -53,7 +53,9 @@ data class AssistedInjectionModule(
   }
 }
 
-fun ClassName.assistedInjectModuleName(): ClassName = peerClass("AssistedInject_" + simpleName())
+fun ClassName.assistedInjectModuleName(): ClassName {
+  return ClassName.get(packageName(), simpleNames().joinToString("_", prefix = "AssistedInject_"))
+}
 
 private inline fun <T : Any, K, V> T.applyEach(items: Map<K, V>, func: T.(K, V) -> Unit): T {
   items.forEach { (key, value) -> func(key, value) }
