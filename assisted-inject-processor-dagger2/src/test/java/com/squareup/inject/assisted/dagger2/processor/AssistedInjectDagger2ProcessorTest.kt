@@ -366,7 +366,6 @@ class AssistedInjectDagger2ProcessorTest {
         .`in`(moduleOne).onLine(7)
   }
 
-  @Ignore("Not working!")
   @Test fun nestedModule() {
     val test = JavaFileObjects.forSourceString("test.Test", """
       package test;
@@ -408,7 +407,7 @@ class AssistedInjectDagger2ProcessorTest {
       public abstract class AssistedInject_Outer_TestModule {
         private AssistedInject_Outer_TestModule() {}
 
-        @Binds abstract Test.Factory bind_test_Test(Test_AssistedFactory factory);
+        @Binds abstract Test.Factory generatedFactory(Test_AssistedFactory factory);
       }
     """)
 
