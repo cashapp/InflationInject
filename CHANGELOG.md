@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+Version 0.5.0 *(2019-08-08)*
+----------------------------
+
+ * New: Support incremental annotation processing.
+ * Fix: Explicitly sort generated module bindings to ensure stable output and avoid recompilation.
+ * Fix: Support nested `@AssistedModule` and `@InflationModule` classes.
+
+
 Version 0.4.0 *(2019-04-05)*
 ----------------------------
 

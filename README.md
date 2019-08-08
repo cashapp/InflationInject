@@ -56,15 +56,15 @@ Download
 --------
 
 ```groovy
-compileOnly 'com.squareup.inject:assisted-inject-annotations:0.4.0'
-annotationProcessor 'com.squareup.inject:assisted-inject-processor:0.4.0'
+compileOnly 'com.squareup.inject:assisted-inject-annotations:0.5.0'
+annotationProcessor 'com.squareup.inject:assisted-inject-processor:0.5.0'
 ```
 
 With Dagger 2:
 
 ```groovy
-compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:0.4.0'
-annotationProcessor 'com.squareup.inject:assisted-inject-processor-dagger2:0.4.0'
+compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:0.5.0'
+annotationProcessor 'com.squareup.inject:assisted-inject-processor-dagger2:0.5.0'
 ```
 
 
