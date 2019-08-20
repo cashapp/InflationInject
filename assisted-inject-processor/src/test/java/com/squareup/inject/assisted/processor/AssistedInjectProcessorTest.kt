@@ -863,10 +863,49 @@ class AssistedInjectProcessorTest {
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        // TODO validate whole message
-        .withErrorContaining(
-            "Factory method parameters do not match constructor @Assisted parameters.")
+        .withErrorContaining("""
+          Factory method parameters do not match constructor @Assisted parameters.
+            Missing:
+             * java.lang.String bar
+            Unknown:
+             * java.lang.Long bar
+        """.trimIndent())
         .`in`(input).onLine(13)
+  }
+
+  @Test fun factorySignatureMismatchWithFactoryMethodDefinedElsewhere() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory extends TestFactory {
+        }
+      }
+
+      interface TestFactory {
+        Test create(Long bar);
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("""
+          Factory method parameters do not match constructor @Assisted parameters.
+            Missing:
+             * java.lang.String bar
+            Unknown:
+             * java.lang.Long bar
+        """.trimIndent())
+        .`in`(input).onLine(9)
   }
 
   @Test fun factorySignatureWithQualifierMismatchOnFactoryFails() {
@@ -895,9 +934,13 @@ class AssistedInjectProcessorTest {
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        // TODO validate whole message
-        .withErrorContaining(
-            "Factory method parameters do not match constructor @Assisted parameters.")
+        .withErrorContaining("""
+          Factory method parameters do not match constructor @Assisted parameters.
+            Missing:
+             * java.lang.String bar
+            Unknown:
+             * @test.Id java.lang.String bar
+        """.trimIndent())
         .`in`(input).onLine(14)
   }
 
@@ -927,9 +970,13 @@ class AssistedInjectProcessorTest {
         .that(input)
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
-        // TODO validate whole message
-        .withErrorContaining(
-            "Factory method parameters do not match constructor @Assisted parameters.")
+        .withErrorContaining("""
+          Factory method parameters do not match constructor @Assisted parameters.
+            Missing:
+             * @test.Id java.lang.String bar
+            Unknown:
+             * java.lang.String bar
+        """.trimIndent())
         .`in`(input).onLine(14)
   }
 

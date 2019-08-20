@@ -252,7 +252,8 @@ class AssistedInjectProcessor : AbstractProcessor() {
           append(unknownKeys.joinToString("\n * ", prefix = "\nUnknown:\n * "))
         }
       }
-      error(message, factoryMethod)
+      error(message,
+          if (factoryMethod.enclosingElement == factoryType) factoryMethod else targetConstructor)
       valid = false
     }
 
