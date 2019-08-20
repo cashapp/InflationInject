@@ -409,10 +409,10 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Factory method parameters do not match constructor @Assisted parameters.
-            Missing:
+          Factory method parameters do not match constructor @Assisted parameters. Both parameter type and name must match.
+            Declared by constructor, unmatched in factory method:
              * java.lang.String baz
-            Unknown:
+            Declared by factory method, unmatched in constructor:
              * java.lang.String fizz
         """.trimIndent())
         .`in`(input).onLine(13)
@@ -441,10 +441,10 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Factory method parameters do not match constructor @Assisted parameters.
-            Missing:
+          Factory method parameters do not match constructor @Assisted parameters. Both parameter type and name must match.
+            Declared by constructor, unmatched in factory method:
              * java.lang.String foo
-            Unknown:
+            Declared by factory method, unmatched in constructor:
              * java.lang.String baz
         """.trimIndent())
         .`in`(input).onLine(13)
@@ -864,10 +864,10 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Factory method parameters do not match constructor @Assisted parameters.
-            Missing:
+          Factory method parameters do not match constructor @Assisted parameters. Both parameter type and name must match.
+            Declared by constructor, unmatched in factory method:
              * java.lang.String bar
-            Unknown:
+            Declared by factory method, unmatched in constructor:
              * java.lang.Long bar
         """.trimIndent())
         .`in`(input).onLine(13)
@@ -899,10 +899,10 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Factory method parameters do not match constructor @Assisted parameters.
-            Missing:
+          Factory method parameters do not match constructor @Assisted parameters. Both parameter type and name must match.
+            Declared by constructor, unmatched in factory method:
              * java.lang.String bar
-            Unknown:
+            Declared by factory method, unmatched in constructor:
              * java.lang.Long bar
         """.trimIndent())
         .`in`(input).onLine(9)
@@ -935,10 +935,10 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Factory method parameters do not match constructor @Assisted parameters.
-            Missing:
+          Factory method parameters do not match constructor @Assisted parameters. Both parameter type and name must match.
+            Declared by constructor, unmatched in factory method:
              * java.lang.String bar
-            Unknown:
+            Declared by factory method, unmatched in constructor:
              * @test.Id java.lang.String bar
         """.trimIndent())
         .`in`(input).onLine(14)
@@ -971,10 +971,10 @@ class AssistedInjectProcessorTest {
         .processedWith(AssistedInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Factory method parameters do not match constructor @Assisted parameters.
-            Missing:
+          Factory method parameters do not match constructor @Assisted parameters. Both parameter type and name must match.
+            Declared by constructor, unmatched in factory method:
              * @test.Id java.lang.String bar
-            Unknown:
+            Declared by factory method, unmatched in constructor:
              * java.lang.String bar
         """.trimIndent())
         .`in`(input).onLine(14)

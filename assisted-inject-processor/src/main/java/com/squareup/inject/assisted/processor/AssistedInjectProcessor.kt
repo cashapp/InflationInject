@@ -241,15 +241,18 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val keys = factoryKeys.sorted()
     if (keys != expectedKeys) {
       val message = buildString {
-        append("Factory method parameters do not match constructor @Assisted parameters.")
+        append("Factory method parameters do not match constructor @Assisted parameters. ")
+        append("Both parameter type and name must match.")
 
         val missingKeys = expectedKeys - keys
         if (missingKeys.isNotEmpty()) {
-          append(missingKeys.joinToString("\n * ", prefix = "\nMissing:\n * "))
+          append(missingKeys.joinToString("\n * ",
+              prefix = "\nDeclared by constructor, unmatched in factory method:\n * "))
         }
         val unknownKeys = keys - expectedKeys
         if (unknownKeys.isNotEmpty()) {
-          append(unknownKeys.joinToString("\n * ", prefix = "\nUnknown:\n * "))
+          append(unknownKeys.joinToString("\n * ",
+              prefix = "\nDeclared by factory method, unmatched in constructor:\n * "))
         }
       }
       error(message,
