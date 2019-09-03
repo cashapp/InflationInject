@@ -22,6 +22,8 @@ import com.squareup.inject.inflation.InflationModule
 import com.squareup.inject.inflation.ViewFactory
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
@@ -43,6 +45,7 @@ import javax.lang.model.util.Types
 import javax.tools.Diagnostic.Kind.ERROR
 import javax.tools.Diagnostic.Kind.WARNING
 
+@IncrementalAnnotationProcessor(AGGREGATING)
 @AutoService(Processor::class)
 class InflationInjectProcessor : AbstractProcessor() {
   override fun getSupportedSourceVersion() = SourceVersion.latest()
