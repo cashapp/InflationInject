@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Identifies a constructor participating in assisted injection.
@@ -43,9 +43,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  * single method that returns the enclosing type and arguments which match the assisted arguments
  * of the enclosing {@code @AssistedInject}-annotated constructor.
  */
-@Target(CONSTRUCTOR) @Retention(SOURCE)
+@Target(CONSTRUCTOR) @Retention(CLASS)
 public @interface AssistedInject {
-  @Target(TYPE) @Retention(SOURCE)
+  @Target(TYPE) @Retention(CLASS)
   @interface Factory {
   }
 }
