@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+Version 0.5.1 *(2019-10-28)*
+----------------------------
+
+ * New: Support incremental annotation proessing in inflation inject (previously it was only supported
+   by assisted inject).
+ * Fix: Change annotations to class retention to actually allow incremental annotation processing
+   to work.
+
+
 Version 0.5.0 *(2019-08-08)*
 ----------------------------
 
