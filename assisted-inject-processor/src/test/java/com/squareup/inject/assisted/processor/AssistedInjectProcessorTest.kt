@@ -1590,6 +1590,51 @@ class AssistedInjectProcessorTest {
         .generatesSources(expected)
   }
 
+  @Ignore("https://github.com/square/AssistedInject/issues/116")
+  @Test fun factoryMethodUsesConcreteGenericForClassTypeParameter() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      public final class Test<A> {
+        @AssistedInject
+        public Test(@Assisted String dependency) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test<String> create(String dependency);
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Override;
+      import java.lang.String;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+
+      $GENERATED_ANNOTATION
+      public final class Test_AssistedFactory implements Test.Factory {
+        @Inject public Test_AssistedFactory() {}
+
+        @Override public Test<String> create(String dependency) {
+          return new Test<String>(dependency);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
   @Test fun nestedMustBeStatic() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
