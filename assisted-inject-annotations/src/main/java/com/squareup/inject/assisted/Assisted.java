@@ -19,8 +19,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 
-@Target(PARAMETER) @Retention(SOURCE)
+@Target(PARAMETER) @Retention(CLASS)
 public @interface Assisted {
 }
