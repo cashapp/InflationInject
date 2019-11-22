@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 0.5.2 *(2019-11-22)*
+----------------------------
+
+ * Fix: Properly honor target `-source` version when generating the `@Generated` annotation on sources.
+
+
 Version 0.5.1 *(2019-10-28)*
 ----------------------------
 
