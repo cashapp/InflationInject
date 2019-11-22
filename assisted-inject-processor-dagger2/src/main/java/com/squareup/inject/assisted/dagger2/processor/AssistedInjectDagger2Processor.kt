@@ -57,11 +57,13 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
 
   override fun init(env: ProcessingEnvironment) {
     super.init(env)
+    sourceVersion = env.sourceVersion
     messager = env.messager
     filer = env.filer
     elements = env.elementUtils
   }
 
+  private lateinit var sourceVersion: SourceVersion
   private lateinit var messager: Messager
   private lateinit var filer: Filer
   private lateinit var elements: Elements
@@ -158,7 +160,7 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
         .map { (target, factory) -> target.asType().toTypeName() to factory.toClassName() }
         .toMap(TreeMap())
     val public = Modifier.PUBLIC in moduleType.modifiers
-    val generatedAnnotation = createGeneratedAnnotation(elements)
+    val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
     return AssistedInjectionModule(moduleName, public, targetNameToFactoryNames,
         generatedAnnotation)
   }

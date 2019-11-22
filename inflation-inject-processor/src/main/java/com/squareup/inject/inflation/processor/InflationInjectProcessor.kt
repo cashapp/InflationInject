@@ -55,6 +55,7 @@ class InflationInjectProcessor : AbstractProcessor() {
 
   override fun init(env: ProcessingEnvironment) {
     super.init(env)
+    sourceVersion = env.sourceVersion
     messager = env.messager
     filer = env.filer
     types = env.typeUtils
@@ -62,6 +63,7 @@ class InflationInjectProcessor : AbstractProcessor() {
     viewType = elements.getTypeElement("android.view.View").asType()
   }
 
+  private lateinit var sourceVersion: SourceVersion
   private lateinit var messager: Messager
   private lateinit var filer: Filer
   private lateinit var types: Types
@@ -218,7 +220,7 @@ class InflationInjectProcessor : AbstractProcessor() {
     if (!valid) return null
 
     val targetType = targetType.asType().toTypeName()
-    val generatedAnnotation = createGeneratedAnnotation(elements)
+    val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
     return AssistedInjection(targetType, requests, FACTORY, "create", VIEW,
         FACTORY_KEYS, generatedAnnotation)
   }
@@ -266,7 +268,7 @@ class InflationInjectProcessor : AbstractProcessor() {
     val moduleName = moduleType.toClassName()
     val inflationNames = inflationTypes.map { it.toClassName() }
     val public = Modifier.PUBLIC in moduleType.modifiers
-    val generatedAnnotation = createGeneratedAnnotation(elements)
+    val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
     return InflationInjectionModule(moduleName, public, inflationNames, generatedAnnotation)
   }
 

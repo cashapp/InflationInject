@@ -63,12 +63,14 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
   override fun init(env: ProcessingEnvironment) {
     super.init(env)
+    sourceVersion = env.sourceVersion
     messager = env.messager
     filer = env.filer
     elements = env.elementUtils
     types = env.typeUtils
   }
 
+  private lateinit var sourceVersion: SourceVersion
   private lateinit var messager: Messager
   private lateinit var filer: Filer
   private lateinit var elements: Elements
@@ -266,7 +268,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val factoryType = factoryType.toClassName()
     val returnType = factoryExecutable.returnType.toTypeName()
     val methodName = factoryMethod.simpleName.toString()
-    val generatedAnnotation = createGeneratedAnnotation(elements)
+    val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
     return AssistedInjection(targetType, requests, factoryType, methodName, returnType,
         factoryKeys, generatedAnnotation)
   }
