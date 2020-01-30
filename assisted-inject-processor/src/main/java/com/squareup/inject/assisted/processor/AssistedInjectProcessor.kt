@@ -244,7 +244,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val factoryKeys = factoryMethod.parameters
         .zip(factoryExecutable.parameterTypes) { element, mirror -> element.asNamedKey(mirror) }
 
-    // Rename any single keys to the factory keys to avoid requiring same names
+    // Rename any single keys to the factory keys to avoid requiring matching names for those keys.
     val singleFactoryKeys = factoryKeys
         .filter { key -> factoryKeys.count { it.key == key.key } == 1 }
         .toMutableSet()
