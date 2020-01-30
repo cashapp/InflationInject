@@ -240,21 +240,45 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val factoryExecutable = types.asMemberOf(factoryType.asType() as DeclaredType,
         factoryMethod) as ExecutableType
 
-    val expectedKeys = assistedRequests.map { it.namedKey }.sorted()
+    val expectedKeys = assistedRequests.map { it.namedKey }
     val factoryKeys = factoryMethod.parameters
         .zip(factoryExecutable.parameterTypes) { element, mirror -> element.asNamedKey(mirror) }
-    val keys = factoryKeys.sorted()
-    if (keys != expectedKeys) {
+
+    // Rename any single keys to the factory keys to avoid requiring same names
+    val singleFactoryKeys = factoryKeys
+        .filter { key -> factoryKeys.count { it.key == key.key } == 1 }
+        .toMutableSet()
+    val renameableKeys = expectedKeys
+        .map { expectedKey ->
+          val match = singleFactoryKeys.firstOrNull { factoryKey -> factoryKey.key == expectedKey.key }
+          if (match != null) {
+            singleFactoryKeys.remove(match)
+          }
+          expectedKey to match
+        }
+        .filter { it.second != null }
+        .toMap()
+
+    val renamedExpectedKeys = expectedKeys.map { renameableKeys[it] ?: it }.sorted()
+    val renamedRequests = requests.map { request ->
+      DependencyRequest(
+          renameableKeys[request.namedKey] ?: request.namedKey,
+          request.isAssisted
+      )
+    }
+
+    val sortedFactoryKeys = factoryKeys.sorted()
+    if (sortedFactoryKeys != renamedExpectedKeys) {
       val message = buildString {
         append("Factory method parameters do not match constructor @Assisted parameters. ")
         append("Both parameter type and name must match.")
 
-        val missingKeys = expectedKeys - keys
+        val missingKeys = renamedExpectedKeys - sortedFactoryKeys
         if (missingKeys.isNotEmpty()) {
           append(missingKeys.joinToString("\n * ",
               prefix = "\nDeclared by constructor, unmatched in factory method:\n * "))
         }
-        val unknownKeys = keys - expectedKeys
+        val unknownKeys = sortedFactoryKeys - renamedExpectedKeys
         if (unknownKeys.isNotEmpty()) {
           append(unknownKeys.joinToString("\n * ",
               prefix = "\nDeclared by factory method, unmatched in constructor:\n * "))
@@ -272,7 +296,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val returnType = factoryExecutable.returnType.toTypeName()
     val methodName = factoryMethod.simpleName.toString()
     val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
-    return AssistedInjection(targetType, requests, factoryType, methodName, returnType,
+    return AssistedInjection(targetType, renamedRequests, factoryType, methodName, returnType,
         factoryKeys, generatedAnnotation)
   }
 
