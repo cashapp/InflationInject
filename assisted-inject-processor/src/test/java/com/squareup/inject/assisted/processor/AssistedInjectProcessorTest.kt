@@ -443,6 +443,41 @@ class AssistedInjectProcessorTest {
         .compilesWithoutError()
   }
 
+
+  @Test
+  fun multipleRequestForSingleFactoryArgMismatch() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(@Assisted String faz, @Assisted String baz, String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String foo);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .failsToCompile()
+        .withErrorContaining("""
+          Factory method parameters do not match constructor @Assisted parameters. Both parameter type and name must match.
+            Declared by constructor, unmatched in factory method:
+             * java.lang.String baz
+             * java.lang.String faz
+            Declared by factory method, unmatched in constructor:
+             * java.lang.String foo
+        """.trimIndent())
+        .`in`(input).onLine(13)
+  }
+
   @Test
   fun multipleSameTypeNameMismatch() {
     val input = JavaFileObjects.forSourceString("test.Test", """

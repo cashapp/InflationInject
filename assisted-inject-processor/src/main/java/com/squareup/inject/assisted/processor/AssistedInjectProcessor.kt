@@ -20,27 +20,14 @@ import com.google.auto.common.MoreTypes
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import com.squareup.inject.assisted.processor.internal.castEach
-import com.squareup.inject.assisted.processor.internal.createGeneratedAnnotation
-import com.squareup.inject.assisted.processor.internal.filterNotNullValues
-import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
-import com.squareup.inject.assisted.processor.internal.hasAnnotation
-import com.squareup.inject.assisted.processor.internal.toClassName
-import com.squareup.inject.assisted.processor.internal.toTypeName
+import com.squareup.inject.assisted.processor.internal.*
 import com.squareup.javapoet.JavaFile
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
-import javax.annotation.processing.AbstractProcessor
-import javax.annotation.processing.Filer
-import javax.annotation.processing.Messager
-import javax.annotation.processing.ProcessingEnvironment
-import javax.annotation.processing.Processor
-import javax.annotation.processing.RoundEnvironment
+import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind.CLASS
-import javax.lang.model.element.ElementKind.CONSTRUCTOR
-import javax.lang.model.element.ElementKind.INTERFACE
+import javax.lang.model.element.ElementKind.*
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.STATIC
@@ -245,15 +232,21 @@ class AssistedInjectProcessor : AbstractProcessor() {
         .zip(factoryExecutable.parameterTypes) { element, mirror -> element.asNamedKey(mirror) }
 
     // Rename any single keys to the factory keys to avoid requiring matching names for those keys.
+    val singleExpectedKeys = expectedKeys
+        .groupBy { it.key }
+        .filterValues { it.size == 1 }
+        .values
+        .flatten()
+
     val singleFactoryKeys = factoryKeys
-        .filter { key -> factoryKeys.count { it.key == key.key } == 1 }
-        .toMutableSet()
-    val renameableKeys = expectedKeys
+        .groupBy { it.key }
+        .filterValues { it.size == 1 }
+        .values
+        .flatten()
+
+    val renameableKeys = singleExpectedKeys
         .map { expectedKey ->
           val match = singleFactoryKeys.firstOrNull { factoryKey -> factoryKey.key == expectedKey.key }
-          if (match != null) {
-            singleFactoryKeys.remove(match)
-          }
           expectedKey to match
         }
         .filter { it.second != null }
