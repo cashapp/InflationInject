@@ -194,16 +194,24 @@ class InflationInjectProcessor : AbstractProcessor() {
 
     val requests = targetConstructor.parameters.map { it.asDependencyRequest() }
     val (assistedRequests, providedRequests) = requests.partition { it.isAssisted }
-    val assistedKeys = assistedRequests.map { it.namedKey }
-    if (assistedKeys.toSet() != FACTORY_KEYS.toSet()) {
-      error("""
-        Inflation injection requires Context and AttributeSet @Assisted parameters.
-          Found:
-            $assistedKeys
-          Expected:
-            $FACTORY_KEYS
-        """.trimIndent(), targetConstructor)
-      valid = false
+    val assistedKeys = assistedRequests.map { it.namedKey }.let { assistedKeys ->
+      val assistedTypes = assistedKeys.map { it.key }.toSet()
+      val factoryTypes = FACTORY_KEYS.map { it.key }.toSet()
+      if (assistedTypes != factoryTypes) {
+        error("""
+          Inflation injection requires Context and AttributeSet @Assisted parameters.
+            Found:
+              $assistedKeys
+            Expected:
+              $FACTORY_KEYS
+          """.trimIndent(), targetConstructor)
+        valid = false
+        return@let emptyList<NamedKey>()
+      } else {
+        return@let factoryTypes.map { type ->
+          NamedKey(type, assistedKeys.first { it.key == type }.name)
+        }
+      }
     }
     if (providedRequests.isEmpty()) {
       warn("Inflation injection requires at least one non-@Assisted parameter.", targetConstructor)
@@ -222,7 +230,7 @@ class InflationInjectProcessor : AbstractProcessor() {
     val targetType = targetType.asType().toTypeName()
     val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
     return AssistedInjection(targetType, requests, FACTORY, "create", VIEW,
-        FACTORY_KEYS, generatedAnnotation)
+        assistedKeys, generatedAnnotation)
   }
 
   private fun writeInflationInject(elements: InflationInjectElements, injection: AssistedInjection) {

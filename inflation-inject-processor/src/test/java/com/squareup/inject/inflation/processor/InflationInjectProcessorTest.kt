@@ -402,7 +402,34 @@ class InflationInjectProcessorTest {
       class TestView extends View {
         @InflationInject
         TestView(@Assisted Context c, @Assisted AttributeSet attrs, Long foo) {
-          super(context, attrs);
+          super(c, attrs);
+        }
+      }
+    """)
+
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.inflation.ViewFactory;
+      import java.lang.Long;
+      import java.lang.Override;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      public final class TestView_AssistedFactory implements ViewFactory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context c, AttributeSet attrs) {
+          return new TestView(c, attrs, foo.get());
         }
       }
     """)
@@ -410,15 +437,9 @@ class InflationInjectProcessorTest {
     assertAbout(javaSource())
         .that(inputView)
         .processedWith(InflationInjectProcessor())
-        .failsToCompile()
-        .withErrorContaining("""
-          Inflation injection requires Context and AttributeSet @Assisted parameters.
-              Found:
-                [android.content.Context c, android.util.AttributeSet attrs]
-              Expected:
-                [android.content.Context context, android.util.AttributeSet attrs]
-          """.trimIndent())
-        .`in`(inputView).onLine(12)
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedFactory)
   }
 
   @Test fun differentNameAttributeSet() {
@@ -434,7 +455,34 @@ class InflationInjectProcessorTest {
       class TestView extends View {
         @InflationInject
         TestView(@Assisted Context context, @Assisted AttributeSet a, Long foo) {
-          super(context, attrs);
+          super(context, a);
+        }
+      }
+    """)
+
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.inflation.ViewFactory;
+      import java.lang.Long;
+      import java.lang.Override;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      public final class TestView_AssistedFactory implements ViewFactory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet a) {
+          return new TestView(context, a, foo.get());
         }
       }
     """)
@@ -442,15 +490,9 @@ class InflationInjectProcessorTest {
     assertAbout(javaSource())
         .that(inputView)
         .processedWith(InflationInjectProcessor())
-        .failsToCompile()
-        .withErrorContaining("""
-          Inflation injection requires Context and AttributeSet @Assisted parameters.
-              Found:
-                [android.content.Context context, android.util.AttributeSet a]
-              Expected:
-                [android.content.Context context, android.util.AttributeSet attrs]
-          """.trimIndent())
-        .`in`(inputView).onLine(12)
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedFactory)
   }
 
   @Test fun contextAndAttributeSetSwapped() {
