@@ -87,7 +87,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
         .map { it.enclosingElement as ExecutableElement }
     // Error any non-constructor usage of @Assisted. Methods called "copy" are also excluded due to the generated
     // for Kotlin data classes having their parameters carry the annotations from their counterparts in the primary
-    // constructor
+    // constructor.
     assistedMethods
         .filterNot { it.simpleName.contentEquals("<init>") }
         .filterNot { it.simpleName.contentEquals("copy") }
