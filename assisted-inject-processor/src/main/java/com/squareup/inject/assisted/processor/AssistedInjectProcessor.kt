@@ -85,9 +85,12 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
     val assistedMethods = roundEnv.findElementsAnnotatedWith<Assisted>()
         .map { it.enclosingElement as ExecutableElement }
-    // Error any non-constructor usage of @Assisted.
+    // Error any non-constructor usage of @Assisted. Methods called "copy" are also excluded due to the generated
+    // for Kotlin data classes having their parameters carry the annotations from their counterparts in the primary
+    // constructor.
     assistedMethods
         .filterNot { it.simpleName.contentEquals("<init>") }
+        .filterNot { it.simpleName.contentEquals("copy") }
         .forEach {
           error("@Assisted is only supported on constructor parameters", it)
         }
