@@ -18,6 +18,7 @@ package com.squareup.inject.assisted.dagger2.processor
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.dagger2.AssistedModule
+import com.squareup.inject.assisted.dagger2.processor.internal.generateHiltAnnotation
 import com.squareup.inject.assisted.processor.internal.MirrorValue
 import com.squareup.inject.assisted.processor.internal.applyEach
 import com.squareup.inject.assisted.processor.internal.cast
@@ -117,9 +118,16 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
         val referencesGeneratedModule = includes
             .map { it.toTypeName() }
             .any { it == generatedModuleName }
-        if (!referencesGeneratedModule) {
-          error("@AssistedModule's @Module must include ${generatedModuleName.simpleName()}",
+        if (userModule.hasAnnotation("dagger.hilt.InstallIn")) {
+          if (referencesGeneratedModule) {
+            error("@AssistedModule's @Module must not include ${generatedModuleName.simpleName()} if @InstallIn is used",
               userModule)
+          }
+        } else {
+          if (!referencesGeneratedModule) {
+            error("@AssistedModule's @Module must include ${generatedModuleName.simpleName()}",
+              userModule)
+          }
         }
       }
     }
@@ -160,9 +168,11 @@ class AssistedInjectDagger2Processor : AbstractProcessor() {
         .map { (target, factory) -> target.asType().toTypeName() to factory.toClassName() }
         .toMap(TreeMap())
     val public = Modifier.PUBLIC in moduleType.modifiers
-    val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
-    return AssistedInjectionModule(moduleName, public, targetNameToFactoryNames,
-        generatedAnnotation)
+    val extraAnnotations = listOfNotNull(
+      createGeneratedAnnotation(sourceVersion, elements),
+      generateHiltAnnotation(moduleType, elements)
+    )
+    return AssistedInjectionModule(moduleName, public, targetNameToFactoryNames, extraAnnotations)
   }
 
   private fun writeAssistedModule(
