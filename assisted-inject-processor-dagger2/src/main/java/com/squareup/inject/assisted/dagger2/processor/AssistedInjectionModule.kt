@@ -18,8 +18,8 @@ data class AssistedInjectionModule(
   val moduleName: ClassName,
   val public: Boolean,
   val targetNameToFactoryName: Map<TypeName, ClassName>,
-  /** An optional `@Generated` annotation marker. */
-  val generatedAnnotation: AnnotationSpec? = null
+  /** An optional list of extra annotations markers, e.g `@Generated`. */
+  val extraAnnotations: List<AnnotationSpec> = emptyList()
 ) {
   val generatedType = moduleName.assistedInjectModuleName()
 
@@ -27,8 +27,8 @@ data class AssistedInjectionModule(
     return TypeSpec.classBuilder(generatedType)
         .addAnnotation(MODULE)
         .apply {
-          if (generatedAnnotation != null) {
-            addAnnotation(generatedAnnotation)
+          for (annotation in extraAnnotations) {
+            addAnnotation(annotation)
           }
         }
         .addModifiers(ABSTRACT)
