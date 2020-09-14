@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+Version 0.6.0 *(2020-09-14)*
+----------------------------
+
+ * New: Annotate generated module with `@InstallIn` if the `@AssistedModule` is also annotated with
+   `@InstallIn`. If the `@AssistedModule` is not annotated with `@InstallIn` and Hilt is available on
+   the classpath, the generated module will be annotated with `@DisableInstallInCheck`.
+ * Fix: Ignore `copy` method when searching for `@Assisted` annotation. The Kotlin compiler will copy
+   the annotation to this method on a `data class` which we cannot disable.
+
+
 Version 0.5.2 *(2019-11-22)*
 ----------------------------
 
