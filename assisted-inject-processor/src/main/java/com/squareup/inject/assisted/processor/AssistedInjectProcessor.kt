@@ -229,6 +229,14 @@ class AssistedInjectProcessor : AbstractProcessor() {
     if (assistedRequests.isEmpty()) {
       warn("Assisted injection without at least one @Assisted parameter can use @Inject",
           targetConstructor)
+    } else {
+      val assistedDuplicates = assistedRequests.groupBy { it.key }.filterValues { it.size > 1 }
+      if (assistedDuplicates.isNotEmpty()) {
+        error("Duplicate @Assisted parameters declared. Forget a qualifier annotation?"
+            + assistedDuplicates.values.flatten().joinToString("\n * ", prefix = "\n * "),
+          targetConstructor)
+        valid = false
+      }
     }
     if (providedRequests.isEmpty()) {
       warn("Assisted injection without at least one non-@Assisted parameter doesn't need a factory",
@@ -240,10 +248,10 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val factoryExecutable = types.asMemberOf(factoryType.asType() as DeclaredType,
         factoryMethod) as ExecutableType
 
-    val expectedKeys = assistedRequests.map { it.namedKey }.sorted()
+    val expectedKeys = assistedRequests.map { it.key }.toSet()
     val factoryKeys = factoryMethod.parameters
-        .zip(factoryExecutable.parameterTypes) { element, mirror -> element.asNamedKey(mirror) }
-    val keys = factoryKeys.sorted()
+        .zip(factoryExecutable.parameterTypes) { element, mirror -> element.asKey(mirror) }
+    val keys = factoryKeys.toSet()
     if (keys != expectedKeys) {
       val message = buildString {
         append("Factory method parameters do not match constructor @Assisted parameters. ")

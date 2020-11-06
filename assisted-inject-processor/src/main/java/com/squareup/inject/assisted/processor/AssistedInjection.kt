@@ -35,20 +35,20 @@ data class AssistedInjection(
    * The factory method keys. These default to the keys of the assisted [dependencyRequests]
    * and when supplied must always match them, but the order is allowed to be different.
    */
-  val assistedKeys: List<NamedKey> = dependencyRequests.filter { it.isAssisted }.map { it.namedKey },
+  val assistedKeys: List<Key> = dependencyRequests.filter { it.isAssisted }.map { it.key },
   /** An optional `@Generated` annotation marker. */
   val generatedAnnotation: AnnotationSpec? = null
 ) {
+  private val keyToRequest = dependencyRequests.filter { it.isAssisted }.associateBy { it.key }
   init {
-    val requestKeys = dependencyRequests.filter { it.isAssisted }.map { it.namedKey }
-    check(requestKeys.sorted() == assistedKeys.sorted()) {
+    check(keyToRequest.keys == assistedKeys.toSet()) {
       """
         assistedKeys must contain the same elements as the assisted dependencyRequests.
 
         * assistedKeys:
             $assistedKeys
         * assisted dependencyRequests:
-            $requestKeys
+            ${keyToRequest.keys}
       """.trimIndent()
     }
   }
@@ -87,8 +87,9 @@ data class AssistedInjection(
                 addTypeVariables(targetType.typeArguments.filterIsInstance<TypeVariableName>())
               }
             }
-            .applyEach(assistedKeys) { namedKey ->
-              addParameter(namedKey.key.type, namedKey.name)
+            .applyEach(assistedKeys) { key ->
+              val parameterName = keyToRequest.getValue(key).name
+              addParameter(key.type, parameterName)
             }
             .addStatement("return new \$T(\n\$L)", targetType,
                 dependencyRequests.map { it.argumentProvider }.joinToCode(",\n"))
