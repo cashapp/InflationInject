@@ -3,7 +3,6 @@ package com.squareup.inject.inflation.processor
 import com.google.auto.service.AutoService
 import com.squareup.inject.assisted.processor.AssistedInjection
 import com.squareup.inject.assisted.processor.Key
-import com.squareup.inject.assisted.processor.NamedKey
 import com.squareup.inject.assisted.processor.asDependencyRequest
 import com.squareup.inject.assisted.processor.internal.MirrorValue
 import com.squareup.inject.assisted.processor.internal.applyEach
@@ -194,7 +193,7 @@ class InflationInjectProcessor : AbstractProcessor() {
 
     val requests = targetConstructor.parameters.map { it.asDependencyRequest() }
     val (assistedRequests, providedRequests) = requests.partition { it.isAssisted }
-    val assistedKeys = assistedRequests.map { it.namedKey }
+    val assistedKeys = assistedRequests.map { it.key }
     if (assistedKeys.toSet() != FACTORY_KEYS.toSet()) {
       error("""
         Inflation injection requires Context and AttributeSet @Assisted parameters.
@@ -311,5 +310,5 @@ class InflationInjectProcessor : AbstractProcessor() {
 private val VIEW = ClassName.get("android.view", "View")
 private val FACTORY = ViewFactory::class.toClassName()
 private val FACTORY_KEYS = listOf(
-    NamedKey(Key(ClassName.get("android.content", "Context")), "context"),
-    NamedKey(Key(ClassName.get("android.util", "AttributeSet")), "attrs"))
+    Key(ClassName.get("android.content", "Context")),
+    Key(ClassName.get("android.util", "AttributeSet")))

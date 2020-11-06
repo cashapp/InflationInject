@@ -389,70 +389,6 @@ class InflationInjectProcessorTest {
         .generatesSources(expectedFactory)
   }
 
-  @Test fun differentNameContext() {
-    val inputView = JavaFileObjects.forSourceString("test.TestView", """
-      package test;
-
-      import android.content.Context;
-      import android.util.AttributeSet;
-      import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
-      import com.squareup.inject.inflation.InflationInject;
-
-      class TestView extends View {
-        @InflationInject
-        TestView(@Assisted Context c, @Assisted AttributeSet attrs, Long foo) {
-          super(context, attrs);
-        }
-      }
-    """)
-
-    assertAbout(javaSource())
-        .that(inputView)
-        .processedWith(InflationInjectProcessor())
-        .failsToCompile()
-        .withErrorContaining("""
-          Inflation injection requires Context and AttributeSet @Assisted parameters.
-              Found:
-                [android.content.Context c, android.util.AttributeSet attrs]
-              Expected:
-                [android.content.Context context, android.util.AttributeSet attrs]
-          """.trimIndent())
-        .`in`(inputView).onLine(12)
-  }
-
-  @Test fun differentNameAttributeSet() {
-    val inputView = JavaFileObjects.forSourceString("test.TestView", """
-      package test;
-
-      import android.content.Context;
-      import android.util.AttributeSet;
-      import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
-      import com.squareup.inject.inflation.InflationInject;
-
-      class TestView extends View {
-        @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet a, Long foo) {
-          super(context, attrs);
-        }
-      }
-    """)
-
-    assertAbout(javaSource())
-        .that(inputView)
-        .processedWith(InflationInjectProcessor())
-        .failsToCompile()
-        .withErrorContaining("""
-          Inflation injection requires Context and AttributeSet @Assisted parameters.
-              Found:
-                [android.content.Context context, android.util.AttributeSet a]
-              Expected:
-                [android.content.Context context, android.util.AttributeSet attrs]
-          """.trimIndent())
-        .`in`(inputView).onLine(12)
-  }
-
   @Test fun contextAndAttributeSetSwapped() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
@@ -704,7 +640,7 @@ class InflationInjectProcessorTest {
               Found:
                 []
               Expected:
-                [android.content.Context context, android.util.AttributeSet attrs]
+                [android.content.Context, android.util.AttributeSet]
           """.trimIndent())
         .`in`(inputView).onLine(9)
   }
@@ -734,9 +670,9 @@ class InflationInjectProcessorTest {
         .withErrorContaining("""
           Inflation injection requires Context and AttributeSet @Assisted parameters.
               Found:
-                [android.content.Context context, android.util.AttributeSet attrs, java.lang.String hey]
+                [android.content.Context, android.util.AttributeSet, java.lang.String]
               Expected:
-                [android.content.Context context, android.util.AttributeSet attrs]
+                [android.content.Context, android.util.AttributeSet]
           """.trimIndent())
         .`in`(inputView).onLine(12)
   }
@@ -765,9 +701,9 @@ class InflationInjectProcessorTest {
         .withErrorContaining("""
           Inflation injection requires Context and AttributeSet @Assisted parameters.
               Found:
-                [android.util.AttributeSet attrs]
+                [android.util.AttributeSet]
               Expected:
-                [android.content.Context context, android.util.AttributeSet attrs]
+                [android.content.Context, android.util.AttributeSet]
           """.trimIndent())
         .`in`(inputView).onLine(11)
   }
@@ -796,9 +732,9 @@ class InflationInjectProcessorTest {
         .withErrorContaining("""
           Inflation injection requires Context and AttributeSet @Assisted parameters.
               Found:
-                [android.content.Context context]
+                [android.content.Context]
               Expected:
-                [android.content.Context context, android.util.AttributeSet attrs]
+                [android.content.Context, android.util.AttributeSet]
           """.trimIndent())
         .`in`(inputView).onLine(11)
   }
