@@ -27,6 +27,7 @@ import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.inject.assisted.processor.internal.toClassName
 import com.squareup.inject.assisted.processor.internal.toTypeName
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.JavaFile
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
@@ -37,6 +38,7 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
+import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind.CLASS
 import javax.lang.model.element.ElementKind.CONSTRUCTOR
@@ -198,6 +200,8 @@ class AssistedInjectProcessor : AbstractProcessor() {
       valid = false
     }
 
+    val factoryTypeAnnotations = elements.getAllAnnotationMirrors(factoryType)
+
     val factoryMethods = MoreElements.getLocalAndInheritedMethods(factoryType, types, elements)
         .filterNot { it.isDefault } // Ignore default methods for convenience overloads.
     if (factoryMethods.isEmpty()) {
@@ -211,7 +215,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     if (!valid) return null
 
     val factoryMethod = factoryMethods.single()
-    return AssistedInjectElements(this, constructor, factoryType, factoryMethod)
+    return AssistedInjectElements(this, constructor, factoryType, factoryTypeAnnotations, factoryMethod)
   }
 
   /**
@@ -277,10 +281,11 @@ class AssistedInjectProcessor : AbstractProcessor() {
 
     val targetType = targetType.asType().toTypeName()
     val factoryType = factoryType.toClassName()
+    val factoryTypeAnnotations = factoryTypeAnnotations.map { AnnotationSpec.get(it) }
     val returnType = factoryExecutable.returnType.toTypeName()
     val methodName = factoryMethod.simpleName.toString()
     val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
-    return AssistedInjection(targetType, requests, factoryType, methodName, returnType,
+    return AssistedInjection(targetType, requests, factoryType, factoryTypeAnnotations, methodName, returnType,
         factoryKeys, generatedAnnotation)
   }
 
@@ -307,6 +312,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
     val targetType: TypeElement,
     val targetConstructor: ExecutableElement,
     val factoryType: TypeElement,
+    val factoryTypeAnnotations: Iterable<AnnotationMirror>,
     val factoryMethod: ExecutableElement
   )
 }

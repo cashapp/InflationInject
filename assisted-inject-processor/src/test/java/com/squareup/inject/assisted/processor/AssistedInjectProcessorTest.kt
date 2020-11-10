@@ -1775,4 +1775,58 @@ class AssistedInjectProcessorTest {
             "@Assisted parameter does not work with @Inject! Use @AssistedInject or @InflationInject")
         .`in`(input).onLine(9)
   }
+
+  @Test fun factoryWithDaggerAnnotation() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+      import dagger.TestAnnotation;
+
+      class Test {
+        @AssistedInject
+        Test(Long foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        @TestAnnotation
+        interface Factory {
+          Test create(String bar);
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import dagger.TestAnnotation;
+      import java.lang.Long;
+      import java.lang.Override;
+      import java.lang.String;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      @TestAnnotation
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Provider<Long> foo;
+
+        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public Test create(String bar) {
+          return new Test(foo.get(), bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
 }

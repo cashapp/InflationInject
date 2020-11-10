@@ -220,7 +220,7 @@ class InflationInjectProcessor : AbstractProcessor() {
 
     val targetType = targetType.asType().toTypeName()
     val generatedAnnotation = createGeneratedAnnotation(sourceVersion, elements)
-    return AssistedInjection(targetType, requests, FACTORY, "create", VIEW,
+    return AssistedInjection(targetType, requests, FACTORY, emptySet(), "create", VIEW,
         FACTORY_KEYS, generatedAnnotation)
   }
 

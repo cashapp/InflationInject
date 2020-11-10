@@ -18,6 +18,7 @@ import javax.lang.model.element.Modifier.PUBLIC
 
 private val JAVAX_INJECT = ClassName.get("javax.inject", "Inject")
 private val JAVAX_PROVIDER = ClassName.get("javax.inject", "Provider")
+private const val PACKAGE_DAGGER = "dagger"
 
 /** The structure of an assisted injection factory. */
 data class AssistedInjection(
@@ -27,6 +28,8 @@ data class AssistedInjection(
   val dependencyRequests: List<DependencyRequest>,
   /** The factory interface type. */
   val factoryType: TypeName,
+  /** The annotations affecting the factory type. */
+  val factoryTypeAnnotations: Iterable<AnnotationSpec>,
   /** Name of the factory's only method. */
   val factoryMethod: String,
   /** The factory method return type. [targetType] must be assignable to this type. */
@@ -67,6 +70,9 @@ data class AssistedInjection(
             addAnnotation(generatedAnnotation)
           }
         }
+        .addAnnotations(factoryTypeAnnotations.filter {
+          it.type.rawClassName().packageName()?.run { contentEquals(PACKAGE_DAGGER) } ?: false
+        })
         .applyEach(providedKeys) {
           addField(it.providerType.withoutAnnotations(), it.name, PRIVATE, FINAL)
         }
