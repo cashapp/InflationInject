@@ -1,22 +1,18 @@
 package com.squareup.inject.inflation.processor
 
 import com.google.auto.service.AutoService
-import com.squareup.inject.assisted.processor.AssistedInjection
-import com.squareup.inject.assisted.processor.Key
-import com.squareup.inject.assisted.processor.asDependencyRequest
-import com.squareup.inject.assisted.processor.internal.MirrorValue
-import com.squareup.inject.assisted.processor.internal.applyEach
-import com.squareup.inject.assisted.processor.internal.cast
-import com.squareup.inject.assisted.processor.internal.castEach
-import com.squareup.inject.assisted.processor.internal.createGeneratedAnnotation
-import com.squareup.inject.assisted.processor.internal.filterNotNullValues
-import com.squareup.inject.assisted.processor.internal.findElementsAnnotatedWith
-import com.squareup.inject.assisted.processor.internal.getAnnotation
-import com.squareup.inject.assisted.processor.internal.getValue
-import com.squareup.inject.assisted.processor.internal.hasAnnotation
-import com.squareup.inject.assisted.processor.internal.toClassName
-import com.squareup.inject.assisted.processor.internal.toTypeName
-import com.squareup.inject.inflation.Inflated
+import com.squareup.inject.inflation.processor.internal.MirrorValue
+import com.squareup.inject.inflation.processor.internal.applyEach
+import com.squareup.inject.inflation.processor.internal.cast
+import com.squareup.inject.inflation.processor.internal.castEach
+import com.squareup.inject.inflation.processor.internal.createGeneratedAnnotation
+import com.squareup.inject.inflation.processor.internal.filterNotNullValues
+import com.squareup.inject.inflation.processor.internal.findElementsAnnotatedWith
+import com.squareup.inject.inflation.processor.internal.getAnnotation
+import com.squareup.inject.inflation.processor.internal.getValue
+import com.squareup.inject.inflation.processor.internal.hasAnnotation
+import com.squareup.inject.inflation.processor.internal.toClassName
+import com.squareup.inject.inflation.processor.internal.toTypeName
 import com.squareup.inject.inflation.InflationInject
 import com.squareup.inject.inflation.InflationModule
 import com.squareup.inject.inflation.ViewFactory
@@ -192,7 +188,7 @@ class InflationInjectProcessor : AbstractProcessor() {
   private fun InflationInjectElements.toAssistedInjectionOrNull(): AssistedInjection? {
     var valid = true
 
-    val requests = targetConstructor.parameters.map { it.asDependencyRequest<Inflated>() }
+    val requests = targetConstructor.parameters.map { it.asDependencyRequest() }
     val (assistedRequests, providedRequests) = requests.partition { it.isAssisted }
     val assistedKeys = assistedRequests.map { it.key }
     if (assistedKeys.toSet() != FACTORY_KEYS.toSet()) {

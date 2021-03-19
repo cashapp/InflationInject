@@ -1,8 +1,7 @@
 package com.squareup.inject.inflation.processor
 
-import com.squareup.inject.assisted.processor.assistedInjectFactoryName
-import com.squareup.inject.assisted.processor.internal.applyEach
-import com.squareup.inject.assisted.processor.internal.peerClassWithReflectionNesting
+import com.squareup.inject.inflation.processor.internal.applyEach
+import com.squareup.inject.inflation.processor.internal.peerClassWithReflectionNesting
 import com.squareup.inject.inflation.ViewFactory
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName

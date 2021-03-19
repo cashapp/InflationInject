@@ -11,9 +11,9 @@ kapt.includeCompileClasspath = false
 
 dependencies {
   implementation project(':inflation-inject')
-  implementation project(':assisted-inject-processor')
   implementation deps.kotlin
   implementation deps.javaPoet
+  implementation deps.autoCommon
 
   compileOnly deps.autoService
   kapt deps.autoService

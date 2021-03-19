@@ -17,7 +17,7 @@ private val GENERATED_TYPE = try {
 private const val GENERATED_ANNOTATION = """
 @Generated(
   value = "com.squareup.inject.inflation.processor.InflationInjectProcessor",
-  comments = "https://github.com/square/AssistedInject"
+  comments = "https://github.com/square/InflationInject"
 )
 """
 
@@ -50,7 +50,7 @@ class InflationInjectProcessorTest {
       abstract class TestModule {}
     """)
 
-    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -64,10 +64,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Provider;
 
       $GENERATED_ANNOTATION
-      public final class TestView_AssistedFactory implements ViewFactory {
+      public final class TestView_InflationFactory implements ViewFactory {
         private final Provider<Long> foo;
 
-        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+        @Inject public Test_InflationFactory(Provider<Long> foo) {
           this.foo = foo;
         }
 
@@ -94,101 +94,7 @@ class InflationInjectProcessorTest {
         @Binds
         @IntoMap
         @StringKey("test.TestView")
-        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
-      }
-    """)
-
-    assertAbout(javaSources())
-        .that(listOf(inputView, inputModule))
-        .processedWith(InflationInjectProcessor())
-        .compilesWithoutError()
-        .and()
-        .generatesSources(expectedFactory, expectedModule)
-  }
-
-  @Test fun injectAssistedInjectFactoryDoesNotUseProvider() {
-    val inputView = JavaFileObjects.forSourceString("test.TestView", """
-      package test;
-
-      import android.content.Context;
-      import android.util.AttributeSet;
-      import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
-      import com.squareup.inject.assisted.AssistedInject;
-      import com.squareup.inject.inflation.Inflated;
-      import com.squareup.inject.inflation.InflationInject;
-
-      class TestView extends View {
-        @InflationInject
-        TestView(@Inflated Context context, @Inflated AttributeSet attrs, Other.Factory foo) {
-          super(context, attrs);
-        }
-      }
-
-      class Other {
-        @AssistedInject
-        Other(String a, @Assisted String b) {}
-
-        @AssistedInject.Factory
-        interface Factory {
-          Other create(String b);
-        }
-      }
-    """)
-    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
-      package test;
-
-      import com.squareup.inject.inflation.InflationModule;
-      import dagger.Module;
-
-      @InflationModule
-      @Module(includes = InflationInject_TestModule.class)
-      abstract class TestModule {}
-    """)
-
-    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
-      package test;
-
-      import android.content.Context;
-      import android.util.AttributeSet;
-      import android.view.View;
-      import com.squareup.inject.inflation.ViewFactory;
-      import java.lang.Override;
-      import $GENERATED_TYPE;
-      import javax.inject.Inject;
-
-      $GENERATED_ANNOTATION
-      public final class TestView_AssistedFactory implements ViewFactory {
-        private final Other.Factory foo;
-
-        @Inject public Test_AssistedFactory(Other.Factory foo) {
-          this.foo = foo;
-        }
-
-        @Override public View create(Context context, AttributeSet attrs) {
-          return new TestView(context, attrs, foo);
-        }
-      }
-    """)
-    val expectedModule = JavaFileObjects.forSourceString("test.InflationModule_TestModule", """
-      package test;
-
-      import com.squareup.inject.inflation.ViewFactory;
-      import dagger.Binds;
-      import dagger.Module;
-      import dagger.multibindings.IntoMap;
-      import dagger.multibindings.StringKey;
-      import $GENERATED_TYPE;
-
-      @Module
-      $GENERATED_ANNOTATION
-      abstract class InflationInject_TestModule {
-        private InflationInject_TestModule() {}
-
-        @Binds
-        @IntoMap
-        @StringKey("test.TestView")
-        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
+        abstract ViewFactory bind_test_TestView(TestView_InflationFactory factory);
       }
     """)
 
@@ -238,7 +144,7 @@ class InflationInjectProcessorTest {
       abstract class TestModule {}
     """)
 
-    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -250,10 +156,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Inject;
 
       $GENERATED_ANNOTATION
-      public final class TestView_AssistedFactory implements ViewFactory {
+      public final class TestView_InflationFactory implements ViewFactory {
         private final Other.Factory foo;
 
-        @Inject public Test_AssistedFactory(Other.Factory foo) {
+        @Inject public TestView_InflationFactory(Other.Factory foo) {
           this.foo = foo;
         }
 
@@ -280,7 +186,7 @@ class InflationInjectProcessorTest {
         @Binds
         @IntoMap
         @StringKey("test.TestView")
-        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
+        abstract ViewFactory bind_test_TestView(TestView_InflationFactory factory);
       }
     """)
 
@@ -338,7 +244,7 @@ class InflationInjectProcessorTest {
         @Binds
         @IntoMap
         @StringKey("test.TestView")
-        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
+        abstract ViewFactory bind_test_TestView(TestView_InflationFactory factory);
       }
     """)
 
@@ -380,7 +286,7 @@ class InflationInjectProcessorTest {
       abstract class TestModule {}
     """)
 
-    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -394,10 +300,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Provider;
 
       $GENERATED_ANNOTATION
-      public final class Outer${'$'}TestView_AssistedFactory implements ViewFactory {
+      public final class Outer${'$'}TestView_InflationFactory implements ViewFactory {
         private final Provider<Long> foo;
 
-        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+        @Inject public Test_InflationFactory(Provider<Long> foo) {
           this.foo = foo;
         }
 
@@ -424,7 +330,7 @@ class InflationInjectProcessorTest {
         @Binds
         @IntoMap
         @StringKey("test.Outer${'$'}TestView")
-        abstract ViewFactory bind_test_Outer${'$'}TestView(Outer${'$'}TestView_AssistedFactory factory);
+        abstract ViewFactory bind_test_Outer${'$'}TestView(Outer${'$'}TestView_InflationFactory factory);
       }
     """)
 
@@ -436,7 +342,7 @@ class InflationInjectProcessorTest {
         .generatesSources(expectedFactory, expectedModule)
   }
 
-  @Ignore("Not handled properly. https://github.com/square/AssistedInject/issues/64")
+  @Ignore("Not handled properly. https://github.com/square/InflationInject/issues/64")
   @Test fun parameterized() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
@@ -465,7 +371,7 @@ class InflationInjectProcessorTest {
       abstract class TestModule {}
     """)
 
-    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -479,10 +385,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Provider;
 
       $GENERATED_ANNOTATION
-      public final class TestView_AssistedFactory implements ViewFactory {
+      public final class TestView_InflationFactory implements ViewFactory {
         private final Provider<Long> foo;
 
-        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+        @Inject public Test_InflationFactory(Provider<Long> foo) {
           this.foo = foo;
         }
 
@@ -509,7 +415,7 @@ class InflationInjectProcessorTest {
         @Binds
         @IntoMap
         @StringKey("test.TestView")
-        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
+        abstract ViewFactory bind_test_TestView(TestView_InflationFactory factory);
       }
     """)
 
@@ -540,7 +446,7 @@ class InflationInjectProcessorTest {
       }
     """)
 
-    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -554,10 +460,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Provider;
 
       $GENERATED_ANNOTATION
-      public final class TestView_AssistedFactory implements ViewFactory {
+      public final class TestView_InflationFactory implements ViewFactory {
         private final Provider<Long> foo;
 
-        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+        @Inject public Test_InflationFactory(Provider<Long> foo) {
           this.foo = foo;
         }
 
@@ -593,7 +499,7 @@ class InflationInjectProcessorTest {
       }
     """)
 
-    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -607,10 +513,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Provider;
 
       $GENERATED_ANNOTATION
-      public final class TestView_AssistedFactory implements ViewFactory {
+      public final class TestView_InflationFactory implements ViewFactory {
         private final Provider<Long> foo;
 
-        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+        @Inject public Test_InflationFactory(Provider<Long> foo) {
           this.foo = foo;
         }
 
@@ -671,7 +577,7 @@ class InflationInjectProcessorTest {
       }
     """)
 
-    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -685,10 +591,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Provider;
 
       $GENERATED_ANNOTATION
-      public final class TestView_AssistedFactory implements ViewFactory {
+      public final class TestView_InflationFactory implements ViewFactory {
         private final Provider<Long> foo;
 
-        @Inject public Test_AssistedFactory(Provider<Long> foo) {
+        @Inject public Test_InflationFactory(Provider<Long> foo) {
           this.foo = foo;
         }
 
@@ -740,7 +646,7 @@ class InflationInjectProcessorTest {
       }
     """)
 
-    val expectedLongFactory = JavaFileObjects.forSourceString("test.LongView_AssistedFactory", """
+    val expectedLongFactory = JavaFileObjects.forSourceString("test.LongView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -754,10 +660,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Provider;
 
       $GENERATED_ANNOTATION
-      public final class LongView_AssistedFactory implements ViewFactory {
+      public final class LongView_InflationFactory implements ViewFactory {
         private final Provider<Long> foo;
 
-        @Inject public LongView_AssistedFactory(Provider<Long> foo) {
+        @Inject public LongView_InflationFactory(Provider<Long> foo) {
           this.foo = foo;
         }
 
@@ -766,7 +672,7 @@ class InflationInjectProcessorTest {
         }
       }
     """)
-    val expectedStringFactory = JavaFileObjects.forSourceString("test.StringView_AssistedFactory", """
+    val expectedStringFactory = JavaFileObjects.forSourceString("test.StringView_InflationFactory", """
       package test;
 
       import android.content.Context;
@@ -780,10 +686,10 @@ class InflationInjectProcessorTest {
       import javax.inject.Provider;
 
       $GENERATED_ANNOTATION
-      public final class StringView_AssistedFactory implements ViewFactory {
+      public final class StringView_InflationFactory implements ViewFactory {
         private final Provider<String> foo;
 
-        @Inject public LongView_AssistedFactory(Provider<String> foo) {
+        @Inject public LongView_InflationFactory(Provider<String> foo) {
           this.foo = foo;
         }
 
@@ -1126,7 +1032,7 @@ class InflationInjectProcessorTest {
       import dagger.Module;
 
       @InflationModule
-      @Module(includes = AssistedInject_OneModule.class)
+      @Module(includes = InflationInject_OneModule.class)
       abstract class OneModule {}
     """)
     val moduleTwo = JavaFileObjects.forSourceString("test.TwoModule", """
@@ -1136,7 +1042,7 @@ class InflationInjectProcessorTest {
       import dagger.Module;
 
       @InflationModule
-      @Module(includes = AssistedInject_TwoModule.class)
+      @Module(includes = InflationInject_TwoModule.class)
       abstract class TwoModule {}
     """)
 
