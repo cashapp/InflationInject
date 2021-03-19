@@ -1,10 +1,4 @@
-rootProject.name = 'assisted-inject'
-
-include ':assisted-inject-annotations'
-include ':assisted-inject-annotations-dagger2'
-include ':assisted-inject-processor'
-include ':assisted-inject-processor-dagger2'
-include ':assisted-inject-sample-android'
+rootProject.name = 'inflation-inject'
 
 include ':inflation-inject'
 include ':inflation-inject-processor'

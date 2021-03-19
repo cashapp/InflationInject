@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 28
+  compileSdkVersion 30
 
   defaultConfig {
     minSdkVersion 14
-    targetSdkVersion 28
+    targetSdkVersion 30
 
     applicationId 'com.example.inject.inflation'
   }
@@ -21,7 +21,7 @@ android {
 
   signingConfigs {
     assisted {
-      storeFile rootProject.file('signing.keystore')
+      storeFile file('signing.keystore')
       storePassword 'assisted'
       keyAlias 'assisted'
       keyPassword 'assisted'

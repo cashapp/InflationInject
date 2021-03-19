@@ -1,75 +1,72 @@
-Assisted Injection for JSR 330
-==============================
+# Inflation Injection
 
-Manually injected dependencies for your JSR 330 configuration. More about assisted injections in
-the [Guice wiki](https://github.com/google/guice/wiki/AssistedInject).
+Constructor-inject views during XML layout inflation.
+
+Looking for Assisted Inject? It's [built in to Dagger now](https://dagger.dev/dev-guide/assisted-injection.html)!
 
 
-Usage
------
+## Usage
+
+Write your layout XML like normal.
+
+```xml
+<LinearLayout>
+  <com.example.CustomView/>
+  <TextView/>
+</LinearLayout>
+```
+
+Use `@InflationInject` in `CustomView`:
 
 ```java
-class MyPresenter {
-  @AssistedInject
-  MyPresenter(Long foo, @Assisted String bar) {}
+public final class CustomView {
+  private final Picasso picasso;
   
-  @AssistedInject.Factory
-  interface Factory {
-    MyPresenter create(String bar);
+  @InflationInject
+  public CustomView(
+    @Inflated Context context,
+    @Inflated AttributeSet attrs,
+    Picasso picasso
+  ) {
+    super(context, attrs);
+    this.picasso = picasso;
   }
+  
+  // ...
 }
 ```
 
-This will generate the following:
+In order to allow Dagger to create your custom views, add `@InflationModule` to a Dagger module and
+add the generated module name to its `includes=`.
 
 ```java
-public final class MyPresenter_AssistedFactory implements MyPresenter.Factory {
-  private final Provider<Long> foo;
-
-  @Inject public MyPresenter_AssistedFactory(Provider<Long> foo) {
-    this.foo = foo;
-  }
-
-  @Override public MyPresenter create(String bar) {
-    return new MyPresenter(foo.get(), bar);
-  }
-}
-```
-
-
-Usage with Dagger 2
--------------------
-
-In order to allow Dagger to use the generated factory, define an assisted dagger module anywhere in
-the same gradle module:
-
-```java
-@AssistedModule
-@Module(includes = AssistedInject_PresenterModule.class)
+@InflationModule
+@Module(includes = InflationInject_PresenterModule.class)
 abstract class PresenterModule {}
 ```
 
-The library will generate the `AssistedInject_PresenterModule` for us. 
+The annotation processor will generate the `InflationInject_PresenterModule` for us. It will not be
+resolved until the processor runs.
 
+Finally, inject `InflationInjectFactory` and add it to your `LayoutInflater`.
 
-Download
---------
+```java
+InflationInjectFactory factory = DaggerMainActivity_MainComponent.create().factory();
+getLayoutInflater().setFactory(factory);
 
-```groovy
-compileOnly 'com.squareup.inject:assisted-inject-annotations:0.8.1'
-annotationProcessor 'com.squareup.inject:assisted-inject-processor:0.8.1'
-```
-
-With Dagger 2:
-
-```groovy
-compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:0.8.1'
-annotationProcessor 'com.squareup.inject:assisted-inject-processor-dagger2:0.8.1'
+setContentView(R.layout.main_view);
 ```
 
 
-License
-=======
+## Download
+
+```groovy
+implementation 'com.squareup.inject:inflation-inject:0.9.0'
+annotationProcessor 'com.squareup.inject:inflation-inject-processor:0.9.0'
+```
+
+
+# License
 
     Copyright 2017 Square, Inc.
 
