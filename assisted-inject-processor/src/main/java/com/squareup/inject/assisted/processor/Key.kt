@@ -15,9 +15,13 @@
  */
 package com.squareup.inject.assisted.processor
 
+import com.google.auto.common.MoreTypes
+import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
+import com.squareup.inject.assisted.processor.internal.toAnnotationSpec
 import com.squareup.inject.assisted.processor.internal.toTypeName
 import com.squareup.javapoet.AnnotationSpec
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
@@ -25,13 +29,27 @@ import javax.lang.model.type.TypeMirror
 /** Represents a type and an optional qualifier annotation for a binding. */
 data class Key(
   val type: TypeName,
-  val qualifier: AnnotationSpec? = null
+  val qualifier: AnnotationSpec? = null,
+  val useProvider: Boolean = true
 ) {
   override fun toString() = qualifier?.let { "$it $type" } ?: type.toString()
 }
 
 /** Create a [Key] from this type and any qualifier annotation. */
-fun VariableElement.asKey(mirror: TypeMirror = asType()) = Key(mirror.toTypeName(),
-    annotationMirrors.find {
-      it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
-    }?.let { AnnotationSpec.get(it) })
+fun VariableElement.asKey(mirror: TypeMirror = asType()): Key {
+  val type = mirror.toTypeName()
+  val qualifier = annotationMirrors.find {
+    it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
+  }?.toAnnotationSpec()
+
+  // Do not wrap a Provider inside another Provider.
+  val provider = type is ParameterizedTypeName && type.rawType == JAVAX_PROVIDER
+
+  val typeElement = if (type.isPrimitive) null else MoreTypes.asElement(mirror)
+  // Minor optimization. Don't wrap one of our stateless Factory instances in a stateless Provider.
+  val assistedInjectFactory = typeElement?.hasAnnotation<AssistedInject.Factory>() ?: false
+  // Dagger forbids requesting an @AssistedFactory-annotated type inside of a Provider.
+  val daggerAssistedFactory = typeElement?.hasAnnotation("dagger.assisted.AssistedFactory") ?: false
+
+  return Key(type, qualifier, !provider && !assistedInjectFactory && !daggerAssistedFactory)
+}

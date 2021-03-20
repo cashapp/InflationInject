@@ -1,9 +1,11 @@
 package com.squareup.inject.assisted.processor.internal
 
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
@@ -11,6 +13,8 @@ import kotlin.reflect.KClass
 fun TypeElement.toClassName(): ClassName = ClassName.get(this)
 fun TypeMirror.toTypeName(): TypeName = TypeName.get(this)
 fun KClass<*>.toClassName(): ClassName = ClassName.get(java)
+
+fun AnnotationMirror.toAnnotationSpec(): AnnotationSpec = AnnotationSpec.get(this)
 
 fun Iterable<CodeBlock>.joinToCode(separator: String = ", ") = CodeBlock.join(this, separator)
 

@@ -106,6 +106,191 @@ class InflationInjectProcessorTest {
         .generatesSources(expectedFactory, expectedModule)
   }
 
+  @Test fun injectAssistedInjectFactoryDoesNotUseProvider() {
+    val inputView = JavaFileObjects.forSourceString("test.TestView", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+      import com.squareup.inject.inflation.InflationInject;
+
+      class TestView extends View {
+        @InflationInject
+        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Other.Factory foo) {
+          super(context, attrs);
+        }
+      }
+
+      class Other {
+        @AssistedInject
+        Other(String a, @Assisted String b) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Other create(String b);
+        }
+      }
+    """)
+    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = InflationInject_TestModule.class)
+      abstract class TestModule {}
+    """)
+
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.inflation.ViewFactory;
+      import java.lang.Override;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+
+      $GENERATED_ANNOTATION
+      public final class TestView_AssistedFactory implements ViewFactory {
+        private final Other.Factory foo;
+
+        @Inject public Test_AssistedFactory(Other.Factory foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet attrs) {
+          return new TestView(context, attrs, foo);
+        }
+      }
+    """)
+    val expectedModule = JavaFileObjects.forSourceString("test.InflationModule_TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.ViewFactory;
+      import dagger.Binds;
+      import dagger.Module;
+      import dagger.multibindings.IntoMap;
+      import dagger.multibindings.StringKey;
+      import $GENERATED_TYPE;
+
+      @Module
+      $GENERATED_ANNOTATION
+      abstract class InflationInject_TestModule {
+        private InflationInject_TestModule() {}
+
+        @Binds
+        @IntoMap
+        @StringKey("test.TestView")
+        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
+      }
+    """)
+
+    assertAbout(javaSources())
+        .that(listOf(inputView, inputModule))
+        .processedWith(InflationInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedFactory, expectedModule)
+  }
+
+  @Test fun injectDaggerAssistedFactoryDoesNotUseProvider() {
+    val inputView = JavaFileObjects.forSourceString("test.TestView", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import dagger.assisted.AssistedFactory;
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.InflationInject;
+
+      class TestView extends View {
+        @InflationInject
+        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Other.Factory foo) {
+          super(context, attrs);
+        }
+      }
+
+      class Other {
+        Other(String a, String b) {}
+
+        @AssistedFactory
+        interface Factory {
+          Other create(String b);
+        }
+      }
+    """)
+    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = InflationInject_TestModule.class)
+      abstract class TestModule {}
+    """)
+
+    val expectedFactory = JavaFileObjects.forSourceString("test.TestView_AssistedFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import com.squareup.inject.inflation.ViewFactory;
+      import java.lang.Override;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+
+      $GENERATED_ANNOTATION
+      public final class TestView_AssistedFactory implements ViewFactory {
+        private final Other.Factory foo;
+
+        @Inject public Test_AssistedFactory(Other.Factory foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet attrs) {
+          return new TestView(context, attrs, foo);
+        }
+      }
+    """)
+    val expectedModule = JavaFileObjects.forSourceString("test.InflationModule_TestModule", """
+      package test;
+
+      import com.squareup.inject.inflation.ViewFactory;
+      import dagger.Binds;
+      import dagger.Module;
+      import dagger.multibindings.IntoMap;
+      import dagger.multibindings.StringKey;
+      import $GENERATED_TYPE;
+
+      @Module
+      $GENERATED_ANNOTATION
+      abstract class InflationInject_TestModule {
+        private InflationInject_TestModule() {}
+
+        @Binds
+        @IntoMap
+        @StringKey("test.TestView")
+        abstract ViewFactory bind_test_TestView(TestView_AssistedFactory factory);
+      }
+    """)
+
+    assertAbout(javaSources())
+        .that(listOf(inputView, inputModule))
+        .processedWith(InflationInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedFactory, expectedModule)
+  }
+
   @Test fun public() {
     val inputView = JavaFileObjects.forSourceString("test.TestView", """
       package test;
