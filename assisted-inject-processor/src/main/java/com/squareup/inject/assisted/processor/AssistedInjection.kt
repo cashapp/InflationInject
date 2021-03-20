@@ -17,7 +17,7 @@ import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
 
 private val JAVAX_INJECT = ClassName.get("javax.inject", "Inject")
-private val JAVAX_PROVIDER = ClassName.get("javax.inject", "Provider")
+internal val JAVAX_PROVIDER = ClassName.get("javax.inject", "Provider")
 
 /** The structure of an assisted injection factory. */
 data class AssistedInjection(
@@ -98,15 +98,12 @@ data class AssistedInjection(
   }
 }
 
-/** True when this key represents a parameterized JSR 330 `Provider`. */
-private val Key.isProvider get() = type is ParameterizedTypeName && type.rawType == JAVAX_PROVIDER
-
 private val DependencyRequest.providerType: TypeName
   get() {
-    val type = if (key.isProvider) {
-      key.type // Do not wrap a Provider inside another Provider.
-    } else {
+    val type = if (key.useProvider) {
       ParameterizedTypeName.get(JAVAX_PROVIDER, key.type.box())
+    } else {
+      key.type
     }
     key.qualifier?.let {
       return type.annotated(it)
@@ -115,7 +112,7 @@ private val DependencyRequest.providerType: TypeName
   }
 
 private val DependencyRequest.argumentProvider
-  get() = CodeBlock.of(if (isAssisted || key.isProvider) "\$N" else "\$N.get()", name)
+  get() = CodeBlock.of(if (isAssisted || !key.useProvider) "\$N" else "\$N.get()", name)
 
 fun ClassName.assistedInjectFactoryName(): ClassName =
     peerClassWithReflectionNesting(simpleName() + "_AssistedFactory")

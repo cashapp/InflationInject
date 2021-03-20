@@ -188,6 +188,122 @@ class AssistedInjectProcessorTest {
         .generatesSources(expected)
   }
 
+  @Test fun assistedFactoryDoesNotUseProvider() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(Other.Factory foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String bar);
+        }
+      }
+
+      class Other {
+        @AssistedInject
+        Other(String a, @Assisted String b) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Other create(String b);
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Override;
+      import java.lang.String;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+
+      $GENERATED_ANNOTATION
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Other.Factory foo;
+
+        @Inject public Test_AssistedFactory(Other.Factory foo) {
+          this.foo = foo;
+        }
+
+        @Override public Test create(String bar) {
+          return new Test(foo, bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
+  @Test fun daggerAssistedFactoryDoesNotUseProvider() {
+    val input = JavaFileObjects.forSourceString("test.Test", """
+      package test;
+
+      import dagger.assisted.AssistedFactory;
+      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.assisted.AssistedInject;
+
+      class Test {
+        @AssistedInject
+        Test(Other.Factory foo, @Assisted String bar) {}
+
+        @AssistedInject.Factory
+        interface Factory {
+          Test create(String bar);
+        }
+      }
+
+      class Other {
+        Other(String a, String b) {}
+
+        @AssistedFactory
+        interface Factory {
+          Other create(String b);
+        }
+      }
+    """)
+
+    val expected = JavaFileObjects.forSourceString("test.Test_AssistedFactory", """
+      package test;
+
+      import java.lang.Override;
+      import java.lang.String;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+
+      $GENERATED_ANNOTATION
+      public final class Test_AssistedFactory implements Test.Factory {
+        private final Other.Factory foo;
+
+        @Inject public Test_AssistedFactory(Other.Factory foo) {
+          this.foo = foo;
+        }
+
+        @Override public Test create(String bar) {
+          return new Test(foo, bar);
+        }
+      }
+    """)
+
+    assertAbout(javaSource())
+        .that(input)
+        .processedWith(AssistedInjectProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expected)
+  }
+
   @Test fun factoryParameterNameIsNotUsedInTheImpl() {
     val input = JavaFileObjects.forSourceString("test.Test", """
       package test;
