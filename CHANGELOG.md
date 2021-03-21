@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 0.6.1 *(2021-03-20)*
+----------------------------
+
+ * Fix: Do not wrap types annotated with Dagger's `@AssistedFactory` in a `Provider` if injected into
+   one of our `@AssistedInject` or `@InflationInject` types.
+
+
 Version 0.6.0 *(2020-09-14)*
 ----------------------------
 
