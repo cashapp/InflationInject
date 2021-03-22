@@ -1,11 +1,15 @@
 Change Log
 ==========
 
-Version 0.6.1 *(2021-03-20)*
+Version 0.7.0 *(2021-03-21)*
 ----------------------------
 
+ * Similar to how Dagger disambiguates two injections of the same type, qualifier annotations are now
+   required to disambiguate assisted parameters. Parameter names are no longer significant.
  * Fix: Do not wrap types annotated with Dagger's `@AssistedFactory` in a `Provider` if injected into
    one of our `@AssistedInject` or `@InflationInject` types.
+
+Note: This first was erroneously tagged as 0.6.1.
 
 
 Version 0.6.0 *(2020-09-14)*
