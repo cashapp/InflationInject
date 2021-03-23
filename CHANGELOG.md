@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 0.8.0 *(2021-03-22)*
+----------------------------
+
+ * New: Inflation injection now uses its own `@Inflated` annotation for `Context` and `AttributeSet`.
+   Using `@Assisted` is no longer supported.
+
+
 Version 0.7.0 *(2021-03-21)*
 ----------------------------
 
