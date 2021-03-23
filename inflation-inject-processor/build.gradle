@@ -7,6 +7,8 @@ apply plugin: 'org.jetbrains.kotlin.kapt'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+kapt.includeCompileClasspath = false
+
 dependencies {
   implementation project(':inflation-inject')
   implementation project(':assisted-inject-processor')

@@ -16,6 +16,7 @@ import com.squareup.inject.assisted.processor.internal.getValue
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.inject.assisted.processor.internal.toClassName
 import com.squareup.inject.assisted.processor.internal.toTypeName
+import com.squareup.inject.inflation.Inflated
 import com.squareup.inject.inflation.InflationInject
 import com.squareup.inject.inflation.InflationModule
 import com.squareup.inject.inflation.ViewFactory
@@ -191,12 +192,12 @@ class InflationInjectProcessor : AbstractProcessor() {
   private fun InflationInjectElements.toAssistedInjectionOrNull(): AssistedInjection? {
     var valid = true
 
-    val requests = targetConstructor.parameters.map { it.asDependencyRequest() }
+    val requests = targetConstructor.parameters.map { it.asDependencyRequest<Inflated>() }
     val (assistedRequests, providedRequests) = requests.partition { it.isAssisted }
     val assistedKeys = assistedRequests.map { it.key }
     if (assistedKeys.toSet() != FACTORY_KEYS.toSet()) {
       error("""
-        Inflation injection requires Context and AttributeSet @Assisted parameters.
+        Inflation injection requires Context and AttributeSet @Inflated parameters.
           Found:
             $assistedKeys
           Expected:
@@ -205,11 +206,11 @@ class InflationInjectProcessor : AbstractProcessor() {
       valid = false
     }
     if (providedRequests.isEmpty()) {
-      warn("Inflation injection requires at least one non-@Assisted parameter.", targetConstructor)
+      warn("Inflation injection requires at least one non-@Inflated parameter.", targetConstructor)
     } else {
       val providedDuplicates = providedRequests.groupBy { it.key }.filterValues { it.size > 1 }
       if (providedDuplicates.isNotEmpty()) {
-        error("Duplicate non-@Assisted parameters declared. Forget a qualifier annotation?"
+        error("Duplicate non-@Inflated parameters declared. Forget a qualifier annotation?"
             + providedDuplicates.values.flatten().joinToString("\n * ", prefix = "\n * "),
             targetConstructor)
         valid = false

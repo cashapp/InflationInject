@@ -224,7 +224,7 @@ class AssistedInjectProcessor : AbstractProcessor() {
   private fun AssistedInjectElements.toAssistedInjectionOrNull(): AssistedInjection? {
     var valid = true
 
-    val requests = targetConstructor.parameters.map { it.asDependencyRequest() }
+    val requests = targetConstructor.parameters.map { it.asDependencyRequest<Assisted>() }
     val (assistedRequests, providedRequests) = requests.partition { it.isAssisted }
     if (assistedRequests.isEmpty()) {
       warn("Assisted injection without at least one @Assisted parameter can use @Inject",

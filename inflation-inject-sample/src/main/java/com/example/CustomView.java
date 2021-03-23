@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.squareup.inject.assisted.Assisted;
+import com.squareup.inject.inflation.Inflated;
 import com.squareup.inject.inflation.InflationInject;
 
 @SuppressLint("ViewConstructor") // Created by Inflation Inject.
@@ -14,7 +14,7 @@ public final class CustomView extends LinearLayout {
   private final Greeter greeter;
 
   @InflationInject
-  public CustomView(@Assisted Context context, @Assisted AttributeSet attrs, Greeter greeter) {
+  public CustomView(@Inflated Context context, @Inflated AttributeSet attrs, Greeter greeter) {
     super(context, attrs);
     this.greeter = greeter;
   }

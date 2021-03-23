@@ -9,8 +9,7 @@ dependencies {
   // Annotations are exposed as 'api' because Dagger wants to read the @NonNull annotation on the
   // @Inject constructor parameter if you are using its implicit binding.
   api deps.androidxAnnotations
-  implementation deps.inject
-  api project(':assisted-inject-annotations')
+  api deps.inject
 
   testImplementation deps.kotlin
   testImplementation deps.junit
