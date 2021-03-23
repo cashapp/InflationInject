@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 0.8.1 *(2021-03-22)*
+----------------------------
+
+ * Fix: Allow inflation inject processor to work in modules that do not have assisted inject
+   annotations present.
+
+
 Version 0.8.0 *(2021-03-22)*
 ----------------------------
 
