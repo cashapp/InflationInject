@@ -16,7 +16,6 @@
 package com.squareup.inject.assisted.processor
 
 import com.google.auto.common.MoreTypes
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import com.squareup.inject.assisted.processor.internal.toAnnotationSpec
 import com.squareup.inject.assisted.processor.internal.toTypeName
@@ -47,7 +46,7 @@ fun VariableElement.asKey(mirror: TypeMirror = asType()): Key {
 
   val typeElement = if (type.isPrimitive) null else MoreTypes.asElement(mirror)
   // Minor optimization. Don't wrap one of our stateless Factory instances in a stateless Provider.
-  val assistedInjectFactory = typeElement?.hasAnnotation<AssistedInject.Factory>() ?: false
+  val assistedInjectFactory = typeElement?.hasAnnotation("com.squareup.inject.assisted.AssistedInject.Factory") ?: false
   // Dagger forbids requesting an @AssistedFactory-annotated type inside of a Provider.
   val daggerAssistedFactory = typeElement?.hasAnnotation("dagger.assisted.AssistedFactory") ?: false
 
