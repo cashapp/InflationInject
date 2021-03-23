@@ -29,12 +29,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
           super(context, attrs);
         }
       }
@@ -115,11 +115,12 @@ class InflationInjectProcessorTest {
       import android.view.View;
       import com.squareup.inject.assisted.Assisted;
       import com.squareup.inject.assisted.AssistedInject;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Other.Factory foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, Other.Factory foo) {
           super(context, attrs);
         }
       }
@@ -207,12 +208,12 @@ class InflationInjectProcessorTest {
       import android.util.AttributeSet;
       import android.view.View;
       import dagger.assisted.AssistedFactory;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Other.Factory foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, Other.Factory foo) {
           super(context, attrs);
         }
       }
@@ -298,12 +299,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
           super(context, attrs);
         }
       }
@@ -356,13 +357,13 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class Outer {
         static class TestView extends View {
           @InflationInject
-          TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+          TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
             super(context, attrs);
           }
         }
@@ -443,12 +444,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView<T> extends View {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
           super(context, attrs);
         }
       }
@@ -528,12 +529,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(Long foo, @Assisted Context context, @Assisted AttributeSet attrs) {
+        TestView(Long foo, @Inflated Context context, @Inflated AttributeSet attrs) {
           super(context, attrs);
         }
       }
@@ -581,12 +582,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted AttributeSet attrs, @Assisted Context context, Long foo) {
+        TestView(@Inflated AttributeSet attrs, @Inflated Context context, Long foo) {
           super(context, attrs);
         }
       }
@@ -633,12 +634,12 @@ class InflationInjectProcessorTest {
 
       import android.content.Context;
       import android.util.AttributeSet;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView {
         @InflationInject
-        TestView(@Assisted AttributeSet attrs, @Assisted Context context, Long foo) {
+        TestView(@Inflated AttributeSet attrs, @Inflated Context context, Long foo) {
           super(context, attrs);
         }
       }
@@ -659,12 +660,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.widget.LinearLayout;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends LinearLayout {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
           super(context, attrs);
         }
       }
@@ -712,12 +713,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.widget.LinearLayout;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class LongView extends LinearLayout {
         @InflationInject
-        LongView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+        LongView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
           super(context, attrs);
         }
       }
@@ -728,12 +729,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.widget.LinearLayout;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class StringView extends LongView {
         @InflationInject
-        StringView(@Assisted Context context, @Assisted AttributeSet attrs, String foo) {
+        StringView(@Inflated Context context, @Inflated AttributeSet attrs, String foo) {
           super(context, attrs, Long.parseLong(foo));
         }
       }
@@ -821,7 +822,7 @@ class InflationInjectProcessorTest {
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Inflation injection requires Context and AttributeSet @Assisted parameters.
+          Inflation injection requires Context and AttributeSet @Inflated parameters.
               Found:
                 []
               Expected:
@@ -837,12 +838,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, @Assisted String hey, Long foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, @Inflated String hey, Long foo) {
           super(context, attrs);
         }
       }
@@ -853,7 +854,7 @@ class InflationInjectProcessorTest {
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Inflation injection requires Context and AttributeSet @Assisted parameters.
+          Inflation injection requires Context and AttributeSet @Inflated parameters.
               Found:
                 [android.content.Context, android.util.AttributeSet, java.lang.String]
               Expected:
@@ -868,12 +869,12 @@ class InflationInjectProcessorTest {
 
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted AttributeSet attrs, Long foo) {
+        TestView(@Inflated AttributeSet attrs, Long foo) {
           super(null, attrs);
         }
       }
@@ -884,7 +885,7 @@ class InflationInjectProcessorTest {
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Inflation injection requires Context and AttributeSet @Assisted parameters.
+          Inflation injection requires Context and AttributeSet @Inflated parameters.
               Found:
                 [android.util.AttributeSet]
               Expected:
@@ -899,12 +900,12 @@ class InflationInjectProcessorTest {
 
       import android.content.Context;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted Context context, Long foo) {
+        TestView(@Inflated Context context, Long foo) {
           super(context, null);
         }
       }
@@ -915,7 +916,7 @@ class InflationInjectProcessorTest {
         .processedWith(InflationInjectProcessor())
         .failsToCompile()
         .withErrorContaining("""
-          Inflation injection requires Context and AttributeSet @Assisted parameters.
+          Inflation injection requires Context and AttributeSet @Inflated parameters.
               Found:
                 [android.content.Context]
               Expected:
@@ -931,12 +932,12 @@ class InflationInjectProcessorTest {
       import android.content.Context;
       import android.util.AttributeSet;
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs) {
           super(context, attrs);
         }
       }
@@ -946,7 +947,7 @@ class InflationInjectProcessorTest {
         .that(inputView)
         .processedWith(InflationInjectProcessor())
         .compilesWithoutError()
-        .withWarningContaining("Inflation injection requires at least one non-@Assisted parameter.")
+        .withWarningContaining("Inflation injection requires at least one non-@Inflated parameter.")
         .`in`(inputView).onLine(12)
         // .and().generatesNoFiles()
   }
@@ -956,12 +957,12 @@ class InflationInjectProcessorTest {
       package test;
 
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        private TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+        private TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
           super(context, attrs);
         }
       }
@@ -980,13 +981,13 @@ class InflationInjectProcessorTest {
       package test;
 
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class Outer {
         private static class TestView extends View {
           @InflationInject
-          TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+          TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
             super(context, attrs);
           }
         }
@@ -1006,13 +1007,13 @@ class InflationInjectProcessorTest {
       package test;
 
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class Outer {
         class TestView extends View {
           @InflationInject
-          TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+          TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
             super(context, attrs);
           }
         }
@@ -1032,17 +1033,17 @@ class InflationInjectProcessorTest {
       package test;
 
       import android.view.View;
-      import com.squareup.inject.assisted.Assisted;
+      import com.squareup.inject.inflation.Inflated;
       import com.squareup.inject.inflation.InflationInject;
 
       class TestView extends View {
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, Long foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
           super(context, attrs);
         }
 
         @InflationInject
-        TestView(@Assisted Context context, @Assisted AttributeSet attrs, String foo) {
+        TestView(@Inflated Context context, @Inflated AttributeSet attrs, String foo) {
           super(context, attrs);
         }
       }

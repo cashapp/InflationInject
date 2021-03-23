@@ -15,7 +15,6 @@
  */
 package com.squareup.inject.assisted.processor
 
-import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.processor.internal.hasAnnotation
 import javax.lang.model.element.VariableElement
 
@@ -29,5 +28,5 @@ data class DependencyRequest(
   override fun toString() = (if (isAssisted) "@Assisted " else "") + "$key $name"
 }
 
-fun VariableElement.asDependencyRequest() =
-    DependencyRequest(asKey(), hasAnnotation<Assisted>(), simpleName.toString())
+inline fun <reified T : Annotation> VariableElement.asDependencyRequest() =
+    DependencyRequest(asKey(), hasAnnotation<T>(), simpleName.toString())
