@@ -9,6 +9,14 @@ import androidx.annotation.Nullable;
 import java.util.Map;
 import javax.inject.Inject;
 
+/**
+ * A factory for {@link LayoutInflater} which can create
+ * {@link InflationInject @InflationInject}-annotated views. This type should be injected rather
+ * than created manually as it will ask your dependency graph for a map of all the creatable views.
+ *
+ * @see InflationInject
+ * @see InflationModule
+ */
 public final class InflationInjectFactory implements LayoutInflater.Factory2 {
   private final Map<String, ViewFactory> factories;
   private final @Nullable LayoutInflater.Factory delegate;
