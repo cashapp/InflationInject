@@ -61,8 +61,8 @@ setContentView(R.layout.main_view);
 ## Download
 
 ```groovy
-implementation 'com.squareup.inject:inflation-inject:0.9.1'
-annotationProcessor 'com.squareup.inject:inflation-inject-processor:0.9.1'
+implementation 'app.cash.inject:inflation-inject:1.0.0'
+annotationProcessor 'app.cash.inject:inflation-inject-processor:1.0.0'
 ```
 
 

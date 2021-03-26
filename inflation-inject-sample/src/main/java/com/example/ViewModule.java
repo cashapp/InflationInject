@@ -1,6 +1,6 @@
 package com.example;
 
-import com.squareup.inject.inflation.InflationModule;
+import app.cash.inject.inflation.InflationModule;
 import dagger.Module;
 
 @InflationModule

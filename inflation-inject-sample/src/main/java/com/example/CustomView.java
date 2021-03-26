@@ -6,8 +6,8 @@ import android.util.AttributeSet;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.squareup.inject.inflation.Inflated;
-import com.squareup.inject.inflation.InflationInject;
+import app.cash.inject.inflation.Inflated;
+import app.cash.inject.inflation.InflationInject;
 
 @SuppressLint("ViewConstructor") // Created by Inflation Inject.
 public final class CustomView extends LinearLayout {
