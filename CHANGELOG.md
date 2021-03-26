@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+Version 0.9.0 *(2021-03-25)*
+----------------------------
+
+Assisted injection has been removed from the project because it is now available upstream
+as part of Dagger. See https://dagger.dev/dev-guide/assisted-injection.html
+
+This project now solely hosts inflation injection, which otherwise had no changes in this version.
+
+
 Version 0.8.1 *(2021-03-22)*
 ----------------------------
 
