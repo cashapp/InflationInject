@@ -61,9 +61,33 @@ setContentView(R.layout.main_view);
 ## Download
 
 ```groovy
-implementation 'app.cash.inject:inflation-inject:1.0.0'
-annotationProcessor 'app.cash.inject:inflation-inject-processor:1.0.0'
+repositories {
+  mavenCentral()
+}
+dependencies {
+  implementation 'app.cash.inject:inflation-inject:1.0.0'
+  annotationProcessor 'app.cash.inject:inflation-inject-processor:1.0.0'
+}
 ```
+
+<details>
+<summary>Snapshots of the development version are available in Sonatype's snapshots repository.</summary>
+<p>
+
+```groovy
+repositories {
+  maven {
+    url 'https://oss.sonatype.org/content/repositories/snapshots/'
+  }
+}
+dependencies {
+  implementation 'app.cash.inject:inflation-inject:1.0.0-SNAPSHOT'
+  annotationProcessor 'app.cash.inject:inflation-inject-processor:1.0.0-SNAPSHOT'
+}
+```
+
+</p>
+</details>
 
 
 # License
