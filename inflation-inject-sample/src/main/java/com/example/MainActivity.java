@@ -2,7 +2,7 @@ package com.example;
 
 import android.app.Activity;
 import android.os.Bundle;
-import com.squareup.inject.inflation.InflationInjectFactory;
+import app.cash.inject.inflation.InflationInjectFactory;
 import dagger.Component;
 
 public final class MainActivity extends Activity {
