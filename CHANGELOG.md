@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 0.9.1 *(2021-03-26)*
+----------------------------
+
+ * Fix: Do not add Kotlin stdlib as a dependency to inflation inject runtime which is written in Java.
+
+
 Version 0.9.0 *(2021-03-25)*
 ----------------------------
 
