@@ -38,3 +38,12 @@ jobs:
           body: ${{ steps.release_notes.outputs.release_notes }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy docs to website
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: site
+          FOLDER: inflation-inject/build/docs/javadoc
+          TARGET_FOLDER: 1.x/
+          CLEAN: true
