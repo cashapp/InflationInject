@@ -10,7 +10,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
  * Denotes the {@link Context} and/or {@link AttributeSet} parameters of an
- * @link InflationInject @InflationInject}-annotated view constructor which are fullfilled by the
+ * {@link InflationInject @InflationInject}-annotated view constructor which are fulfilled by the
  * layout inflater rather than the dependency graph.
  *
  * @see InflationInject
