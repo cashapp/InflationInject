@@ -81,8 +81,8 @@ repositories {
   }
 }
 dependencies {
-  implementation 'app.cash.inject:inflation-inject:1.0.0-SNAPSHOT'
-  annotationProcessor 'app.cash.inject:inflation-inject-processor:1.0.0-SNAPSHOT'
+  implementation 'app.cash.inject:inflation-inject:1.1.0-SNAPSHOT'
+  annotationProcessor 'app.cash.inject:inflation-inject-processor:1.1.0-SNAPSHOT'
 }
 ```
 
