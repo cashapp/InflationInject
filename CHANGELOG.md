@@ -2,7 +2,14 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2021-03-27
+
 Change package name and Maven groupId to `app.cash`.
+
+No other changes since 0.9.1.
+
+Looking for Assisted Inject?
+It's [built in to Dagger now](https://dagger.dev/dev-guide/assisted-injection.html)!
 
 
 ## [0.9.1] - 2021-03-26
@@ -144,7 +151,8 @@ Initial preview release.
 
 
 
-[Unreleased]: https://github.com/cashapp/InflationInject/compare/0.9.1...HEAD
+[Unreleased]: https://github.com/cashapp/InflationInject/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/cashapp/InflationInject/releases/tag/1.0.0
 [0.9.1]: https://github.com/cashapp/InflationInject/releases/tag/0.9.1
 [0.9.0]: https://github.com/cashapp/InflationInject/releases/tag/0.9.0
 [0.8.1]: https://github.com/cashapp/InflationInject/releases/tag/0.8.1
