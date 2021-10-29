@@ -19,7 +19,7 @@ Write your layout XML like normal.
 Use `@InflationInject` in `CustomView`:
 
 ```java
-public final class CustomView {
+public final class CustomView extends View {
   private final Picasso picasso;
   
   @InflationInject
