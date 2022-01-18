@@ -42,7 +42,7 @@ data class InflationInjectionModule(
         .addMethod(MethodSpec.constructorBuilder()
             .addModifiers(PRIVATE)
             .build())
-        .applyEach(injectedNames) { injectedName ->
+        .applyEach(injectedNames.sorted()) { injectedName ->
           addMethod(MethodSpec.methodBuilder(injectedName.bindMethodName())
               .addAnnotation(BINDS)
               .addAnnotation(INTO_MAP)

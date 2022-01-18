@@ -1061,5 +1061,143 @@ class InflationInjectProcessorTest {
   @Test fun multipleModulesAcrossRoundsFails() {
   }
 
+  @Test fun multipleViewsStableOrder() {
+    val inputViewA = JavaFileObjects.forSourceString("test.TestViewA", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import app.cash.inject.inflation.Inflated;
+      import app.cash.inject.inflation.InflationInject;
+
+      class TestViewA extends View {
+        @InflationInject
+        TestViewA(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
+          super(context, attrs);
+        }
+      }
+    """)
+    val inputViewB = JavaFileObjects.forSourceString("test.TestViewA", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import app.cash.inject.inflation.Inflated;
+      import app.cash.inject.inflation.InflationInject;
+
+      class TestViewB extends View {
+        @InflationInject
+        TestViewB(@Inflated Context context, @Inflated AttributeSet attrs, Long foo) {
+          super(context, attrs);
+        }
+      }
+    """)
+    val inputModule = JavaFileObjects.forSourceString("test.TestModule", """
+      package test;
+
+      import app.cash.inject.inflation.InflationModule;
+      import dagger.Module;
+
+      @InflationModule
+      @Module(includes = InflationInject_TestModule.class)
+      abstract class TestModule {}
+    """)
+
+    val expectedFactoryA = JavaFileObjects.forSourceString("test.TestViewA_InflationFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import app.cash.inject.inflation.ViewFactory;
+      import java.lang.Long;
+      import java.lang.Override;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      public final class TestViewA_InflationFactory implements ViewFactory {
+        private final Provider<Long> foo;
+
+        @Inject public TestViewA_InflationFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet attrs) {
+          return new TestViewA(context, attrs, foo.get());
+        }
+      }
+    """)
+    val expectedFactoryB = JavaFileObjects.forSourceString("test.TestViewB_InflationFactory", """
+      package test;
+
+      import android.content.Context;
+      import android.util.AttributeSet;
+      import android.view.View;
+      import app.cash.inject.inflation.ViewFactory;
+      import java.lang.Long;
+      import java.lang.Override;
+      import $GENERATED_TYPE;
+      import javax.inject.Inject;
+      import javax.inject.Provider;
+
+      $GENERATED_ANNOTATION
+      public final class TestViewB_InflationFactory implements ViewFactory {
+        private final Provider<Long> foo;
+
+        @Inject public TestViewB_InflationFactory(Provider<Long> foo) {
+          this.foo = foo;
+        }
+
+        @Override public View create(Context context, AttributeSet attrs) {
+          return new TestViewB(context, attrs, foo.get());
+        }
+      }
+    """)
+    val expectedModule = JavaFileObjects.forSourceString("test.InflationModule_TestModule", """
+      package test;
+
+      import app.cash.inject.inflation.ViewFactory;
+      import dagger.Binds;
+      import dagger.Module;
+      import dagger.multibindings.IntoMap;
+      import dagger.multibindings.StringKey;
+      import $GENERATED_TYPE;
+
+      @Module
+      $GENERATED_ANNOTATION
+      abstract class InflationInject_TestModule {
+        private InflationInject_TestModule() {}
+
+        @Binds
+        @IntoMap
+        @StringKey("test.TestViewA")
+        abstract ViewFactory bind_test_TestViewA(TestViewA_InflationFactory factory);
+
+        @Binds
+        @IntoMap
+        @StringKey("test.TestViewB")
+        abstract ViewFactory bind_test_TestViewB(TestViewB_InflationFactory factory);
+      }
+    """)
+
+    assertAbout(javaSources())
+      .that(listOf(inputViewA, inputViewB, inputModule))
+      .processedWith(InflationInjectProcessor())
+      .compilesWithoutError()
+      .and()
+      .generatesSources(expectedFactoryA, expectedFactoryB, expectedModule)
+
+    assertAbout(javaSources())
+      .that(listOf(inputViewB, inputViewA, inputModule)) // Inputs passed in reverse order.
+      .processedWith(InflationInjectProcessor())
+      .compilesWithoutError()
+      .and()
+      .generatesSources(expectedFactoryA, expectedFactoryB, expectedModule)
+  }
+
   // TODO module and no inflation injects (what do we do here? bind empty map? fail?)
 }
