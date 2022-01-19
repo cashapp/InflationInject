@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2022-01-19
+
+ * Fix: Sort methods in generated module code by name to ensure compatiblity with Gradle remote caching.
+
+
 ## [1.0.0] - 2021-03-27
 
 Change package name and Maven groupId to `app.cash`.
@@ -151,7 +156,8 @@ Initial preview release.
 
 
 
-[Unreleased]: https://github.com/cashapp/InflationInject/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/cashapp/InflationInject/compare/1.0.1...HEAD
+[1.0.1]: https://github.com/cashapp/InflationInject/releases/tag/1.0.1
 [1.0.0]: https://github.com/cashapp/InflationInject/releases/tag/1.0.0
 [0.9.1]: https://github.com/cashapp/InflationInject/releases/tag/0.9.1
 [0.9.0]: https://github.com/cashapp/InflationInject/releases/tag/0.9.0

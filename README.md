@@ -65,8 +65,8 @@ repositories {
   mavenCentral()
 }
 dependencies {
-  implementation 'app.cash.inject:inflation-inject:1.0.0'
-  annotationProcessor 'app.cash.inject:inflation-inject-processor:1.0.0'
+  implementation 'app.cash.inject:inflation-inject:1.0.1'
+  annotationProcessor 'app.cash.inject:inflation-inject-processor:1.0.1'
 }
 ```
 
