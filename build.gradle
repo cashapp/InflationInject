@@ -13,7 +13,7 @@ buildscript {
       'junit': 'junit:junit:4.13.2',
       'truth': 'com.google.truth:truth:0.42',
       'kotlin': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
-      'javaPoet': 'com.squareup:javapoet:1.11.1',
+      'javaPoet': 'com.squareup:javapoet:1.13.0',
       'guava': 'com.google.guava:guava:26.0-jre',
       'compileTesting': 'com.google.testing.compile:compile-testing:0.15',
       'robolectric': 'org.robolectric:robolectric:4.0-alpha-3',
