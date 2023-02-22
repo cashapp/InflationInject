@@ -19,7 +19,7 @@ buildscript {
       'robolectric': 'org.robolectric:robolectric:4.0-alpha-3',
       'inject': 'javax.inject:javax.inject:1',
       'android': 'com.google.android:android:4.1.1.4',
-      'androidxAnnotations': 'androidx.annotation:annotation:1.0.0',
+      'androidxAnnotations': 'androidx.annotation:annotation:1.6.0',
       'incap': [
           'runtime': "net.ltgt.gradle.incap:incap:${versions.incap}",
           'processor': "net.ltgt.gradle.incap:incap-processor:${versions.incap}",
