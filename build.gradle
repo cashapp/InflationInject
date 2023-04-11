@@ -16,7 +16,7 @@ buildscript {
       'javaPoet': 'com.squareup:javapoet:1.13.0',
       'guava': 'com.google.guava:guava:26.0-jre',
       'compileTesting': 'com.google.testing.compile:compile-testing:0.21.0',
-      'robolectric': 'org.robolectric:robolectric:4.0-alpha-3',
+      'robolectric': 'org.robolectric:robolectric:4.10',
       'inject': 'javax.inject:javax.inject:1',
       'android': 'com.google.android:android:4.1.1.4',
       'androidxAnnotations': 'androidx.annotation:annotation:1.6.0',
