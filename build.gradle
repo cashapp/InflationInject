@@ -9,7 +9,7 @@ buildscript {
       'dagger': "com.google.dagger:dagger:${versions.dagger}",
       'daggerCompiler': "com.google.dagger:dagger-compiler:${versions.dagger}",
       'autoService': 'com.google.auto.service:auto-service:1.1.0',
-      'autoCommon': 'com.google.auto:auto-common:1.2.1',
+      'autoCommon': 'com.google.auto:auto-common:1.2.2',
       'junit': 'junit:junit:4.13.2',
       'truth': 'com.google.truth:truth:1.1.4',
       'kotlin': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
