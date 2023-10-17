@@ -1,5 +1,12 @@
 # Inflation Injection
 
+**Attention**: This tool is now deprecated. Please switch to
+[Compose UI](https://developer.android.com/jetpack/compose) or manually pass dependencies
+to the legacy view system. Existing versions will also continue to work, but feature
+development and bug fixes have stopped.
+
+---
+
 Constructor-inject views during XML layout inflation.
 
 Looking for Assisted Inject? It's [built in to Dagger now](https://dagger.dev/dev-guide/assisted-injection.html)!
