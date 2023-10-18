@@ -14,7 +14,7 @@ buildscript {
       'truth': 'com.google.truth:truth:1.1.5',
       'kotlin': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
       'javaPoet': 'com.squareup:javapoet:1.13.0',
-      'guava': 'com.google.guava:guava:26.0-jre',
+      'guava': 'com.google.guava:guava:32.1.3-jre',
       'compileTesting': 'com.google.testing.compile:compile-testing:0.21.0',
       'robolectric': 'org.robolectric:robolectric:4.0-alpha-3',
       'inject': 'javax.inject:javax.inject:1',
